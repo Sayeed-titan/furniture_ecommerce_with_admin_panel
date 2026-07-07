@@ -17,11 +17,12 @@ import { SectionNav } from "./section-nav";
 
 /**
  * Type 4 — Immersive: same full-bleed photo hero as Type 3 (kept
- * intentionally unchanged), but organized into full-screen "chapters" that
- * scroll-snap into place (see snap-y on <html> in the root layout, and
- * Chapter below). A fixed side nav shows every chapter up front and jumps
- * straight to any of them, so the page reads as one deliberate scroll
- * instead of an endless one.
+ * intentionally unchanged), organized into named "chapters" that scroll-snap
+ * into place (see snap-y on <html> in the root layout, and Chapter below).
+ * Chapters size to their own content — no forced min-h-screen — so short
+ * chapters don't stretch into empty space; snap just settles scrolling onto
+ * each chapter's natural start. A fixed side nav shows every chapter up
+ * front and jumps straight to any of them.
  */
 export function ImmersiveLanding({ featuredProducts, categories }: LandingPageData) {
   return (
@@ -39,31 +40,31 @@ export function ImmersiveLanding({ featuredProducts, categories }: LandingPageDa
         </a>
       </Chapter>
 
-      <Chapter id="why-us" className="flex min-h-screen flex-col justify-center">
+      <Chapter id="why-us">
         <TrustStrip />
         <Statement />
         <Services />
       </Chapter>
 
-      <Chapter id="explore" className="min-h-screen">
+      <Chapter id="explore">
         <Reveal>
           <CategoryShowcase categories={categories} />
         </Reveal>
         <MaterialShowcase products={featuredProducts} />
       </Chapter>
 
-      <Chapter id="trending" className="flex min-h-screen flex-col justify-center">
+      <Chapter id="trending">
         <TrendingCarousel products={featuredProducts} />
       </Chapter>
 
-      <Chapter id="craft" className="min-h-screen">
+      <Chapter id="craft">
         <Reveal>
           <CraftSection product={featuredProducts[1] ?? featuredProducts[0]} />
         </Reveal>
         <Faq />
       </Chapter>
 
-      <Chapter id="connect" className="flex min-h-screen flex-col justify-center">
+      <Chapter id="connect">
         <NewsletterStrip />
         <Reveal>
           <PremiumCta />
