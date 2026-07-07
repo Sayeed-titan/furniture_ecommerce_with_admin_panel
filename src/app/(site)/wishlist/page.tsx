@@ -6,6 +6,8 @@ import type { Product, ProductImage } from "@prisma/client";
 import { useWishlist } from "@/components/site/wishlist-context";
 import { ProductCard } from "@/components/site/product-card";
 import { LeadForm } from "@/components/site/lead-form";
+import { EmptyState } from "@/components/site/empty-state";
+import { Button } from "@/components/ui/button";
 
 type ProductWithImages = Product & { images: ProductImage[] };
 
@@ -39,13 +41,15 @@ export default function WishlistPage() {
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {!loading && visibleProducts.length === 0 && (
-            <p className="col-span-full text-sm text-neutral-500">
-              Your wishlist is empty. Browse our{" "}
-              <Link href="/products" className="underline">
-                products
-              </Link>{" "}
-              and tap the heart icon to save items here.
-            </p>
+            <EmptyState
+              title="Your wishlist is empty"
+              description="Browse our products and tap the heart icon to save items here."
+              action={
+                <Button asChild size="sm" variant="outline">
+                  <Link href="/products">Browse Products</Link>
+                </Button>
+              }
+            />
           )}
           {visibleProducts.map((product) => (
             <ProductCard key={product.id} product={product} />

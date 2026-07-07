@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/site/product-card";
 import { ProductFilters } from "@/components/site/product-filters";
+import { SortSelect } from "@/components/site/sort-select";
+import { EmptyState } from "@/components/site/empty-state";
 import type { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -43,22 +45,29 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <h1 className="text-3xl font-semibold tracking-tight">Products</h1>
-      <p className="mt-2 text-neutral-600">
-        {products.length} {products.length === 1 ? "item" : "items"} found
-      </p>
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[240px_1fr]">
         <ProductFilters categories={categories} activeParams={params} />
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-          {products.length === 0 && (
-            <p className="col-span-full text-sm text-neutral-500">
-              No products match these filters yet.
+        <div>
+          <div className="mb-6 flex items-center justify-between">
+            <p className="text-sm text-neutral-600">
+              {products.length} {products.length === 1 ? "item" : "items"} found
             </p>
-          )}
+            <SortSelect />
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+            {products.length === 0 && (
+              <EmptyState
+                title="No products match these filters"
+                description="Try clearing a filter or browsing a different category."
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>
