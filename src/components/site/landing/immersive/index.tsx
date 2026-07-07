@@ -7,6 +7,7 @@ import { PremiumCta } from "@/components/site/landing/premium/cta";
 import { Reveal } from "@/components/site/reveal";
 import { MaterialsMarquee } from "./marquee";
 import { Statement } from "./statement";
+import { Services } from "./services";
 import { MaterialShowcase } from "./material-showcase";
 import { TrendingCarousel } from "./trending-carousel";
 import { Faq } from "./faq";
@@ -26,6 +27,7 @@ export function ImmersiveLanding({ featuredProducts, categories }: LandingPageDa
       <MaterialsMarquee />
       <TrustStrip />
       <Statement />
+      <Services />
       <MaterialShowcase products={featuredProducts} />
       <Reveal>
         <CategoryShowcase categories={categories} />
