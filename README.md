@@ -92,6 +92,39 @@ npm run dev
 No servers to patch or maintain — Vercel and Supabase are both managed
 services.
 
+## Integrations (Stage 3)
+
+All three are **optional** — each is gated behind env vars and degrades
+gracefully when unconfigured, so the site runs fine without any of them.
+
+### Website issue reporting → GitHub
+
+Visitors can submit a bug/feature/change request at `/report` (linked from
+the footer). Every submission is saved in the admin panel under **Issues**,
+and — when GitHub is configured — also opened as an issue in your repo,
+labelled `from-website` + `bug`/`enhancement`/`change-request`/`question`.
+
+- Set `GITHUB_TOKEN` (fine-grained PAT, Issues: read & write), `GITHUB_REPO_OWNER`,
+  `GITHUB_REPO_NAME`.
+- Without a token, reports are still captured locally; use **Retry sync** on
+  the admin Issues page once a token is added to push them to GitHub.
+
+### Email notifications (new leads + issue reports)
+
+When someone submits a lead (wishlist/contact) or an issue report, the
+business gets an email. Uses [Resend](https://resend.com) over HTTPS.
+
+- Set `RESEND_API_KEY`, `EMAIL_FROM` (a verified sender), `NOTIFY_EMAIL`.
+- Without these, notifications are silently skipped — submissions still save.
+
+### Product image uploads (Supabase Storage)
+
+The admin product form lets you upload an image file (or keep pasting a URL).
+
+- Create a **public** Supabase Storage bucket named `product-images` (or set
+  `SUPABASE_STORAGE_BUCKET`), and set `SUPABASE_SERVICE_ROLE_KEY`.
+- Without these, the form falls back to the URL field.
+
 ## Project structure
 
 ```
@@ -120,9 +153,10 @@ prisma/
   end-to-end flows for products, wishlist, leads, and admin CRUD.
 - **Stage 2:** polish the landing page and products page UI/UX (modern
   design pass, animations, responsive refinement).
-- **Stage 3:** everything else discussed — product image uploads,
-  GitHub-issue integration for change requests raised from the site,
-  email notifications on new leads, etc.
+- **Stage 3 (done):** the integrations discussed — website issue reporting
+  that opens GitHub issues, email notifications on new leads and issue
+  reports, and product image uploads to Supabase Storage. See
+  [Integrations](#integrations-stage-3).
 
 Each stage ends with a review and a punch list of suggested improvements
 before moving to the next one.

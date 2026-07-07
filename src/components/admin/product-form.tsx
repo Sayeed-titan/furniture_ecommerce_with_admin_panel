@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ImageField } from "@/components/admin/image-field";
 
 type Category = { id: string; name: string };
 
@@ -170,18 +171,7 @@ export function ProductForm({
         </div>
       </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="imageUrl">Image URL</Label>
-        <Input
-          id="imageUrl"
-          name="imageUrl"
-          placeholder="https://..."
-          defaultValue={defaultValues?.imageUrl}
-        />
-        <p className="text-xs text-neutral-500">
-          Paste an image URL for now. Direct image upload can be added later.
-        </p>
-      </div>
+      <ImageField defaultValue={defaultValues?.imageUrl} />
 
       <div className="flex items-center gap-2">
         <input

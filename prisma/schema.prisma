@@ -46,6 +46,13 @@ enum LeadStatus {
   CLOSED_LOST
 }
 
+enum IssueType {
+  BUG
+  FEATURE
+  CHANGE
+  QUESTION
+}
+
 model AdminUser {
   id           String   @id @default(cuid())
   name         String
@@ -125,4 +132,24 @@ model LeadItem {
 
   @@index([leadId])
   @@index([productId])
+}
+
+/// Issue / feature / change request raised from the public site. Persisted
+/// locally so nothing is lost, then (best-effort) synced to a GitHub issue.
+model IssueReport {
+  id                String    @id @default(cuid())
+  type              IssueType @default(BUG)
+  title             String
+  body              String
+  reporterName      String?
+  reporterEmail     String?
+  pageUrl           String?
+  githubIssueNumber Int?
+  githubIssueUrl    String?
+  syncError         String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([type])
+  @@index([createdAt])
 }
