@@ -1,20 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import type { LandingCategory } from "@/components/site/landing/types";
 
-export async function CategoryGrid() {
-  const categories = await prisma.category.findMany({
-    orderBy: { name: "asc" },
-    include: {
-      _count: { select: { products: true } },
-      products: {
-        take: 1,
-        orderBy: { createdAt: "desc" },
-        include: { images: { take: 1, orderBy: { position: "asc" } } },
-      },
-    },
-  });
-
+export function CategoryGrid({ categories }: { categories: LandingCategory[] }) {
   const visible = categories.filter((c) => c._count.products > 0);
   if (visible.length === 0) return null;
 

@@ -1,0 +1,21 @@
+import { GenericLanding } from "@/components/site/landing/generic";
+import type { LandingVariantComponent, LandingVariantKey } from "@/components/site/landing/types";
+
+/**
+ * Every landing page variant, keyed by LandingVariantKey.
+ *
+ * To add a new variant:
+ * 1. Build it under src/components/site/landing/<key>/index.tsx, accepting
+ *    LandingPageData as props (see types.ts).
+ * 2. Add "<key>" to the LandingVariantKey union in types.ts.
+ * 3. Register it here.
+ * 4. Point ACTIVE_LANDING_VARIANT (src/config/landing.ts) at it — later this
+ *    will be a setting the admin panel writes instead of a hardcoded value.
+ */
+export const landingVariants: Record<LandingVariantKey, LandingVariantComponent> = {
+  generic: GenericLanding,
+};
+
+export const landingVariantLabels: Record<LandingVariantKey, string> = {
+  generic: "Type 1 — Generic",
+};
