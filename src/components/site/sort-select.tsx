@@ -1,16 +1,18 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-
-const options = [
-  { value: "", label: "Newest" },
-  { value: "price_asc", label: "Price: Low to High" },
-  { value: "price_desc", label: "Price: High to Low" },
-];
+import { useTranslation } from "@/lib/i18n/use-translation";
 
 export function SortSelect() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useTranslation();
+
+  const options = [
+    { value: "", label: t("productsPage.sort.newest") },
+    { value: "price_asc", label: t("productsPage.sort.priceAsc") },
+    { value: "price_desc", label: t("productsPage.sort.priceDesc") },
+  ];
 
   function onChange(value: string) {
     const next = new URLSearchParams(searchParams.toString());

@@ -1,14 +1,12 @@
 import Image from "next/image";
-import Link from "next/link";
-import { Check } from "lucide-react";
+import { CraftCopy } from "./craft-copy";
 import type { LandingProduct } from "@/components/site/landing/types";
 
-const points = [
-  "Solid wood, engineered wood, and full-grain leather — no shortcuts.",
-  "Every piece checked for stability, joinery, and finish before it ships.",
-  "Real stock levels shown up front, so you always know what's available.",
-];
-
+/**
+ * Stays a Server Component — renders `product` directly (Prisma data with a
+ * Decimal price field), which can't cross into a Client Component as a
+ * prop. Translatable copy lives in craft-copy.tsx.
+ */
 export function CraftSection({ product }: { product?: LandingProduct }) {
   const image = product?.images[0];
 
@@ -29,35 +27,7 @@ export function CraftSection({ product }: { product?: LandingProduct }) {
           )}
         </div>
 
-        <div>
-          <p className="text-sm font-medium uppercase tracking-wide text-neutral-500">
-            Why people choose us
-          </p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-tight text-neutral-900 sm:text-3xl">
-            Built to actually last in your home.
-          </h2>
-          <p className="mt-4 text-neutral-600">
-            We&apos;re not a marketplace — every piece is sourced and finished by
-            people who stand behind it. What you see is what you get, down to
-            the material and the price.
-          </p>
-          <ul className="mt-6 space-y-3">
-            {points.map((point) => (
-              <li key={point} className="flex items-start gap-3 text-neutral-700">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-neutral-900 text-white">
-                  <Check className="h-3 w-3" />
-                </span>
-                {point}
-              </li>
-            ))}
-          </ul>
-          <Link
-            href="/contact"
-            className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-neutral-900 underline underline-offset-4 hover:text-neutral-600"
-          >
-            Have a question before you buy? Talk to us <span aria-hidden="true">&rarr;</span>
-          </Link>
-        </div>
+        <CraftCopy />
       </div>
     </section>
   );

@@ -4,35 +4,25 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Reveal } from "@/components/site/reveal";
-import { fraunces } from "./fonts";
-
-const FAQS = [
-  {
-    q: "Do you offer custom sizes or finishes?",
-    a: "Yes — most pieces can be customized in size, wood tone, or upholstery. Mention it in your message when you contact us and we'll confirm options and pricing.",
-  },
-  {
-    q: "How long does delivery take?",
-    a: "In-stock pieces typically ship within 1–2 weeks. Made-to-order pieces vary — we'll give you an exact estimate before you commit to anything.",
-  },
-  {
-    q: "What's the difference between solid wood and engineered wood?",
-    a: "Solid wood is cut from a single piece of timber — durable and repairable over decades. Engineered wood uses layered or composite cores for stability and a lower price point without sacrificing everyday strength.",
-  },
-  {
-    q: "Do you offer a warranty?",
-    a: "Every piece is covered by our workmanship guarantee against structural defects. Full details are confirmed when you place an order.",
-  },
-];
+import { useTranslation, useDisplayFontClassName } from "@/lib/i18n/use-translation";
 
 export function Faq() {
+  const { t } = useTranslation();
+  const displayFont = useDisplayFontClassName();
   const [open, setOpen] = useState<number | null>(0);
+
+  const FAQS = [
+    { q: t("faq.q1"), a: t("faq.a1") },
+    { q: t("faq.q2"), a: t("faq.a2") },
+    { q: t("faq.q3"), a: t("faq.a3") },
+    { q: t("faq.q4"), a: t("faq.a4") },
+  ];
 
   return (
     <section className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
       <Reveal>
-        <h2 className={cn(fraunces.className, "text-3xl tracking-tight text-neutral-900 sm:text-4xl")}>
-          Common Questions
+        <h2 className={cn(displayFont, "text-3xl tracking-tight text-neutral-900 sm:text-4xl")}>
+          {t("faq.heading")}
         </h2>
       </Reveal>
 

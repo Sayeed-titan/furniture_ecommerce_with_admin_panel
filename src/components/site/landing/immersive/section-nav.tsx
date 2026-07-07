@@ -2,15 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/use-translation";
 
-const SECTIONS = [
-  { id: "hero", label: "Home" },
-  { id: "why-us", label: "Why Us" },
-  { id: "explore", label: "Explore" },
-  { id: "trending", label: "Trending" },
-  { id: "craft", label: "Craft & FAQ" },
-  { id: "connect", label: "Get in Touch" },
-];
+const SECTION_IDS = ["hero", "why-us", "explore", "trending", "craft", "connect"] as const;
+const CHAPTER_KEYS: Record<(typeof SECTION_IDS)[number], string> = {
+  hero: "chapters.hero",
+  "why-us": "chapters.whyUs",
+  explore: "chapters.explore",
+  trending: "chapters.trending",
+  craft: "chapters.craft",
+  connect: "chapters.connect",
+};
 
 /**
  * Fixed right-side chapter nav: shows every section up front (so the
@@ -19,10 +21,12 @@ const SECTIONS = [
  * mobile for a persistent side rail.
  */
 export function SectionNav() {
-  const [active, setActive] = useState(SECTIONS[0].id);
+  const { t } = useTranslation();
+  const [active, setActive] = useState<string>(SECTION_IDS[0]);
+  const sections = SECTION_IDS.map((id) => ({ id, label: t(CHAPTER_KEYS[id]) }));
 
   useEffect(() => {
-    const elements = SECTIONS.map((s) => document.getElementById(s.id)).filter(
+    const elements = SECTION_IDS.map((id) => document.getElementById(id)).filter(
       (el): el is HTMLElement => el !== null
     );
     if (elements.length === 0) return;
@@ -45,7 +49,7 @@ export function SectionNav() {
       aria-label="Page sections"
       className="fixed right-4 top-1/2 z-30 hidden -translate-y-1/2 flex-col items-end gap-3 lg:flex"
     >
-      {SECTIONS.map((s) => {
+      {sections.map((s) => {
         const isActive = active === s.id;
         return (
           <a

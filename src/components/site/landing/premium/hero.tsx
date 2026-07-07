@@ -1,13 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/utils";
+import { HeroCopy, FeaturedLabel } from "./hero-copy";
 import type { LandingProduct } from "@/components/site/landing/types";
 
 /**
  * Full-bleed hero: the product photo IS the hero, not a text banner with a
  * small thumbnail. Headline sits over a gradient scrim so the piece stays
  * the visual focus while the message stays readable.
+ *
+ * Stays a Server Component — it renders `heroProduct` directly (Prisma data
+ * with a Decimal price field), which can't be passed as a prop into a
+ * Client Component. Translatable copy is extracted into hero-copy.tsx.
  */
 export function PremiumHero({ heroProduct }: { heroProduct?: LandingProduct }) {
   const image = heroProduct?.images[0];
@@ -29,28 +33,7 @@ export function PremiumHero({ heroProduct }: { heroProduct?: LandingProduct }) {
       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
 
       <div className="relative mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-14 pt-32 sm:px-6 sm:pb-16 lg:flex-row lg:items-end lg:justify-between lg:px-8 lg:pb-20">
-        <div className="max-w-xl">
-          <h1 className="text-4xl font-semibold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
-            Furniture that feels as good as it looks.
-          </h1>
-          <p className="mt-4 max-w-md text-base text-white/80 sm:text-lg">
-            Solid wood, artificial wood, and leather pieces for the home and
-            office — see it, save it, and we&apos;ll help you make it yours.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Button asChild size="lg">
-              <Link href="/products">Shop the Collection</Link>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="border-white/60 bg-white/5 text-white backdrop-blur-sm hover:bg-white hover:text-neutral-900"
-            >
-              <Link href="/contact">Talk to Us</Link>
-            </Button>
-          </div>
-        </div>
+        <HeroCopy />
 
         {heroProduct && (
           <Link
@@ -63,9 +46,7 @@ export function PremiumHero({ heroProduct }: { heroProduct?: LandingProduct }) {
               )}
             </span>
             <span className="text-left">
-              <span className="block text-xs uppercase tracking-wide text-white/60">
-                Featured piece
-              </span>
+              <FeaturedLabel />
               <span className="block text-sm font-medium">
                 {heroProduct.name} &middot; {formatPrice(heroProduct.price.toString())}
               </span>

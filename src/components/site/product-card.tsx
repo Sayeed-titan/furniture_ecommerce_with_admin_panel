@@ -4,8 +4,8 @@ import type { Product, ProductImage } from "@prisma/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/utils";
-import { formatStockStatus } from "@/lib/format";
 import { WishlistButton } from "@/components/site/wishlist-button";
+import { StockLabel } from "@/components/site/stock-label";
 
 type ProductWithImages = Product & { images: ProductImage[] };
 
@@ -40,7 +40,7 @@ export function ProductCard({ product }: { product: ProductWithImages }) {
             variant={stockVariant[product.stockStatus] ?? "secondary"}
             className="absolute right-3 top-3"
           >
-            {formatStockStatus(product.stockStatus)}
+            <StockLabel status={product.stockStatus} />
           </Badge>
           <WishlistButton productId={product.id} className="absolute left-3 top-3" />
         </div>

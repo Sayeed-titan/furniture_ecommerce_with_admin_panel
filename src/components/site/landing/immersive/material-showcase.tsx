@@ -1,21 +1,22 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { LandingProduct } from "@/components/site/landing/types";
-import { formatMaterial } from "@/lib/format";
 import { Reveal } from "@/components/site/reveal";
-import { fraunces } from "./fonts";
-import { cn } from "@/lib/utils";
+import { EnumLabel } from "@/components/site/enum-label";
+import { MaterialShowcaseHeading } from "./material-showcase-heading";
 
 const MATERIALS = ["SOLID_WOOD", "ARTIFICIAL_WOOD", "LEATHER", "ENGINEERED_WOOD"] as const;
 
+/**
+ * Stays a Server Component — `products` carries a Decimal price field,
+ * which can't cross into a Client Component as a prop. Translatable
+ * heading lives in material-showcase-heading.tsx.
+ */
 export function MaterialShowcase({ products }: { products: LandingProduct[] }) {
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
       <Reveal>
-        <h2 className={cn(fraunces.className, "text-3xl tracking-tight text-neutral-900 sm:text-4xl")}>
-          Shop by Material
-        </h2>
-        <p className="mt-2 text-neutral-600">Every material tells a different story.</p>
+        <MaterialShowcaseHeading />
       </Reveal>
 
       <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -41,7 +42,7 @@ export function MaterialShowcase({ products }: { products: LandingProduct[] }) {
                 )}
                 <div className="absolute inset-0 bg-black/30 transition-colors group-hover:bg-black/45" />
                 <span className="relative m-auto px-4 text-center text-lg font-medium text-white">
-                  {formatMaterial(material)}
+                  <EnumLabel group="materials" value={material} />
                 </span>
               </Link>
             </Reveal>

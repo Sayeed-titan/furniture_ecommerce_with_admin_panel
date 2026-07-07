@@ -1,24 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useTranslation } from "@/lib/i18n/use-translation";
 
-const schema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Enter a valid email"),
-  phone: z.string().optional(),
-  message: z.string().optional(),
-});
-
-type FormValues = z.infer<typeof schema>;
+type FormValues = {
+  name: string;
+  email: string;
+  phone?: string;
+  message?: string;
+};
 
 export function LeadForm({ productIds = [] }: { productIds?: string[] }) {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+
+  const schema = useMemo(
+    () =>
+      z.object({
+        name: z.string().min(1, t("leadForm.nameRequired")),
+        email: z.string().email(t("leadForm.emailInvalid")),
+        phone: z.string().optional(),
+        message: z.string().optional(),
+      }),
+    [t]
+  );
+
   const {
     register,
     handleSubmit,
@@ -45,7 +57,7 @@ export function LeadForm({ productIds = [] }: { productIds?: string[] }) {
   if (status === "success") {
     return (
       <p className="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
-        Thanks! Your details have been sent to our team — we&apos;ll be in touch shortly.
+        {t("leadForm.successMessage")}
       </p>
     );
   }
@@ -53,21 +65,21 @@ export function LeadForm({ productIds = [] }: { productIds?: string[] }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-1.5">
-        <Label htmlFor="name">Name</Label>
+        <Label htmlFor="name">{t("leadForm.name")}</Label>
         <Input id="name" {...register("name")} />
         {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{t("leadForm.email")}</Label>
         <Input id="email" type="email" {...register("email")} />
         {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="phone">Phone (optional)</Label>
+        <Label htmlFor="phone">{t("leadForm.phoneOptional")}</Label>
         <Input id="phone" {...register("phone")} />
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="message">Message (optional)</Label>
+        <Label htmlFor="message">{t("leadForm.messageOptional")}</Label>
         <textarea
           id="message"
           rows={4}
@@ -76,11 +88,9 @@ export function LeadForm({ productIds = [] }: { productIds?: string[] }) {
         />
       </div>
       <Button type="submit" disabled={isSubmitting} className="w-full">
-        {isSubmitting ? "Sending..." : "Send my details"}
+        {isSubmitting ? t("leadForm.sending") : t("leadForm.send")}
       </Button>
-      {status === "error" && (
-        <p className="text-sm text-red-600">Something went wrong. Please try again.</p>
-      )}
+      {status === "error" && <p className="text-sm text-red-600">{t("leadForm.errorMessage")}</p>}
     </form>
   );
 }

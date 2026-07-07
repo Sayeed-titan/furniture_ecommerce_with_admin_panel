@@ -4,8 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
 import { WishlistButton } from "@/components/site/wishlist-button";
 import { LeadForm } from "@/components/site/lead-form";
+import { EnumLabel } from "@/components/site/enum-label";
+import { ProductInterestHeading, ProductInterestSubtitle } from "@/components/site/product-interest-block";
 import { formatPrice } from "@/lib/utils";
-import { formatMaterial, formatRoom, formatStockStatus } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -69,19 +70,21 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
 
           <div className="mt-4 flex flex-wrap gap-2">
             <Badge variant={stockVariant[product.stockStatus] ?? "secondary"}>
-              {formatStockStatus(product.stockStatus)}
+              <EnumLabel group="stock" value={product.stockStatus} />
             </Badge>
-            <Badge variant="outline">{formatMaterial(product.material)}</Badge>
-            <Badge variant="outline">{formatRoom(product.room)}</Badge>
+            <Badge variant="outline">
+              <EnumLabel group="materials" value={product.material} />
+            </Badge>
+            <Badge variant="outline">
+              <EnumLabel group="rooms" value={product.room} />
+            </Badge>
           </div>
 
           <p className="mt-6 leading-relaxed text-neutral-700">{product.description}</p>
 
           <div className="mt-10 rounded-xl border border-neutral-200 p-6">
-            <h2 className="font-semibold text-neutral-900">Interested in this piece?</h2>
-            <p className="mt-1 text-sm text-neutral-600">
-              Share your details and we&apos;ll follow up with pricing and delivery info.
-            </p>
+            <ProductInterestHeading />
+            <ProductInterestSubtitle />
             <div className="mt-4">
               <LeadForm productIds={[product.id]} />
             </div>

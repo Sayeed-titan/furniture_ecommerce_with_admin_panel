@@ -1,7 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { LandingCategory } from "@/components/site/landing/types";
+import { CategoryShowcaseHeading, ViewAllLink, ItemCountLabel } from "./category-showcase-copy";
 
+/**
+ * Stays a Server Component — `categories` carries nested product objects
+ * with a Decimal price field, which can't cross into a Client Component as
+ * a prop. Translatable copy lives in category-showcase-copy.tsx.
+ */
 export function CategoryShowcase({ categories }: { categories: LandingCategory[] }) {
   const visible = categories.filter((c) => c._count.products > 0).slice(0, 4);
   if (visible.length === 0) return null;
@@ -9,18 +15,8 @@ export function CategoryShowcase({ categories }: { categories: LandingCategory[]
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
       <div className="mb-8 flex items-end justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight text-neutral-900 sm:text-3xl">
-            Shop by Room
-          </h2>
-          <p className="mt-1 text-neutral-600">Find the right piece for the right space.</p>
-        </div>
-        <Link
-          href="/products"
-          className="hidden text-sm font-medium text-neutral-600 hover:text-neutral-900 sm:block"
-        >
-          View all &rarr;
-        </Link>
+        <CategoryShowcaseHeading />
+        <ViewAllLink />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -46,7 +42,7 @@ export function CategoryShowcase({ categories }: { categories: LandingCategory[]
                 <div>
                   <p className="text-lg font-medium text-white">{category.name}</p>
                   <p className="text-sm text-white/75">
-                    {category._count.products} piece{category._count.products === 1 ? "" : "s"}
+                    <ItemCountLabel count={category._count.products} />
                   </p>
                 </div>
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-neutral-900 transition-transform group-hover:translate-x-1">

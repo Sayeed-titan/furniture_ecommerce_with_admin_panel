@@ -1,4 +1,3 @@
-import { ChevronDown } from "lucide-react";
 import type { LandingPageData } from "@/components/site/landing/types";
 import { PremiumHero } from "@/components/site/landing/premium/hero";
 import { TrustStrip } from "@/components/site/landing/premium/trust-strip";
@@ -14,6 +13,7 @@ import { Faq } from "./faq";
 import { NewsletterStrip } from "./newsletter";
 import { Chapter } from "./chapter";
 import { SectionNav } from "./section-nav";
+import { ScrollHint } from "./scroll-hint";
 
 /**
  * Type 4 — Immersive: same full-bleed photo hero as Type 3 (kept
@@ -31,13 +31,7 @@ export function ImmersiveLanding({ featuredProducts, categories }: LandingPageDa
 
       <Chapter id="hero" className="relative">
         <PremiumHero heroProduct={featuredProducts[0]} />
-        <a
-          href="#why-us"
-          aria-label="Scroll to the next section"
-          className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 rounded-full p-2 text-white/80 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-safe:animate-bounce"
-        >
-          <ChevronDown className="h-7 w-7" aria-hidden="true" />
-        </a>
+        <ScrollHint href="#why-us" />
       </Chapter>
 
       <Chapter id="why-us">

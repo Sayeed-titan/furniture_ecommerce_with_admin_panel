@@ -2,32 +2,13 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/use-translation";
 
 type Category = { slug: string; name: string };
 
-const materials = [
-  { value: "SOLID_WOOD", label: "Solid Wood" },
-  { value: "ENGINEERED_WOOD", label: "Engineered Wood" },
-  { value: "ARTIFICIAL_WOOD", label: "Artificial Wood" },
-  { value: "LEATHER", label: "Leather" },
-  { value: "FABRIC", label: "Fabric" },
-  { value: "METAL", label: "Metal" },
-];
-
-const rooms = [
-  { value: "LIVING_ROOM", label: "Living Room" },
-  { value: "BEDROOM", label: "Bedroom" },
-  { value: "DINING_ROOM", label: "Dining Room" },
-  { value: "OFFICE", label: "Office" },
-  { value: "OUTDOOR", label: "Outdoor" },
-  { value: "KITCHEN", label: "Kitchen" },
-];
-
-const stockOptions = [
-  { value: "IN_STOCK", label: "In Stock" },
-  { value: "LOW_STOCK", label: "Low Stock" },
-  { value: "MADE_TO_ORDER", label: "Made to Order" },
-];
+const materialValues = ["SOLID_WOOD", "ENGINEERED_WOOD", "ARTIFICIAL_WOOD", "LEATHER", "FABRIC", "METAL"];
+const roomValues = ["LIVING_ROOM", "BEDROOM", "DINING_ROOM", "OFFICE", "OUTDOOR", "KITCHEN"];
+const stockValues = ["IN_STOCK", "LOW_STOCK", "MADE_TO_ORDER"];
 
 export function ProductFilters({
   categories,
@@ -38,6 +19,7 @@ export function ProductFilters({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useTranslation();
 
   function setParam(key: string, value: string | null) {
     const next = new URLSearchParams(searchParams.toString());
@@ -51,7 +33,7 @@ export function ProductFilters({
 
   return (
     <aside className="space-y-8">
-      <FilterGroup title="Category">
+      <FilterGroup title={t("productsPage.filters.category")}>
         {categories.map((c) => (
           <FilterButton
             key={c.slug}
@@ -63,38 +45,38 @@ export function ProductFilters({
         ))}
       </FilterGroup>
 
-      <FilterGroup title="Material">
-        {materials.map((m) => (
+      <FilterGroup title={t("productsPage.filters.material")}>
+        {materialValues.map((value) => (
           <FilterButton
-            key={m.value}
-            active={activeParams.material === m.value}
-            onClick={() => setParam("material", m.value)}
+            key={value}
+            active={activeParams.material === value}
+            onClick={() => setParam("material", value)}
           >
-            {m.label}
+            {t(`materials.${value}`)}
           </FilterButton>
         ))}
       </FilterGroup>
 
-      <FilterGroup title="Room">
-        {rooms.map((r) => (
+      <FilterGroup title={t("productsPage.filters.room")}>
+        {roomValues.map((value) => (
           <FilterButton
-            key={r.value}
-            active={activeParams.room === r.value}
-            onClick={() => setParam("room", r.value)}
+            key={value}
+            active={activeParams.room === value}
+            onClick={() => setParam("room", value)}
           >
-            {r.label}
+            {t(`rooms.${value}`)}
           </FilterButton>
         ))}
       </FilterGroup>
 
-      <FilterGroup title="Availability">
-        {stockOptions.map((s) => (
+      <FilterGroup title={t("productsPage.filters.availability")}>
+        {stockValues.map((value) => (
           <FilterButton
-            key={s.value}
-            active={activeParams.stock === s.value}
-            onClick={() => setParam("stock", s.value)}
+            key={value}
+            active={activeParams.stock === value}
+            onClick={() => setParam("stock", value)}
           >
-            {s.label}
+            {t(`stock.${value}`)}
           </FilterButton>
         ))}
       </FilterGroup>
@@ -104,7 +86,7 @@ export function ProductFilters({
           onClick={() => router.push("/products")}
           className="text-sm font-medium text-neutral-500 underline underline-offset-4 hover:text-neutral-900"
         >
-          Clear all filters
+          {t("productsPage.filters.clearAll")}
         </button>
       )}
     </aside>

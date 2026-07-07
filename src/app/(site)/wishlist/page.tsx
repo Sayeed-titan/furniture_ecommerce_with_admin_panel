@@ -1,18 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import type { Product, ProductImage } from "@prisma/client";
 import { useWishlist } from "@/components/site/wishlist-context";
 import { ProductCard } from "@/components/site/product-card";
 import { LeadForm } from "@/components/site/lead-form";
-import { EmptyState } from "@/components/site/empty-state";
-import { Button } from "@/components/ui/button";
+import { WishlistEmptyState } from "@/components/site/products-page-chrome";
+import { useTranslation } from "@/lib/i18n/use-translation";
 
 type ProductWithImages = Product & { images: ProductImage[] };
 
 export default function WishlistPage() {
   const { ids } = useWishlist();
+  const { t } = useTranslation();
   const [products, setProducts] = useState<ProductWithImages[]>([]);
   const [loading, setLoading] = useState(ids.length > 0);
 
@@ -32,25 +32,12 @@ export default function WishlistPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-semibold tracking-tight">Your Wishlist</h1>
-      <p className="mt-2 text-neutral-600">
-        Save the pieces you love, then send them to us to get pricing and
-        availability details.
-      </p>
+      <h1 className="text-3xl font-semibold tracking-tight">{t("wishlistPage.heading")}</h1>
+      <p className="mt-2 text-neutral-600">{t("wishlistPage.subtitle")}</p>
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {!loading && visibleProducts.length === 0 && (
-            <EmptyState
-              title="Your wishlist is empty"
-              description="Browse our products and tap the heart icon to save items here."
-              action={
-                <Button asChild size="sm" variant="outline">
-                  <Link href="/products">Browse Products</Link>
-                </Button>
-              }
-            />
-          )}
+          {!loading && visibleProducts.length === 0 && <WishlistEmptyState />}
           {visibleProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
@@ -58,10 +45,10 @@ export default function WishlistPage() {
 
         {visibleProducts.length > 0 && (
           <aside className="h-fit rounded-xl border border-neutral-200 p-6">
-            <h2 className="font-semibold text-neutral-900">Send this list to us</h2>
+            <h2 className="font-semibold text-neutral-900">{t("wishlistPage.sendListHeading")}</h2>
             <p className="mt-1 text-sm text-neutral-600">
-              We&apos;ll follow up with pricing, stock, and next steps for these{" "}
-              {visibleProducts.length} {visibleProducts.length === 1 ? "item" : "items"}.
+              {t("wishlistPage.sendListPrefix")} {visibleProducts.length}{" "}
+              {visibleProducts.length === 1 ? t("wishlistPage.itemSingular") : t("wishlistPage.itemPlural")}.
             </p>
             <div className="mt-4">
               <LeadForm productIds={visibleProducts.map((p) => p.id)} />

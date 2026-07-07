@@ -1,13 +1,18 @@
-import { Hammer, ShieldCheck, Truck, MessageCircle } from "lucide-react";
+"use client";
 
-const items = [
-  { icon: Hammer, label: "Handcrafted materials" },
-  { icon: ShieldCheck, label: "Workmanship guarantee" },
-  { icon: Truck, label: "Home & office delivery" },
-  { icon: MessageCircle, label: "Real people, real answers" },
-];
+import { Hammer, ShieldCheck, Truck, MessageCircle } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/use-translation";
 
 export function TrustStrip() {
+  const { t } = useTranslation();
+
+  const items = [
+    { icon: Hammer, label: t("trustStrip.handcrafted") },
+    { icon: ShieldCheck, label: t("trustStrip.guarantee") },
+    { icon: Truck, label: t("trustStrip.delivery") },
+    { icon: MessageCircle, label: t("trustStrip.support") },
+  ];
+
   return (
     <div className="border-b border-neutral-200 bg-white">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-10 gap-y-4 px-4 py-6 sm:justify-between sm:px-6 lg:px-8">

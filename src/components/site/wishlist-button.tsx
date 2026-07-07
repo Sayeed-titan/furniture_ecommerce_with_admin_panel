@@ -2,16 +2,18 @@
 
 import { Heart } from "lucide-react";
 import { useWishlist } from "@/components/site/wishlist-context";
+import { useTranslation } from "@/lib/i18n/use-translation";
 import { cn } from "@/lib/utils";
 
 export function WishlistButton({ productId, className }: { productId: string; className?: string }) {
   const { isWishlisted, toggle } = useWishlist();
+  const { t } = useTranslation();
   const active = isWishlisted(productId);
 
   return (
     <button
       type="button"
-      aria-label={active ? "Remove from wishlist" : "Add to wishlist"}
+      aria-label={active ? t("productCard.removeFromWishlist") : t("productCard.addToWishlist")}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();

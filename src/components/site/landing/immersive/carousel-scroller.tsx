@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/use-translation";
 
 /**
  * The interactive shell (scroll ref + arrow buttons) only. Product cards are
@@ -9,6 +10,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
  * fields from ever having to cross the client boundary as serialized props.
  */
 export function CarouselScroller({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation();
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   function scrollByAmount(amount: number) {
@@ -21,7 +23,7 @@ export function CarouselScroller({ children }: { children: React.ReactNode }) {
         <button
           type="button"
           onClick={() => scrollByAmount(-320)}
-          aria-label="Scroll left"
+          aria-label={t("trending.scrollLeft")}
           className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-300 text-neutral-600 hover:bg-neutral-100"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -29,7 +31,7 @@ export function CarouselScroller({ children }: { children: React.ReactNode }) {
         <button
           type="button"
           onClick={() => scrollByAmount(320)}
-          aria-label="Scroll right"
+          aria-label={t("trending.scrollRight")}
           className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-300 text-neutral-600 hover:bg-neutral-100"
         >
           <ChevronRight className="h-4 w-4" />

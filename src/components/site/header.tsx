@@ -5,12 +5,9 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Heart, Menu, X } from "lucide-react";
 import { useWishlist } from "@/components/site/wishlist-context";
+import { LanguageSwitcher } from "@/components/site/locale/language-switcher";
+import { useTranslation } from "@/lib/i18n/use-translation";
 import { cn } from "@/lib/utils";
-
-const navLinks = [
-  { href: "/products", label: "Products" },
-  { href: "/contact", label: "Contact" },
-];
 
 /**
  * Site-wide header. Deliberately neutral (blacks/whites/grays) so it sits
@@ -19,8 +16,14 @@ const navLinks = [
  */
 export function SiteHeader() {
   const { ids } = useWishlist();
+  const { t } = useTranslation();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+
+  const navLinks = [
+    { href: "/products", label: t("nav.products") },
+    { href: "/contact", label: t("nav.contact") },
+  ];
 
   // Close the mobile menu whenever the route changes (render-time state
   // adjustment, per https://react.dev/learn/you-might-not-need-an-effect).
@@ -99,28 +102,32 @@ export function SiteHeader() {
             aria-current={isActive("/wishlist") ? "page" : undefined}
           >
             <Heart className="h-4 w-4" aria-hidden="true" />
-            Wishlist
+            {t("nav.wishlist")}
             {wishlistBadge}
           </Link>
+          <LanguageSwitcher />
         </nav>
 
         {/* Mobile menu toggle */}
-        <button
-          type="button"
-          className="relative -mr-2 inline-flex h-10 w-10 items-center justify-center rounded-lg text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 sm:hidden"
-          aria-expanded={open}
-          aria-controls="mobile-nav"
-          onClick={() => setOpen((v) => !v)}
-        >
-          <span className="sr-only">{open ? "Close menu" : "Open menu"}</span>
-          {open ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
-          {!open && ids.length > 0 && (
-            <span
-              aria-hidden="true"
-              className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-neutral-900"
-            />
-          )}
-        </button>
+        <div className="flex items-center gap-2 sm:hidden">
+          <LanguageSwitcher />
+          <button
+            type="button"
+            className="relative -mr-2 inline-flex h-10 w-10 items-center justify-center rounded-lg text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900"
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+            onClick={() => setOpen((v) => !v)}
+          >
+            <span className="sr-only">{open ? t("nav.closeMenu") : t("nav.openMenu")}</span>
+            {open ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
+            {!open && ids.length > 0 && (
+              <span
+                aria-hidden="true"
+                className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-neutral-900"
+              />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu panel: animated slide-down via the grid-rows trick.
@@ -162,7 +169,7 @@ export function SiteHeader() {
               )}
             >
               <Heart className="h-4 w-4" aria-hidden="true" />
-              Wishlist
+              {t("nav.wishlist")}
               {wishlistBadge}
             </Link>
           </nav>
