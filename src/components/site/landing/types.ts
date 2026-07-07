@@ -24,4 +24,4 @@ export type LandingVariantComponent = (props: LandingPageData) => React.ReactNod
  * Add a key here whenever a new variant is built, then register it in
  * registry.ts. This is the single place that documents which variants exist.
  */
-export type LandingVariantKey = "generic" | "creative_fable5";
+export type LandingVariantKey = "generic" | "creative_fable5" | "premium";
