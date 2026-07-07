@@ -1,4 +1,5 @@
 import { GenericLanding } from "@/components/site/landing/generic";
+import { CreativeFable5Landing } from "@/components/site/landing/creative_fable5";
 import type { LandingVariantComponent, LandingVariantKey } from "@/components/site/landing/types";
 
 /**
@@ -14,8 +15,10 @@ import type { LandingVariantComponent, LandingVariantKey } from "@/components/si
  */
 export const landingVariants: Record<LandingVariantKey, LandingVariantComponent> = {
   generic: GenericLanding,
+  creative_fable5: CreativeFable5Landing,
 };
 
 export const landingVariantLabels: Record<LandingVariantKey, string> = {
   generic: "Type 1 — Generic",
+  creative_fable5: "Type 2 — Creative (Fable 5): The Workshop Folio",
 };
