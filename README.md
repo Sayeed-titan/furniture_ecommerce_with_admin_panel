@@ -77,20 +77,49 @@ npm run dev
 | `npm run db:studio`  | Open Prisma Studio to browse the database      |
 | `npm run db:seed`    | Seed sample categories/products/admin user     |
 
-## Deployment
+## Deployment (Vercel + GitHub)
 
-1. Push this repo to GitHub (already done).
-2. Create a [Vercel](https://vercel.com) project and import the repo —
-   every push to `main` auto-deploys, every branch/PR gets a preview URL.
-3. In Vercel's project settings, add the same environment variables from
-   `.env` (Production + Preview).
-4. Add a Vercel "Build Command" override if you want migrations to run on
-   deploy, e.g. `npm run db:deploy && npm run build`.
-5. Point your domain at the Vercel project once you're happy with a
-   preview.
+Every push to `main` auto-deploys to production; every branch/PR gets its
+own preview URL. Database migrations run automatically on each deploy —
+the repo's `vercel-build` script runs `prisma migrate deploy` before
+`next build`, so you never migrate by hand.
+
+### First-time setup
+
+1. Go to [vercel.com](https://vercel.com) → **Add New → Project** → import
+   `Sayeed-titan/furniture_ecommerce_with_admin_panel`. Vercel auto-detects
+   Next.js — leave the framework preset and build settings as-is.
+2. Before the first deploy, open **Settings → Environment Variables** and add
+   the variables below (set each for **Production** and **Preview**).
+3. Click **Deploy**. On success, open the deployment URL — the public site is
+   live; the admin panel is at `/admin/login`.
+4. **Seed the first admin + sample data** (one time). Locally, with your
+   production `DATABASE_URL` in `.env`, run `npm run db:seed`, or create your
+   admin by any means you prefer. Then log in and change the password.
+5. (Optional) **Settings → Domains** → add your custom domain.
+
+### Required environment variables
+
+| Variable | Needed for | Notes |
+| --- | --- | --- |
+| `DATABASE_URL` | app runtime | Supabase **transaction pooler** (port 6543, `?pgbouncer=true`) |
+| `DIRECT_URL` | migrations | Supabase **session pooler** (port 5432) |
+| `AUTH_SECRET` | admin login | `npx auth secret` |
+| `NEXTAUTH_URL` | admin login | your production URL, e.g. `https://yoursite.vercel.app` |
+
+### Optional environment variables (each feature degrades gracefully if unset)
+
+| Variable | Feature |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET` | product image uploads |
+| `GITHUB_TOKEN`, `GITHUB_REPO_OWNER`, `GITHUB_REPO_NAME` | website issue reporting → GitHub |
+| `RESEND_API_KEY`, `EMAIL_FROM`, `NOTIFY_EMAIL` | email notifications |
+
+See [Integrations](#integrations-stage-3) for how to obtain each.
 
 No servers to patch or maintain — Vercel and Supabase are both managed
-services.
+services. The full loop is: **edit → push to GitHub → Vercel builds, migrates,
+and deploys**.
 
 ## Integrations (Stage 3)
 
