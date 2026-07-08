@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { landingVariants } from "@/components/site/landing/registry";
-import { ACTIVE_LANDING_VARIANT } from "@/config/landing";
+import { getActiveLandingVariant } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [featuredProducts, categories] = await Promise.all([
+  const [featuredProducts, categories, activeVariant] = await Promise.all([
     prisma.product.findMany({
       where: { featured: true },
       include: { images: { orderBy: { position: "asc" }, take: 1 } },
@@ -23,9 +23,10 @@ export default async function HomePage() {
         },
       },
     }),
+    getActiveLandingVariant(),
   ]);
 
-  const LandingVariant = landingVariants[ACTIVE_LANDING_VARIANT];
+  const LandingVariant = landingVariants[activeVariant];
 
   return <LandingVariant featuredProducts={featuredProducts} categories={categories} />;
 }

@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { Mail, Phone } from "lucide-react";
+import { Mail, Phone, Download } from "lucide-react";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { PageHeader, StatusPill, type PillTone } from "@/components/admin/ui";
 import { ConfirmSubmit } from "@/components/admin/confirm-submit";
-import { updateLeadStatus, deleteLead } from "@/lib/actions/leads";
+import { updateLeadStatus, updateLeadNotes, deleteLead } from "@/lib/actions/leads";
 import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Leads" };
@@ -51,7 +51,16 @@ export default async function AdminLeadsPage({ searchParams }: { searchParams: S
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Leads" description="People who reached out through the site. Update status as you work them." />
+      <PageHeader title="Leads" description="People who reached out through the site. Update status as you work them.">
+        {total > 0 && (
+          <a
+            href="/admin/leads/export"
+            className="inline-flex items-center gap-2 rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium hover:bg-neutral-100"
+          >
+            <Download className="h-4 w-4" /> Export CSV
+          </a>
+        )}
+      </PageHeader>
 
       {/* Filter tabs */}
       <div className="flex flex-wrap gap-2">
@@ -78,6 +87,7 @@ export default async function AdminLeadsPage({ searchParams }: { searchParams: S
       <div className="space-y-4">
         {leads.map((lead) => {
           const updateStatus = updateLeadStatus.bind(null, lead.id);
+          const saveNotes = updateLeadNotes.bind(null, lead.id);
           return (
             <div key={lead.id} className="rounded-xl border border-neutral-200 bg-white p-5">
               <div className="flex flex-wrap items-start justify-between gap-4">
@@ -116,6 +126,28 @@ export default async function AdminLeadsPage({ searchParams }: { searchParams: S
                   </ul>
                 </div>
               )}
+
+              <form action={saveNotes} className="mt-4">
+                <label htmlFor={`notes-${lead.id}`} className="text-xs font-medium text-neutral-500">
+                  Internal notes
+                </label>
+                <div className="mt-1 flex flex-col gap-2 sm:flex-row">
+                  <textarea
+                    id={`notes-${lead.id}`}
+                    name="notes"
+                    rows={2}
+                    defaultValue={lead.notes ?? ""}
+                    placeholder="Private notes about this lead — not visible to the customer."
+                    className="flex-1 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm placeholder:text-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
+                  />
+                  <button
+                    type="submit"
+                    className="h-fit shrink-0 rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium hover:bg-neutral-100"
+                  >
+                    Save note
+                  </button>
+                </div>
+              </form>
 
               <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-100 pt-4">
                 <form action={updateStatus} className="flex items-center gap-2">

@@ -186,6 +186,14 @@ prisma/
   that opens GitHub issues, email notifications on new leads and issue
   reports, and product image uploads to Supabase Storage. See
   [Integrations](#integrations-stage-3).
+- **Stage 4 (done):** full admin-panel redesign — a cohesive, responsive
+  design system across every page, multi-image product galleries, product
+  search + filters, category rename, lead status filters, delete
+  confirmations, and user guards.
+- **Stage 5 (in progress):** business power features — an admin **Settings**
+  page to switch the live landing-page design and set a WhatsApp/phone
+  number without code, a floating **Chat on WhatsApp** button on the public
+  site, plus **lead notes** and **CSV export**.
 
 Each stage ends with a review and a punch list of suggested improvements
 before moving to the next one.

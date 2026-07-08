@@ -27,6 +27,9 @@ const en = {
     rights: "All rights reserved.",
     reportIssue: "Report an issue",
   },
+  whatsapp: {
+    label: "Chat on WhatsApp",
+  },
   report: {
     heading: "Report an Issue or Request a Change",
     subtitle:
@@ -240,6 +243,9 @@ const bn: typeof en = {
   footer: {
     rights: "সর্বস্বত্ব সংরক্ষিত।",
     reportIssue: "সমস্যা জানান",
+  },
+  whatsapp: {
+    label: "হোয়াটসঅ্যাপে চ্যাট করুন",
   },
   report: {
     heading: "সমস্যা জানান বা পরিবর্তনের অনুরোধ করুন",

@@ -10,6 +10,7 @@ import {
   Inbox,
   Bug,
   Users,
+  Settings,
   Menu,
   X,
   ExternalLink,
@@ -43,8 +44,11 @@ const NAV: NavGroup[] = [
     ],
   },
   {
-    label: "Settings",
-    links: [{ href: "/admin/users", label: "Users", icon: Users }],
+    label: "Configure",
+    links: [
+      { href: "/admin/settings", label: "Settings", icon: Settings },
+      { href: "/admin/users", label: "Users", icon: Users },
+    ],
   },
 ];
 
