@@ -13,4 +13,15 @@ export async function updateLeadStatus(id: string, formData: FormData) {
   });
 
   revalidatePath("/admin/leads");
+  revalidatePath("/admin");
+}
+
+export async function deleteLead(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+
+  await prisma.lead.delete({ where: { id } });
+
+  revalidatePath("/admin/leads");
+  revalidatePath("/admin");
 }

@@ -1,7 +1,10 @@
+import { Plus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createCategory, deleteCategory } from "@/lib/actions/categories";
+import { PageHeader, Section, SectionHeader, EmptyRow } from "@/components/admin/ui";
+import { CategoryRow } from "@/components/admin/category-row";
+import { createCategory } from "@/lib/actions/categories";
 
 export const metadata = { title: "Categories" };
 export const dynamic = "force-dynamic";
@@ -13,35 +16,27 @@ export default async function AdminCategoriesPage() {
   });
 
   return (
-    <div className="max-w-2xl">
-      <h1 className="text-2xl font-semibold tracking-tight">Categories</h1>
+    <div className="max-w-2xl space-y-5">
+      <PageHeader title="Categories" description="Group products by type. Categories with products can't be deleted until they're empty." />
 
-      <form action={createCategory} className="mt-6 flex gap-2">
-        <Input name="name" placeholder="New category name" required />
-        <Button type="submit">Add</Button>
-      </form>
+      <Section className="p-4">
+        <form action={createCategory} className="flex gap-2">
+          <Input name="name" placeholder="New category name" required />
+          <Button type="submit">
+            <Plus className="h-4 w-4" /> Add
+          </Button>
+        </form>
+      </Section>
 
-      <ul className="mt-6 divide-y divide-neutral-200 rounded-xl border border-neutral-200 bg-white">
-        {categories.map((c) => (
-          <li key={c.id} className="flex items-center justify-between px-4 py-3">
-            <div>
-              <p className="font-medium">{c.name}</p>
-              <p className="text-sm text-neutral-500">
-                {c._count.products} product{c._count.products === 1 ? "" : "s"}
-              </p>
-            </div>
-            <form action={deleteCategory}>
-              <input type="hidden" name="id" value={c.id} />
-              <Button type="submit" variant="ghost" size="sm">
-                Delete
-              </Button>
-            </form>
-          </li>
-        ))}
-        {categories.length === 0 && (
-          <li className="px-4 py-6 text-sm text-neutral-500">No categories yet.</li>
-        )}
-      </ul>
+      <Section>
+        <SectionHeader title="All categories" description={`${categories.length} total`} />
+        <ul className="divide-y divide-neutral-100">
+          {categories.map((c) => (
+            <CategoryRow key={c.id} id={c.id} name={c.name} productCount={c._count.products} />
+          ))}
+          {categories.length === 0 && <EmptyRow>No categories yet.</EmptyRow>}
+        </ul>
+      </Section>
     </div>
   );
 }

@@ -1,17 +1,17 @@
 import { auth } from "@/auth";
-import { AdminSidebar } from "@/components/admin/sidebar";
-import { AdminTopbar } from "@/components/admin/topbar";
+import { AdminShell } from "@/components/admin/admin-shell";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
+  const user = session?.user;
 
   return (
-    <div className="flex min-h-full">
-      <AdminSidebar />
-      <div className="flex flex-1 flex-col">
-        <AdminTopbar userName={session?.user?.name} />
-        <main className="flex-1 bg-neutral-50 p-6">{children}</main>
-      </div>
-    </div>
+    <AdminShell
+      userName={user?.name}
+      userEmail={user?.email}
+      role={(user as { role?: string } | undefined)?.role}
+    >
+      {children}
+    </AdminShell>
   );
 }

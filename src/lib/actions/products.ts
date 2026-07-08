@@ -72,6 +72,8 @@ export async function createProduct(formData: FormData) {
 export async function updateProduct(id: string, formData: FormData) {
   const data = parseProductForm(formData);
 
+  // Images are managed separately via the gallery on the edit page
+  // (src/lib/actions/product-images.ts), so we don't touch them here.
   await prisma.product.update({
     where: { id },
     data: {
@@ -85,9 +87,6 @@ export async function updateProduct(id: string, formData: FormData) {
       stockQty: data.stockQty,
       featured: data.featured,
       categoryId: data.categoryId,
-      ...(data.imageUrl
-        ? { images: { deleteMany: {}, create: [{ url: data.imageUrl, alt: data.name, position: 0 }] } }
-        : {}),
     },
   });
 
