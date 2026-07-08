@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader, Section, SectionHeader, StatusPill } from "@/components/admin/ui";
 import { ConfirmSubmit } from "@/components/admin/confirm-submit";
+import { ChangePasswordForm } from "@/components/admin/change-password-form";
 import { createUser, deleteUser } from "@/lib/actions/users";
 
 export const metadata = { title: "Users" };
@@ -22,6 +23,11 @@ export default async function AdminUsersPage() {
   return (
     <div className="max-w-3xl space-y-5">
       <PageHeader title="Admin users" description="People who can sign in and manage the store." />
+
+      <Section>
+        <SectionHeader title="Your account" description="Change your own sign-in password." />
+        <ChangePasswordForm />
+      </Section>
 
       <Section>
         <SectionHeader title="Add a user" />

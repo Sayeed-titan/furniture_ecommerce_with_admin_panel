@@ -76,6 +76,21 @@ npm run dev
 | `npm run db:deploy`  | Apply migrations (production, run in CI/CD)    |
 | `npm run db:studio`  | Open Prisma Studio to browse the database      |
 | `npm run db:seed`    | Seed sample categories/products/admin user     |
+| `npm run admin:reset` | Create or reset an admin login (see below)    |
+
+## Admin access
+
+- **URL:** `/admin/login` (e.g. `https://your-site.vercel.app/admin/login`).
+- **Default login** (only if you ran `npm run db:seed`): `admin@example.com` /
+  `ChangeMe123!` — change it immediately.
+- **Create or reset a login from the CLI** (works even if you're locked out):
+  ```bash
+  ADMIN_EMAIL=you@email.com ADMIN_PASSWORD='at-least-8-chars' npm run admin:reset
+  ```
+  Creates the admin if new, or resets the password if the email already exists.
+- **Change your own password in the app:** Admin → **Users** → *Your account*.
+- **Manage other admins/staff:** Admin → **Users** (create/remove; you can't
+  delete yourself or the last admin).
 
 ## Deployment (Vercel + GitHub)
 
