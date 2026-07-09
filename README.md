@@ -7,6 +7,10 @@ sells wooden, artificial-wood, and leather furniture for home and office.
 (Supabase) + Auth.js (NextAuth v5), deployed on Vercel directly from this
 GitHub repo.
 
+**Docs:** [`docs/OVERVIEW.md`](docs/OVERVIEW.md) — full technical + business
+overview · [`docs/CLIENT-BRIEF.md`](docs/CLIENT-BRIEF.md) — short, plain-language
+summary to share with the client.
+
 ## What's here (Stage 1)
 
 - Public site: landing page, product listing with filters (category,
