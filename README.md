@@ -209,10 +209,12 @@ prisma/
   design system across every page, multi-image product galleries, product
   search + filters, category rename, lead status filters, delete
   confirmations, and user guards.
-- **Stage 5 (in progress):** business power features — an admin **Settings**
+- **Stage 5 (done):** business power features — an admin **Settings**
   page to switch the live landing-page design and set a WhatsApp/phone
   number without code, a floating **Chat on WhatsApp** button on the public
-  site, plus **lead notes** and **CSV export**.
+  site, **lead notes** and **CSV export**, public **product search**,
+  **related products** on detail pages, and an admin **Insights** dashboard
+  (product views, most-viewed and most-enquired products, lead pipeline).
 
 Each stage ends with a review and a punch list of suggested improvements
 before moving to the next one.

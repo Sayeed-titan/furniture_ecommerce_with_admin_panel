@@ -5,7 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { WishlistButton } from "@/components/site/wishlist-button";
 import { LeadForm } from "@/components/site/lead-form";
 import { EnumLabel } from "@/components/site/enum-label";
-import { ProductInterestHeading, ProductInterestSubtitle } from "@/components/site/product-interest-block";
+import { ProductInterestHeading, ProductInterestSubtitle, RelatedProductsHeading } from "@/components/site/product-interest-block";
+import { ProductCard } from "@/components/site/product-card";
+import { ViewTracker } from "@/components/site/view-tracker";
 import { formatPrice } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -34,8 +36,16 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
 
   const image = product.images[0];
 
+  const related = await prisma.product.findMany({
+    where: { categoryId: product.categoryId, id: { not: product.id } },
+    include: { images: { orderBy: { position: "asc" }, take: 1 } },
+    orderBy: { createdAt: "desc" },
+    take: 4,
+  });
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <ViewTracker productId={product.id} />
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
         <div className="relative aspect-square overflow-hidden rounded-xl bg-neutral-100">
           {image ? (
@@ -91,6 +101,17 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
           </div>
         </div>
       </div>
+
+      {related.length > 0 && (
+        <section className="mt-20">
+          <RelatedProductsHeading />
+          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            {related.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

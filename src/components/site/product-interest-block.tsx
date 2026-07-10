@@ -11,3 +11,10 @@ export function ProductInterestSubtitle() {
   const { t } = useTranslation();
   return <p className="mt-1 text-sm text-neutral-600">{t("productDetail.shareDetails")}</p>;
 }
+
+export function RelatedProductsHeading() {
+  const { t } = useTranslation();
+  return (
+    <h2 className="text-2xl font-semibold tracking-tight">{t("productDetail.relatedHeading")}</h2>
+  );
+}

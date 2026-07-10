@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
+  BarChart3,
   Package,
   Tags,
   Inbox,
@@ -27,7 +28,10 @@ type NavGroup = {
 const NAV: NavGroup[] = [
   {
     label: "Overview",
-    links: [{ href: "/admin", label: "Dashboard", icon: LayoutDashboard }],
+    links: [
+      { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/admin/insights", label: "Insights", icon: BarChart3 },
+    ],
   },
   {
     label: "Catalog",

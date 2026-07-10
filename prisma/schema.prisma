@@ -84,6 +84,7 @@ model Product {
   stockStatus    StockStatus    @default(IN_STOCK)
   stockQty       Int            @default(0)
   featured       Boolean        @default(false)
+  viewCount      Int            @default(0)
   images         ProductImage[]
   category       Category       @relation(fields: [categoryId], references: [id])
   categoryId     String

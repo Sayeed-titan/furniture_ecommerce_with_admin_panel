@@ -3,6 +3,7 @@ import { ProductCard } from "@/components/site/product-card";
 import { ProductFilters } from "@/components/site/product-filters";
 import { SortSelect } from "@/components/site/sort-select";
 import { ProductsHeading, ProductsCount, ProductsEmptyState } from "@/components/site/products-page-chrome";
+import { ProductSearch } from "@/components/site/product-search";
 import type { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +16,7 @@ type SearchParams = Promise<{
   room?: string;
   stock?: string;
   sort?: string;
+  q?: string;
 }>;
 
 export default async function ProductsPage({ searchParams }: { searchParams: SearchParams }) {
@@ -25,6 +27,13 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
   if (params.material) where.material = params.material as Prisma.EnumMaterialTypeFilter["equals"];
   if (params.room) where.room = params.room as Prisma.EnumRoomTypeFilter["equals"];
   if (params.stock) where.stockStatus = params.stock as Prisma.EnumStockStatusFilter["equals"];
+  if (params.q?.trim()) {
+    const q = params.q.trim();
+    where.OR = [
+      { name: { contains: q, mode: "insensitive" } },
+      { description: { contains: q, mode: "insensitive" } },
+    ];
+  }
 
   const orderBy: Prisma.ProductOrderByWithRelationInput =
     params.sort === "price_asc"
@@ -50,6 +59,9 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
         <ProductFilters categories={categories} activeParams={params} />
 
         <div>
+          <div className="mb-6">
+            <ProductSearch />
+          </div>
           <div className="mb-6 flex items-center justify-between">
             <ProductsCount count={products.length} />
             <SortSelect />

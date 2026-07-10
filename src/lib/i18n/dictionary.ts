@@ -181,6 +181,10 @@ const en = {
       availability: "Availability",
       clearAll: "Clear all filters",
     },
+    search: {
+      placeholder: "Search furniture…",
+      label: "Search",
+    },
     sort: {
       newest: "Newest",
       priceAsc: "Price: Low to High",
@@ -192,6 +196,7 @@ const en = {
   productDetail: {
     interested: "Interested in this piece?",
     shareDetails: "Share your details and we'll follow up with pricing and delivery info.",
+    relatedHeading: "You might also like",
   },
   wishlistPage: {
     heading: "Your Wishlist",
@@ -397,6 +402,10 @@ const bn: typeof en = {
       availability: "প্রাপ্যতা",
       clearAll: "সব ফিল্টার মুছুন",
     },
+    search: {
+      placeholder: "ফার্নিচার খুঁজুন…",
+      label: "খুঁজুন",
+    },
     sort: {
       newest: "নতুন",
       priceAsc: "দাম: কম থেকে বেশি",
@@ -408,6 +417,7 @@ const bn: typeof en = {
   productDetail: {
     interested: "এই পণ্যটি পছন্দ হয়েছে?",
     shareDetails: "আপনার তথ্য দিন, আমরা দাম ও ডেলিভারির বিস্তারিত নিয়ে যোগাযোগ করব।",
+    relatedHeading: "এগুলোও পছন্দ হতে পারে",
   },
   wishlistPage: {
     heading: "আপনার পছন্দ তালিকা",

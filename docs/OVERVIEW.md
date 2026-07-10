@@ -52,6 +52,7 @@ is **optional** — the app runs fine with none of them configured.
 | Route | Purpose |
 | --- | --- |
 | `/admin` | Dashboard — stats & recent activity |
+| `/admin/insights` | Analytics — views, top products, lead pipeline |
 | `/admin/products` (`/new`, `/[id]`) | Product CRUD + galleries + search |
 | `/admin/categories` | Categories — rename & safe delete |
 | `/admin/leads` (`/export`) | Leads inbox + notes + CSV export |
@@ -60,7 +61,7 @@ is **optional** — the app runs fine with none of them configured.
 | `/admin/settings` | Landing design, WhatsApp, phone |
 
 ### API routes
-`/api/leads` · `/api/issues` · `/api/products` · `/api/admin/upload` · `/api/auth/[...nextauth]`
+`/api/leads` · `/api/issues` · `/api/products` · `/api/track/view` · `/api/admin/upload` · `/api/auth/[...nextauth]`
 
 ---
 
@@ -70,7 +71,7 @@ is **optional** — the app runs fine with none of them configured.
 | --- | --- | --- |
 | `AdminUser` | Panel logins | name · email · passwordHash · role |
 | `Category` | Product grouping | name · slug |
-| `Product` | A catalog piece | name · slug · description · price · compareAtPrice · material · room · stockStatus · stockQty · featured |
+| `Product` | A catalog piece | name · slug · description · price · compareAtPrice · material · room · stockStatus · stockQty · featured · viewCount |
 | `ProductImage` | Gallery images | url · alt · position (0 = primary) |
 | `Lead` | A sales enquiry | name · email · phone · message · notes · status |
 | `LeadItem` | A wishlisted product on a lead | leadId · productId |
@@ -90,8 +91,8 @@ is **optional** — the app runs fine with none of them configured.
 ## The public site
 
 - **Four landing designs**, switchable live from the admin (no redeploy).
-- **Catalog** with filters (category, material, room, stock) and sort (newest, price).
-- **Product detail** pages with an image gallery.
+- **Catalog** with text **search**, filters (category, material, room, stock) and sort (newest, price).
+- **Product detail** pages with an image gallery and **related products**.
 - **Wishlist** stored in the browser → send it and it becomes a lead.
 - **Contact / enquiry** form feeding the admin inbox.
 - **English / বাংলা** toggle with proper Bengali fonts.
@@ -107,6 +108,7 @@ commission custom on-site woodwork — so it reads as a workshop, not just a sho
 ## The admin panel
 
 - **Dashboard** — live counts (products, categories, leads, unsynced issues) plus recent leads and recent requests.
+- **Insights** — product views, most-viewed and most-enquired products, leads in the last 30 days, and a lead-status pipeline.
 - **Products** — create/edit/delete with confirmation, list search & filters, and **multi-image galleries** (add by URL or upload, reorder, set the primary shot).
 - **Categories** — add and rename inline; delete is blocked while a category still holds products.
 - **Leads** — filter by status, add private internal notes, click-to-email/call, and **export all leads to CSV**.
@@ -162,6 +164,6 @@ edit → push to GitHub → Vercel runs `prisma migrate deploy` → builds → l
 | 2 — Public showcase | Done | Landing designs, catalog & filtering, product pages, wishlist, EN/বাংলা |
 | 3 — Integrations | Done | GitHub issue reporting, email notifications, image uploads |
 | 4 — Admin redesign | Done | Full design system, multi-image galleries, search, CRUD guards |
-| 5 — Business power features | In progress | Landing switch, WhatsApp, lead notes & CSV (done); next: public search, related products, analytics |
+| 5 — Business power features | Done | Landing switch, WhatsApp, lead notes & CSV, public search, related products, Insights analytics |
 
 *Reflects the state as of July 2026.*
