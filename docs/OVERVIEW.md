@@ -1,4 +1,4 @@
-# Woodcraft Furniture — Application Overview
+# President Furniture — Application Overview
 
 A bilingual **furniture showcase website + self-run admin panel**, built as a
 single deployable Next.js app. It sells ready-made wooden, artificial-wood, and
@@ -41,7 +41,7 @@ is **optional** — the app runs fine with none of them configured.
 ### Public site
 | Route | Purpose |
 | --- | --- |
-| `/` | Landing — one of four designs, admin-switchable |
+| `/` | Landing — one of five designs, admin-switchable |
 | `/products` | Catalog with filters & sort |
 | `/products/[slug]` | Product detail + image gallery |
 | `/wishlist` | Saved pieces → send as a lead |
@@ -90,7 +90,7 @@ is **optional** — the app runs fine with none of them configured.
 
 ## The public site
 
-- **Four landing designs**, switchable live from the admin (no redeploy).
+- **Five landing designs**, switchable live from the admin (no redeploy) — including the flagship "President" experience with a WebGL shader hero, kinetic typography, and scroll-driven motion.
 - **Catalog** with text **search**, filters (category, material, room, stock) and sort (newest, price).
 - **Product detail** pages with an image gallery and **related products**.
 - **Wishlist** stored in the browser → send it and it becomes a lead.

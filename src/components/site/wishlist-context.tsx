@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useSyncExternalStore } from "react";
 
-const STORAGE_KEY = "woodcraft:wishlist";
+const STORAGE_KEY = "president:wishlist";
 
 type WishlistContextValue = {
   ids: string[];

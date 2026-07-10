@@ -6,7 +6,7 @@ import { locales } from "@/lib/i18n/dictionary";
 import { notoSansBengali } from "@/lib/i18n/fonts";
 import { cn } from "@/lib/utils";
 
-const STORAGE_KEY = "woodcraft:locale";
+const STORAGE_KEY = "president:locale";
 
 type LocaleContextValue = {
   locale: Locale;

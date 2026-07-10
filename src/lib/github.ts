@@ -44,7 +44,7 @@ export async function createGithubIssue(input: {
       Accept: "application/vnd.github+json",
       "X-GitHub-Api-Version": "2022-11-28",
       "Content-Type": "application/json",
-      "User-Agent": "woodcraft-furniture-site",
+      "User-Agent": "president-furniture-site",
     },
     body: JSON.stringify({
       title: input.title,

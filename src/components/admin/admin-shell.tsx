@@ -18,6 +18,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { signOutAdmin } from "@/lib/actions/auth";
+import { ThroneMark } from "@/components/site/brand/logo";
 import { cn } from "@/lib/utils";
 
 type NavGroup = {
@@ -98,11 +99,11 @@ export function AdminShell({
     <div className="flex h-full flex-col">
       {/* Brand */}
       <div className="flex h-16 items-center gap-2.5 border-b border-neutral-200 px-5">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-900 font-serif text-[15px] font-medium leading-none text-white">
-          W
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#171310] text-[#d9b779]">
+          <ThroneMark className="h-5 w-5" />
         </span>
         <span className="flex flex-col leading-none">
-          <span className="text-sm font-semibold tracking-tight text-neutral-900">Woodcraft</span>
+          <span className="text-sm font-semibold tracking-tight text-neutral-900">President</span>
           <span className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
             Admin
           </span>

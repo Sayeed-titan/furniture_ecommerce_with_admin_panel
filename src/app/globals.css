@@ -24,3 +24,35 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* --- President landing motion ------------------------------------------- */
+
+@keyframes pres-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes pres-rise {
+  from { transform: translateY(115%) rotate(4deg); }
+  to { transform: translateY(0) rotate(0); }
+}
+
+@keyframes pres-fade-up {
+  from { opacity: 0; transform: translateY(26px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes pres-cue {
+  0%, 100% { transform: translateY(0); opacity: 0.9; }
+  50% { transform: translateY(9px); opacity: 0.35; }
+}
+
+/* Every president animation is tagged .pres-anim so reduced-motion users
+   get the final, settled frame instantly. */
+@media (prefers-reduced-motion: reduce) {
+  .pres-anim {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

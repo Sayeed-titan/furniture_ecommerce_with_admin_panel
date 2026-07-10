@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Heart, Menu, X } from "lucide-react";
 import { useWishlist } from "@/components/site/wishlist-context";
+import { ThroneMark } from "@/components/site/brand/logo";
 import { LanguageSwitcher } from "@/components/site/locale/language-switcher";
 import { useTranslation } from "@/lib/i18n/use-translation";
 import { cn } from "@/lib/utils";
@@ -70,15 +71,15 @@ export function SiteHeader() {
         >
           <span
             aria-hidden="true"
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-900 font-serif text-[15px] font-medium leading-none text-white shadow-sm ring-1 ring-neutral-900/10 transition-transform duration-300 ease-out group-hover:-rotate-6"
+            className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#171310] text-[#d9b779] shadow-sm ring-1 ring-neutral-900/10 transition-transform duration-300 ease-out group-hover:-rotate-6"
           >
-            W
+            <ThroneMark className="h-6 w-6" />
           </span>
           <span className="flex flex-col justify-center leading-none">
-            <span className="text-[15px] font-semibold tracking-tight text-neutral-900">
-              Woodcraft
+            <span className="text-[17px] font-semibold tracking-[0.01em] text-neutral-900 [font-family:var(--font-display),serif]">
+              President
             </span>
-            <span className="mt-1 text-[9px] font-medium uppercase tracking-[0.34em] text-neutral-500 transition-colors duration-200 group-hover:text-neutral-700">
+            <span className="mt-0.5 text-[8.5px] font-medium uppercase tracking-[0.42em] text-neutral-500 transition-colors duration-200 group-hover:text-[#8a6a3f]">
               Furniture
             </span>
           </span>

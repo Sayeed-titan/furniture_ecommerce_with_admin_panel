@@ -1,4 +1,4 @@
-# Woodcraft Furniture — What Your Website Does
+# President Furniture — What Your Website Does
 
 A plain-language summary of your new website and control panel. No jargon.
 
@@ -42,7 +42,7 @@ You log in to a private admin area to manage everything — no developer needed:
 - **Enquiries (leads)** — see everyone who reached out, mark where each one is
   (new, contacted, won, and so on), jot private notes, and download the whole
   list as a spreadsheet.
-- **Change the homepage look** — pick from four ready-made designs with one
+- **Change the homepage look** — pick from five ready-made designs with one
   click.
 - **Set your contact numbers** — WhatsApp and phone.
 - **Manage who can log in** — add staff, change passwords.

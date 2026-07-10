@@ -56,7 +56,7 @@ export function CreativeFable5Landing({ featuredProducts, categories }: LandingP
         {/* issue meta line */}
         <div className="mx-auto flex max-w-7xl items-baseline justify-between gap-4 border-b border-[#1c1610] px-4 py-3 sm:px-6 lg:px-8">
           <p className="font-mono text-[11px] uppercase tracking-[0.25em]">
-            Woodcraft Furniture
+            President Furniture
           </p>
           <p className="hidden font-mono text-[11px] uppercase tracking-[0.25em] text-[#6b5a48] sm:block">
             Vol. 01 &mdash; The Workshop Issue

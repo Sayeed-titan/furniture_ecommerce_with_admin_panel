@@ -7,4 +7,4 @@ import type { LandingVariantKey } from "@/components/site/landing/types";
  * replace this constant with a DB read (e.g. a SiteSetting row) so it can be
  * switched without a deploy. Until then, change this value and redeploy.
  */
-export const ACTIVE_LANDING_VARIANT: LandingVariantKey = "immersive";
+export const ACTIVE_LANDING_VARIANT: LandingVariantKey = "president";

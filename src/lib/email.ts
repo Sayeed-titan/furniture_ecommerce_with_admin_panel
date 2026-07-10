@@ -3,7 +3,7 @@
  * dependency). Configured via env:
  *
  *   RESEND_API_KEY   Resend API key (https://resend.com)
- *   EMAIL_FROM       verified sender, e.g. "Woodcraft <alerts@yourdomain.com>"
+ *   EMAIL_FROM       verified sender, e.g. "President <alerts@yourdomain.com>"
  *   NOTIFY_EMAIL     where business notifications are sent
  *
  * When these aren't set, isEmailConfigured() is false and sendNotification()

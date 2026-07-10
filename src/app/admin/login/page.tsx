@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { LoginForm } from "@/components/admin/login-form";
+import { ThroneMark } from "@/components/site/brand/logo";
 
 export const metadata = { title: "Admin Login" };
 
@@ -8,11 +9,11 @@ export default function AdminLoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-4 py-24">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-900 font-serif text-base font-medium leading-none text-white">
-            W
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#171310] text-[#d9b779]">
+            <ThroneMark className="h-6 w-6" />
           </span>
           <span className="flex flex-col leading-none">
-            <span className="text-sm font-semibold tracking-tight text-neutral-900">Woodcraft</span>
+            <span className="text-sm font-semibold tracking-tight text-neutral-900">President</span>
             <span className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
               Admin
             </span>

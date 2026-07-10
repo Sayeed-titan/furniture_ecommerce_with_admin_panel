@@ -1,4 +1,4 @@
-# Woodcraft Furniture
+# President Furniture
 
 A furniture showcase website with an admin panel, built for a business that
 sells wooden, artificial-wood, and leather furniture for home and office.
