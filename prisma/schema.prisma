@@ -53,6 +53,29 @@ enum IssueType {
   QUESTION
 }
 
+enum OrderStatus {
+  PLACED
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  SSLCOMMERZ
+  COD
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
 model AdminUser {
   id           String   @id @default(cuid())
   name         String
@@ -89,6 +112,7 @@ model Product {
   category       Category       @relation(fields: [categoryId], references: [id])
   categoryId     String
   leadItems      LeadItem[]
+  orderItems     OrderItem[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
@@ -162,4 +186,107 @@ model IssueReport {
 
   @@index([type])
   @@index([createdAt])
+}
+
+model Customer {
+  id           String     @id @default(cuid())
+  name         String
+  email        String     @unique
+  phone        String?
+  /// Null for customer records created from a guest order; they can set a
+  /// password later to "claim" the account.
+  passwordHash String?
+  addresses    Address[]
+  orders       Order[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Address {
+  id            String   @id @default(cuid())
+  customer      Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId    String
+  label         String?
+  recipientName String
+  phone         String
+  line1         String
+  line2         String?
+  city          String
+  area          String?
+  postCode      String?
+  isDefault     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([customerId])
+}
+
+/// A placed order. Shipping details are denormalized (ship*) so later
+/// address edits never rewrite order history.
+model Order {
+  id            String        @id @default(cuid())
+  orderNumber   String        @unique
+  customer      Customer?     @relation(fields: [customerId], references: [id])
+  customerId    String?
+  guestName     String?
+  guestEmail    String?
+  guestPhone    String?
+  shipName      String
+  shipPhone     String
+  shipLine1     String
+  shipLine2     String?
+  shipCity      String
+  shipArea      String?
+  shipPostCode  String?
+  items         OrderItem[]
+  payments      Payment[]
+  subtotal      Decimal       @db.Decimal(10, 2)
+  shippingFee   Decimal       @default(0) @db.Decimal(10, 2)
+  total         Decimal       @db.Decimal(10, 2)
+  currency      String        @default("BDT")
+  status        OrderStatus   @default(PLACED)
+  paymentMethod PaymentMethod
+  paymentStatus PaymentStatus @default(PENDING)
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([customerId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([createdAt])
+}
+
+/// Snapshot of a product's name/price at order time, so later catalog
+/// edits never alter past orders.
+model OrderItem {
+  id           String  @id @default(cuid())
+  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId      String
+  product      Product @relation(fields: [productId], references: [id])
+  productId    String
+  nameSnapshot String
+  priceSnapshot Decimal @db.Decimal(10, 2)
+  qty          Int
+  lineTotal    Decimal @db.Decimal(10, 2)
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  order             Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId           String
+  gateway           PaymentMethod
+  gatewayTxnId      String?
+  valId             String?
+  amount            Decimal       @db.Decimal(10, 2)
+  status            PaymentStatus @default(PENDING)
+  rawPayload        Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([orderId])
+  @@index([gatewayTxnId])
 }

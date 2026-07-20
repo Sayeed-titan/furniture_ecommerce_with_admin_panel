@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function LoginForm() {
+export function CustomerLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +20,7 @@ export function LoginForm() {
     setError(null);
 
     const formData = new FormData(e.currentTarget);
-    const result = await signIn("admin", {
+    const result = await signIn("customer", {
       email: formData.get("email"),
       password: formData.get("password"),
       redirect: false,
@@ -32,7 +33,7 @@ export function LoginForm() {
       return;
     }
 
-    router.push(searchParams.get("callbackUrl") ?? "/admin");
+    router.push(searchParams.get("callbackUrl") ?? "/account");
     router.refresh();
   }
 
@@ -50,6 +51,12 @@ export function LoginForm() {
       <Button type="submit" disabled={loading} className="w-full">
         {loading ? "Signing in..." : "Sign in"}
       </Button>
+      <p className="text-center text-sm text-neutral-500">
+        New here?{" "}
+        <Link href="/account/register" className="font-medium text-neutral-900 hover:underline">
+          Create an account
+        </Link>
+      </p>
     </form>
   );
 }

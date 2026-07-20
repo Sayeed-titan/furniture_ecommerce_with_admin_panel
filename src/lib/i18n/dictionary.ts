@@ -12,6 +12,7 @@ const en = {
     products: "Products",
     contact: "Contact",
     wishlist: "Wishlist",
+    cart: "Cart",
     openMenu: "Open menu",
     closeMenu: "Close menu",
   },
@@ -169,6 +170,9 @@ const en = {
   productCard: {
     addToWishlist: "Add to wishlist",
     removeFromWishlist: "Remove from wishlist",
+    addToCart: "Add to Cart",
+    outOfStock: "Out of Stock",
+    addedToCart: "Added",
   },
   productsPage: {
     heading: "Products",
@@ -208,6 +212,18 @@ const en = {
     sendListPrefix: "We'll follow up with pricing, stock, and next steps for these",
     itemSingular: "item",
     itemPlural: "items",
+  },
+  cartPage: {
+    heading: "Your Cart",
+    subtitle: "Review your items, then continue to checkout.",
+    emptyTitle: "Your cart is empty",
+    emptyDescription: "Browse our products and add items to your cart.",
+    browseProducts: "Browse Products",
+    summaryHeading: "Order Summary",
+    subtotal: "Subtotal",
+    checkout: "Proceed to Checkout",
+    remove: "Remove",
+    each: "each",
   },
   contactPage: {
     heading: "Talk to Us",
@@ -272,6 +288,7 @@ const bn: typeof en = {
     products: "পণ্যসমূহ",
     contact: "যোগাযোগ",
     wishlist: "পছন্দ তালিকা",
+    cart: "কার্ট",
     openMenu: "মেনু খুলুন",
     closeMenu: "মেনু বন্ধ করুন",
   },
@@ -428,6 +445,9 @@ const bn: typeof en = {
   productCard: {
     addToWishlist: "পছন্দ তালিকায় যোগ করুন",
     removeFromWishlist: "পছন্দ তালিকা থেকে সরান",
+    addToCart: "কার্টে যোগ করুন",
+    outOfStock: "স্টক নেই",
+    addedToCart: "যোগ হয়েছে",
   },
   productsPage: {
     heading: "পণ্যসমূহ",
@@ -467,6 +487,18 @@ const bn: typeof en = {
     sendListPrefix: "আমরা দাম, স্টক এবং পরবর্তী পদক্ষেপ নিয়ে যোগাযোগ করব এই",
     itemSingular: "টি পণ্যের জন্য",
     itemPlural: "টি পণ্যের জন্য",
+  },
+  cartPage: {
+    heading: "আপনার কার্ট",
+    subtitle: "আপনার পণ্যগুলো দেখুন, তারপর চেকআউটে যান।",
+    emptyTitle: "আপনার কার্ট খালি",
+    emptyDescription: "আমাদের পণ্যগুলো দেখুন এবং কার্টে যোগ করুন।",
+    browseProducts: "পণ্য দেখুন",
+    summaryHeading: "অর্ডার সারাংশ",
+    subtotal: "উপমোট",
+    checkout: "চেকআউটে যান",
+    remove: "সরান",
+    each: "প্রতিটি",
   },
   contactPage: {
     heading: "আমাদের সাথে কথা বলুন",

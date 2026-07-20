@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
 import { WishlistButton } from "@/components/site/wishlist-button";
+import { AddToCartButton } from "@/components/site/add-to-cart-button";
 import { LeadForm } from "@/components/site/lead-form";
 import { EnumLabel } from "@/components/site/enum-label";
 import { ProductInterestHeading, ProductInterestSubtitle, RelatedProductsHeading } from "@/components/site/product-interest-block";
@@ -91,6 +92,10 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
           </div>
 
           <p className="mt-6 leading-relaxed text-neutral-700">{product.description}</p>
+
+          <div className="mt-6">
+            <AddToCartButton productId={product.id} stockStatus={product.stockStatus} />
+          </div>
 
           <div className="mt-10 rounded-xl border border-neutral-200 p-6">
             <ProductInterestHeading />

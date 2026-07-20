@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Heart, Menu, X } from "lucide-react";
+import { Heart, Menu, ShoppingCart, X } from "lucide-react";
 import { useWishlist } from "@/components/site/wishlist-context";
+import { useCart } from "@/components/site/cart-context";
 import { ThroneMark } from "@/components/site/brand/logo";
 import { LanguageSwitcher } from "@/components/site/locale/language-switcher";
 import { useTranslation } from "@/lib/i18n/use-translation";
@@ -17,6 +18,7 @@ import { cn } from "@/lib/utils";
  */
 export function SiteHeader() {
   const { ids } = useWishlist();
+  const { count: cartCount } = useCart();
   const { t } = useTranslation();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -58,6 +60,12 @@ export function SiteHeader() {
   const wishlistBadge = ids.length > 0 && (
     <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-neutral-900 px-1 text-xs font-semibold tabular-nums text-white">
       {ids.length}
+    </span>
+  );
+
+  const cartBadge = cartCount > 0 && (
+    <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-neutral-900 px-1 text-xs font-semibold tabular-nums text-white">
+      {cartCount}
     </span>
   );
 
@@ -106,6 +114,15 @@ export function SiteHeader() {
             {t("nav.wishlist")}
             {wishlistBadge}
           </Link>
+          <Link
+            href="/cart"
+            className={cn(desktopLink("/cart"), "flex items-center gap-1.5")}
+            aria-current={isActive("/cart") ? "page" : undefined}
+          >
+            <ShoppingCart className="h-4 w-4" aria-hidden="true" />
+            {t("nav.cart")}
+            {cartBadge}
+          </Link>
           <LanguageSwitcher />
         </nav>
 
@@ -121,7 +138,7 @@ export function SiteHeader() {
           >
             <span className="sr-only">{open ? t("nav.closeMenu") : t("nav.openMenu")}</span>
             {open ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
-            {!open && ids.length > 0 && (
+            {!open && (ids.length > 0 || cartCount > 0) && (
               <span
                 aria-hidden="true"
                 className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-neutral-900"
@@ -172,6 +189,21 @@ export function SiteHeader() {
               <Heart className="h-4 w-4" aria-hidden="true" />
               {t("nav.wishlist")}
               {wishlistBadge}
+            </Link>
+            <Link
+              href="/cart"
+              onClick={() => setOpen(false)}
+              aria-current={isActive("/cart") ? "page" : undefined}
+              className={cn(
+                "flex items-center gap-2 rounded-lg px-3 py-3 text-base font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-neutral-900",
+                isActive("/cart")
+                  ? "bg-neutral-100 text-neutral-900"
+                  : "text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
+              )}
+            >
+              <ShoppingCart className="h-4 w-4" aria-hidden="true" />
+              {t("nav.cart")}
+              {cartBadge}
             </Link>
           </nav>
         </div>

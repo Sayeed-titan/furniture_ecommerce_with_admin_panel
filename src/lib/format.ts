@@ -19,3 +19,15 @@ export function formatStockStatus(status: string) {
   };
   return map[status] ?? formatMaterial(status);
 }
+
+export function formatOrderStatus(status: string) {
+  return formatMaterial(status);
+}
+
+export function formatPaymentMethod(method: string) {
+  const map: Record<string, string> = {
+    SSLCOMMERZ: "Online Payment",
+    COD: "Cash on Delivery",
+  };
+  return map[method] ?? formatMaterial(method);
+}
