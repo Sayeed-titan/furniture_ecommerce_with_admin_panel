@@ -16,6 +16,7 @@ import {
   X,
   ExternalLink,
   LogOut,
+  ShoppingCart,
 } from "lucide-react";
 import { signOutAdmin } from "@/lib/actions/auth";
 import { ThroneMark } from "@/components/site/brand/logo";
@@ -40,6 +41,10 @@ const NAV: NavGroup[] = [
       { href: "/admin/products", label: "Products", icon: Package },
       { href: "/admin/categories", label: "Categories", icon: Tags },
     ],
+  },
+  {
+    label: "Sales",
+    links: [{ href: "/admin/orders", label: "Orders", icon: ShoppingCart }],
   },
   {
     label: "Inbox",

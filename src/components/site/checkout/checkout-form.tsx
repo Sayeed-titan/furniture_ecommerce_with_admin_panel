@@ -16,9 +16,11 @@ type ProductWithImages = Product & { images: ProductImage[] };
 export function CheckoutForm({
   defaultAddress,
   guestEmail,
+  onlinePaymentEnabled,
 }: {
   defaultAddress: Address | null;
   guestEmail: string | null;
+  onlinePaymentEnabled: boolean;
 }) {
   const { items } = useCart();
   const [products, setProducts] = useState<ProductWithImages[]>([]);
@@ -136,13 +138,15 @@ export function CheckoutForm({
                 <span className="text-neutral-500">Pay when your order arrives.</span>
               </span>
             </label>
-            <label className="flex items-center gap-3 rounded-xl border border-neutral-200 p-4 text-sm has-[:checked]:border-neutral-900">
-              <input type="radio" name="paymentMethod" value="SSLCOMMERZ" className="h-4 w-4" />
-              <span>
-                <span className="block font-medium text-neutral-900">Pay Online</span>
-                <span className="text-neutral-500">bKash, Nagad, cards &amp; mobile banking.</span>
-              </span>
-            </label>
+            {onlinePaymentEnabled && (
+              <label className="flex items-center gap-3 rounded-xl border border-neutral-200 p-4 text-sm has-[:checked]:border-neutral-900">
+                <input type="radio" name="paymentMethod" value="SSLCOMMERZ" className="h-4 w-4" />
+                <span>
+                  <span className="block font-medium text-neutral-900">Pay Online</span>
+                  <span className="text-neutral-500">bKash, Nagad, cards &amp; mobile banking.</span>
+                </span>
+              </label>
+            )}
           </div>
         </div>
 

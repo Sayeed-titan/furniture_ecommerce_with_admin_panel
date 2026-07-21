@@ -12,14 +12,15 @@ import { registerCustomer, type RegisterState } from "@/lib/actions/customer-aut
 export function CustomerRegisterForm() {
   const router = useRouter();
   const [state, action, pending] = useActionState<RegisterState, FormData>(registerCustomer, {});
-  const formRef = useRef<HTMLFormElement>(null);
+  // React resets uncontrolled form fields once a form action resolves successfully,
+  // so credentials must be captured at submit time, not read back afterward.
+  const credsRef = useRef<{ email: string; password: string } | null>(null);
 
   useEffect(() => {
-    if (!state.ok || !formRef.current) return;
-    const formData = new FormData(formRef.current);
+    if (!state.ok || !credsRef.current) return;
     signIn("customer", {
-      email: formData.get("email"),
-      password: formData.get("password"),
+      email: credsRef.current.email,
+      password: credsRef.current.password,
       redirect: false,
     }).then(() => {
       router.push("/account");
@@ -28,7 +29,17 @@ export function CustomerRegisterForm() {
   }, [state.ok, router]);
 
   return (
-    <form ref={formRef} action={action} className="space-y-4">
+    <form
+      action={action}
+      onSubmit={(e) => {
+        const formData = new FormData(e.currentTarget);
+        credsRef.current = {
+          email: String(formData.get("email") ?? ""),
+          password: String(formData.get("password") ?? ""),
+        };
+      }}
+      className="space-y-4"
+    >
       <div className="space-y-1.5">
         <Label htmlFor="name">Name</Label>
         <Input id="name" name="name" required autoComplete="name" />

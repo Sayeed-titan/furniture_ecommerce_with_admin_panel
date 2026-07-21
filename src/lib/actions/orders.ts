@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { sendNotification, escapeHtml } from "@/lib/email";
 import { formatPrice } from "@/lib/utils";
-import type { PaymentMethod } from "@prisma/client";
+import type { OrderStatus, PaymentMethod } from "@prisma/client";
 
 export type PlaceOrderState = { error?: string };
 
@@ -164,4 +164,13 @@ export async function placeOrder(
   }
 
   redirect(`/order/confirmation/${order.orderNumber}`);
+}
+
+export async function updateOrderStatus(id: string, formData: FormData) {
+  const status = String(formData.get("status")) as OrderStatus;
+
+  await prisma.order.update({ where: { id }, data: { status } });
+
+  revalidatePath("/admin/orders");
+  revalidatePath("/admin");
 }

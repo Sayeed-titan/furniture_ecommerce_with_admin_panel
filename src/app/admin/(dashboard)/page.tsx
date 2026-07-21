@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { Package, Tags, Inbox, Bug, ArrowRight, Plus } from "lucide-react";
+import { Package, Tags, Inbox, Bug, ArrowRight, Plus, ShoppingCart } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { PageHeader, Section, SectionHeader, StatusPill, EmptyRow } from "@/components/admin/ui";
+import { formatPrice } from "@/lib/utils";
 
 export const metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
@@ -15,21 +16,42 @@ const LEAD_TONE: Record<string, "blue" | "amber" | "purple" | "green" | "red"> =
 };
 
 export default async function AdminDashboardPage() {
-  const [productCount, categoryCount, newLeadCount, totalLeadCount, openIssueCount, recentLeads, recentIssues, featuredCount] =
-    await Promise.all([
-      prisma.product.count(),
-      prisma.category.count(),
-      prisma.lead.count({ where: { status: "NEW" } }),
-      prisma.lead.count(),
-      prisma.issueReport.count({ where: { githubIssueUrl: null } }),
-      prisma.lead.findMany({ orderBy: { createdAt: "desc" }, take: 5, include: { items: true } }),
-      prisma.issueReport.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
-      prisma.product.count({ where: { featured: true } }),
-    ]);
+  const [
+    productCount,
+    categoryCount,
+    newLeadCount,
+    totalLeadCount,
+    openIssueCount,
+    recentLeads,
+    recentIssues,
+    featuredCount,
+    newOrderCount,
+    paidOrders,
+  ] = await Promise.all([
+    prisma.product.count(),
+    prisma.category.count(),
+    prisma.lead.count({ where: { status: "NEW" } }),
+    prisma.lead.count(),
+    prisma.issueReport.count({ where: { githubIssueUrl: null } }),
+    prisma.lead.findMany({ orderBy: { createdAt: "desc" }, take: 5, include: { items: true } }),
+    prisma.issueReport.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
+    prisma.product.count({ where: { featured: true } }),
+    prisma.order.count({ where: { status: "PLACED" } }),
+    prisma.order.findMany({ where: { paymentStatus: "PAID" }, select: { total: true } }),
+  ]);
+
+  const revenue = paidOrders.reduce((sum, o) => sum + Number(o.total), 0);
 
   const stats = [
     { label: "Products", value: productCount, sub: `${featuredCount} featured`, icon: Package, href: "/admin/products" },
     { label: "Categories", value: categoryCount, sub: "in catalog", icon: Tags, href: "/admin/categories" },
+    {
+      label: "New orders",
+      value: newOrderCount,
+      sub: `${formatPrice(revenue)} paid revenue`,
+      icon: ShoppingCart,
+      href: "/admin/orders",
+    },
     { label: "New leads", value: newLeadCount, sub: `${totalLeadCount} total`, icon: Inbox, href: "/admin/leads" },
     { label: "Unsynced issues", value: openIssueCount, sub: "need attention", icon: Bug, href: "/admin/issues" },
   ];
