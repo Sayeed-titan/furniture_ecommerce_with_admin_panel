@@ -38,6 +38,9 @@ export function ProductForm({
     compareAtPrice?: number | string | null;
     material: string;
     room: string;
+    color?: string | null;
+    dimensions?: string | null;
+    deliveryEstimate?: string | null;
     stockStatus: string;
     stockQty: number;
     featured: boolean;
@@ -74,7 +77,7 @@ export function ProductForm({
       <Card title="Pricing">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="price">Price (USD)</Label>
+            <Label htmlFor="price">Price (BDT)</Label>
             <Input id="price" name="price" type="number" step="0.01" min="0" defaultValue={defaultValues?.price} required />
           </div>
           <div className="space-y-1.5">
@@ -144,6 +147,34 @@ export function ProductForm({
             </div>
           </div>
         </div>
+      </Card>
+
+      <Card title="Specifications (shown on the product page)">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="color">Color</Label>
+            <Input id="color" name="color" placeholder="e.g. Walnut Brown" defaultValue={defaultValues?.color ?? ""} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="dimensions">Dimensions</Label>
+            <Input
+              id="dimensions"
+              name="dimensions"
+              placeholder='e.g. 84 x 36 x 32 in'
+              defaultValue={defaultValues?.dimensions ?? ""}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="deliveryEstimate">Delivery estimate</Label>
+            <Input
+              id="deliveryEstimate"
+              name="deliveryEstimate"
+              placeholder="e.g. 7-10 working days"
+              defaultValue={defaultValues?.deliveryEstimate ?? ""}
+            />
+          </div>
+        </div>
+        <p className="mt-2 text-xs text-neutral-500">Optional — leave blank to hide from the product page.</p>
       </Card>
 
       {showImageField && (

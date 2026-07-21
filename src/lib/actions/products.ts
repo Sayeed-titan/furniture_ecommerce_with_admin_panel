@@ -25,6 +25,9 @@ function parseProductForm(formData: FormData) {
   const featured = formData.get("featured") === "on";
   const categoryId = String(formData.get("categoryId"));
   const imageUrl = String(formData.get("imageUrl") ?? "").trim();
+  const color = String(formData.get("color") ?? "").trim() || null;
+  const dimensions = String(formData.get("dimensions") ?? "").trim() || null;
+  const deliveryEstimate = String(formData.get("deliveryEstimate") ?? "").trim() || null;
 
   return {
     name,
@@ -33,6 +36,9 @@ function parseProductForm(formData: FormData) {
     compareAtPrice: compareAtPriceRaw ? Number(compareAtPriceRaw) : null,
     material,
     room,
+    color,
+    dimensions,
+    deliveryEstimate,
     stockStatus,
     stockQty,
     featured,
@@ -53,6 +59,9 @@ export async function createProduct(formData: FormData) {
       compareAtPrice: data.compareAtPrice,
       material: data.material,
       room: data.room,
+      color: data.color,
+      dimensions: data.dimensions,
+      deliveryEstimate: data.deliveryEstimate,
       stockStatus: data.stockStatus,
       stockQty: data.stockQty,
       featured: data.featured,
@@ -83,6 +92,9 @@ export async function updateProduct(id: string, formData: FormData) {
       compareAtPrice: data.compareAtPrice,
       material: data.material,
       room: data.room,
+      color: data.color,
+      dimensions: data.dimensions,
+      deliveryEstimate: data.deliveryEstimate,
       stockStatus: data.stockStatus,
       stockQty: data.stockQty,
       featured: data.featured,

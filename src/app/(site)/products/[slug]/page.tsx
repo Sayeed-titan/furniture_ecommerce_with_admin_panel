@@ -1,24 +1,19 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { Badge } from "@/components/ui/badge";
 import { WishlistButton } from "@/components/site/wishlist-button";
 import { AddToCartButton } from "@/components/site/add-to-cart-button";
 import { LeadForm } from "@/components/site/lead-form";
-import { EnumLabel } from "@/components/site/enum-label";
 import { ProductInterestHeading, ProductInterestSubtitle, RelatedProductsHeading } from "@/components/site/product-interest-block";
 import { ProductCard } from "@/components/site/product-card";
 import { ViewTracker } from "@/components/site/view-tracker";
+import { StockIndicator } from "@/components/site/stock-indicator";
+import { ProductSpecTable } from "@/components/site/product-spec-table";
+import { DeliveryEstimate } from "@/components/site/delivery-estimate";
+import { PaymentMethodsStrip } from "@/components/site/payment-methods-strip";
 import { formatPrice } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
-
-const stockVariant: Record<string, "success" | "warning" | "destructive" | "secondary"> = {
-  IN_STOCK: "success",
-  LOW_STOCK: "warning",
-  OUT_OF_STOCK: "destructive",
-  MADE_TO_ORDER: "secondary",
-};
 
 type Params = Promise<{ slug: string }>;
 
@@ -79,25 +74,42 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
             )}
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Badge variant={stockVariant[product.stockStatus] ?? "secondary"}>
-              <EnumLabel group="stock" value={product.stockStatus} />
-            </Badge>
-            <Badge variant="outline">
-              <EnumLabel group="materials" value={product.material} />
-            </Badge>
-            <Badge variant="outline">
-              <EnumLabel group="rooms" value={product.room} />
-            </Badge>
+          <div className="mt-3">
+            <StockIndicator status={product.stockStatus} />
           </div>
 
           <p className="mt-6 leading-relaxed text-neutral-700">{product.description}</p>
 
+          {product.deliveryEstimate && (
+            <div className="mt-4">
+              <DeliveryEstimate estimate={product.deliveryEstimate} />
+            </div>
+          )}
+
           <div className="mt-6">
-            <AddToCartButton productId={product.id} stockStatus={product.stockStatus} />
+            <AddToCartButton
+              productId={product.id}
+              stockStatus={product.stockStatus}
+              name={product.name}
+              price={Number(product.price)}
+              imageUrl={image?.url}
+            />
           </div>
 
-          <div className="mt-10 rounded-xl border border-neutral-200 p-6">
+          <div className="mt-5">
+            <PaymentMethodsStrip />
+          </div>
+
+          <div className="mt-8">
+            <ProductSpecTable
+              material={product.material}
+              room={product.room}
+              color={product.color}
+              dimensions={product.dimensions}
+            />
+          </div>
+
+          <div className="mt-8 rounded-xl border border-neutral-200 p-6">
             <ProductInterestHeading />
             <ProductInterestSubtitle />
             <div className="mt-4">
