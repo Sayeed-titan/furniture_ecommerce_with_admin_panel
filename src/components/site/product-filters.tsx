@@ -7,7 +7,7 @@ import { useTranslation } from "@/lib/i18n/use-translation";
 type Category = { slug: string; name: string };
 
 const materialValues = ["SOLID_WOOD", "ENGINEERED_WOOD", "ARTIFICIAL_WOOD", "LEATHER", "FABRIC", "METAL"];
-const roomValues = ["LIVING_ROOM", "BEDROOM", "DINING_ROOM", "OFFICE", "OUTDOOR", "KITCHEN"];
+const roomValues = ["OFFICE", "WORKSPACE", "CONFERENCE", "RECEPTION", "HEALTHCARE", "INDUSTRIAL"];
 const stockValues = ["IN_STOCK", "LOW_STOCK", "MADE_TO_ORDER"];
 
 export function ProductFilters({

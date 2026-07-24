@@ -22,13 +22,17 @@ enum MaterialType {
   METAL
 }
 
+/// The setting a piece is built for. Values were renamed from the original
+/// home-furniture set (living room, bedroom, …) to President's actual
+/// market: office, industrial, and hospital furniture. Enum positions are
+/// preserved to match the DB after the ALTER TYPE ... RENAME VALUE migration.
 enum RoomType {
-  LIVING_ROOM
-  BEDROOM
-  DINING_ROOM
+  RECEPTION
+  HEALTHCARE
+  CONFERENCE
   OFFICE
-  OUTDOOR
-  KITCHEN
+  INDUSTRIAL
+  WORKSPACE
 }
 
 enum StockStatus {
@@ -96,25 +100,28 @@ model Category {
 }
 
 model Product {
-  id             String         @id @default(cuid())
-  name           String
-  slug           String         @unique
-  description    String
-  price          Decimal        @db.Decimal(10, 2)
-  compareAtPrice Decimal?       @db.Decimal(10, 2)
-  material       MaterialType
-  room           RoomType
-  stockStatus    StockStatus    @default(IN_STOCK)
-  stockQty       Int            @default(0)
-  featured       Boolean        @default(false)
-  viewCount      Int            @default(0)
-  images         ProductImage[]
-  category       Category       @relation(fields: [categoryId], references: [id])
-  categoryId     String
-  leadItems      LeadItem[]
-  orderItems     OrderItem[]
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  id               String         @id @default(cuid())
+  name             String
+  slug             String         @unique
+  description      String
+  price            Decimal        @db.Decimal(10, 2)
+  compareAtPrice   Decimal?       @db.Decimal(10, 2)
+  material         MaterialType
+  room             RoomType
+  color            String?
+  dimensions       String?
+  deliveryEstimate String?
+  stockStatus      StockStatus    @default(IN_STOCK)
+  stockQty         Int            @default(0)
+  featured         Boolean        @default(false)
+  viewCount        Int            @default(0)
+  images           ProductImage[]
+  category         Category       @relation(fields: [categoryId], references: [id])
+  categoryId       String
+  leadItems        LeadItem[]
+  orderItems       OrderItem[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
   @@index([categoryId])
   @@index([material])
@@ -189,17 +196,17 @@ model IssueReport {
 }
 
 model Customer {
-  id           String     @id @default(cuid())
+  id           String    @id @default(cuid())
   name         String
-  email        String     @unique
+  email        String    @unique
   phone        String?
   /// Null for customer records created from a guest order; they can set a
   /// password later to "claim" the account.
   passwordHash String?
   addresses    Address[]
   orders       Order[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 model Address {
@@ -260,32 +267,32 @@ model Order {
 /// Snapshot of a product's name/price at order time, so later catalog
 /// edits never alter past orders.
 model OrderItem {
-  id           String  @id @default(cuid())
-  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  orderId      String
-  product      Product @relation(fields: [productId], references: [id])
-  productId    String
-  nameSnapshot String
+  id            String  @id @default(cuid())
+  order         Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId       String
+  product       Product @relation(fields: [productId], references: [id])
+  productId     String
+  nameSnapshot  String
   priceSnapshot Decimal @db.Decimal(10, 2)
-  qty          Int
-  lineTotal    Decimal @db.Decimal(10, 2)
+  qty           Int
+  lineTotal     Decimal @db.Decimal(10, 2)
 
   @@index([orderId])
   @@index([productId])
 }
 
 model Payment {
-  id                String        @id @default(cuid())
-  order             Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  orderId           String
-  gateway           PaymentMethod
-  gatewayTxnId      String?
-  valId             String?
-  amount            Decimal       @db.Decimal(10, 2)
-  status            PaymentStatus @default(PENDING)
-  rawPayload        Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  id           String        @id @default(cuid())
+  order        Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId      String
+  gateway      PaymentMethod
+  gatewayTxnId String?
+  valId        String?
+  amount       Decimal       @db.Decimal(10, 2)
+  status       PaymentStatus @default(PENDING)
+  rawPayload   Json?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   @@index([orderId])
   @@index([gatewayTxnId])
