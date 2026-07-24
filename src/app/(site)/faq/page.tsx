@@ -12,12 +12,12 @@ export default function FaqPage() {
         </p>
       </PolicySection>
 
-      <PolicySection heading="Do you build custom furniture?">
+      <PolicySection heading="Do you handle full fit-outs and custom work?">
         <p>
-          Yes. Beyond the catalogue, we take on-site commissions — fitted wardrobes, permanent
-          interiors, custom doors, and millwork — measured at your home or office and installed by
-          the same team that made them. <a href="/contact" className="underline">Contact us</a> to
-          start a commission.
+          Yes. Beyond the catalogue, we take on contract fit-outs and made-to-spec work — modular
+          workstations, reception counters, and custom storage — measured at your site and installed
+          by the same team that built them. <a href="/contact" className="underline">Contact us</a> for
+          a quote.
         </p>
       </PolicySection>
 

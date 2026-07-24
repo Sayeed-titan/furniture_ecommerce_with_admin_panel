@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s | President Furniture",
   },
   description:
-    "President Furniture — handcrafted wooden, artificial wood, and leather furniture for home and office, plus custom on-site woodwork.",
+    "President Furniture — office, industrial, and hospital furniture supplied, delivered, and installed across Bangladesh. Desks, seating, storage, workstations, hospital beds, and industrial racking.",
 };
 
 export default function RootLayout({

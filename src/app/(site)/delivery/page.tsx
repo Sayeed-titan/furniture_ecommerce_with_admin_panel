@@ -24,7 +24,7 @@ export default function DeliveryPage() {
       <PolicySection heading="Assembly & installation">
         <p>
           Ready-made furniture is delivered assembled or with our team assembling on-site, at no
-          extra charge. Custom and on-site commissions (wardrobes, interiors, millwork) are
+          extra charge. Contract fit-outs (workstations, reception counters, custom storage) are
           installed directly by the team that measured and built them.
         </p>
       </PolicySection>

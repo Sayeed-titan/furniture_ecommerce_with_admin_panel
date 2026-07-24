@@ -28,7 +28,7 @@ export function SiteFooter() {
             President Furniture
           </span>
           <p className="mt-2 max-w-xs text-sm text-neutral-500">
-            Solid wood, leather &amp; artificial-wood furniture, and custom on-site woodwork — Dhaka, Bangladesh.
+            Office, industrial &amp; hospital furniture — supplied, delivered, and installed across Bangladesh.
           </p>
         </div>
 

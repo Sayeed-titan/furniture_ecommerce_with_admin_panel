@@ -3,6 +3,7 @@ import { CreativeFable5Landing } from "@/components/site/landing/creative_fable5
 import { PremiumLanding } from "@/components/site/landing/premium";
 import { ImmersiveLanding } from "@/components/site/landing/immersive";
 import { PresidentLanding } from "@/components/site/landing/president";
+import { CommerceLanding } from "@/components/site/landing/commerce";
 import type { LandingVariantComponent, LandingVariantKey } from "@/components/site/landing/types";
 
 /**
@@ -22,6 +23,7 @@ export const landingVariants: Record<LandingVariantKey, LandingVariantComponent>
   premium: PremiumLanding,
   immersive: ImmersiveLanding,
   president: PresidentLanding,
+  commerce: CommerceLanding,
 };
 
 export const landingVariantLabels: Record<LandingVariantKey, string> = {
@@ -30,4 +32,5 @@ export const landingVariantLabels: Record<LandingVariantKey, string> = {
   premium: "Type 3 — Premium: clean & product-led",
   immersive: "Type 4 — Immersive: same hero, richer & more playful page",
   president: "Type 5 — President: flagship brand experience (WebGL + motion)",
+  commerce: "Type 6 — Commerce: merchandising storefront (office · industrial · hospital)",
 };
