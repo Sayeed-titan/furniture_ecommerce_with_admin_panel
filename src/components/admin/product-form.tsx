@@ -7,7 +7,7 @@ import { ImageField } from "@/components/admin/image-field";
 type Category = { id: string; name: string };
 
 const materials = ["SOLID_WOOD", "ENGINEERED_WOOD", "ARTIFICIAL_WOOD", "LEATHER", "FABRIC", "METAL"];
-const rooms = ["LIVING_ROOM", "BEDROOM", "DINING_ROOM", "OFFICE", "OUTDOOR", "KITCHEN"];
+const rooms = ["OFFICE", "WORKSPACE", "CONFERENCE", "RECEPTION", "HEALTHCARE", "INDUSTRIAL"];
 const stockStatuses = ["IN_STOCK", "LOW_STOCK", "OUT_OF_STOCK", "MADE_TO_ORDER"];
 
 const selectClass =
@@ -121,7 +121,7 @@ export function ProductForm({
             </select>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="room">Room</Label>
+            <Label htmlFor="room">Setting</Label>
             <select id="room" name="room" defaultValue={defaultValues?.room} required className={selectClass}>
               {rooms.map((r) => (
                 <option key={r} value={r}>

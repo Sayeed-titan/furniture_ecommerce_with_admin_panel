@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Nested version-snapshot copy of the whole project — not part of this build.
+    "Version/**",
   ]),
 ]);
 
