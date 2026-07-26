@@ -265,6 +265,40 @@ const en = {
     ctaSub:
       "Browse the collection, save what moves you, and our team will bring it to your door — or build it into your walls.",
   },
+  workshop: {
+    heroKicker: "Handcrafted in Dhaka · since 1998",
+    heroTitle1: "Made by hand,",
+    heroTitle2: "at home in",
+    heroTitleEm: "every room.",
+    heroSubtitle:
+      "Solid wood, engineered wood and leather pieces for living rooms, bedrooms and workspaces — taken home ready-made, or built to your measurements by the same hands.",
+    heroCtaPrimary: "Browse the catalogue",
+    heroCtaSecondary: "Commission custom work",
+    path1Eyebrow: "BUY READY-MADE",
+    path2Eyebrow: "COMMISSION CUSTOM",
+    roomsKicker: "Every room",
+    roomsTitle: "Built for every room",
+    collectionKicker: "In the workshop now",
+    collectionTitle: "New this season",
+    workshopKicker: "The workshop",
+    workshopTitle: "We make it, so we can change it.",
+    workshopBody:
+      "Every desk, cabinet and bed frame leaves our own floor in Dhaka. A different size, a new finish, or a hundred matching units is a conversation — not a special order from overseas.",
+    stat1Label: "Years",
+    stat2Label: "Projects",
+    stat3Label: "Guarantee",
+    svc1Title: "Free consultation",
+    svc1Body: "We visit, measure your space, and return a layout with quantities and a clear quote.",
+    svc2Title: "Delivery & assembly",
+    svc2Body: "Dhaka next-day; nationwide within the week — delivered and set up in place.",
+    svc3Title: "Trade & bulk pricing",
+    svc3Body: "Tiered rates for offices and projects from ten units. Tender documents on request.",
+    enquiryTitle: "Fitting out a space?",
+    enquiryTitleEm: "Send us the plan.",
+    enquiryBody:
+      "Share a drawing or a headcount and we'll come back within one working day with a layout, quantities and a price.",
+    enquiryFormHeading: "Quick enquiry",
+  },
 };
 
 const bn: typeof en = {
@@ -523,6 +557,40 @@ const bn: typeof en = {
     ctaTitleEm: "টেবিলের প্রধানে।",
     ctaSub:
       "কালেকশন দেখুন, পছন্দগুলো সংরক্ষণ করুন — আমাদের দল তা পৌঁছে দেবে আপনার দুয়ারে, কিংবা গড়ে দেবে আপনার দেয়ালে।",
+  },
+  workshop: {
+    heroKicker: "ঢাকায় হাতে তৈরি · ১৯৯৮ সাল থেকে",
+    heroTitle1: "হাতে গড়া আসবাব,",
+    heroTitle2: "প্রতিটি ঘরের",
+    heroTitleEm: "জন্য।",
+    heroSubtitle:
+      "লিভিং রুম, বেডরুম ও কর্মক্ষেত্রের জন্য সলিড উড, ইঞ্জিনিয়ার্ড উড ও লেদারের আসবাব — রেডি নিয়ে যান, অথবা একই হাতে আপনার মাপে তৈরি করান।",
+    heroCtaPrimary: "ক্যাটালগ দেখুন",
+    heroCtaSecondary: "কাস্টম কাজের অর্ডার দিন",
+    path1Eyebrow: "রেডি আসবাব কিনুন",
+    path2Eyebrow: "কাস্টম অর্ডার দিন",
+    roomsKicker: "প্রতিটি ঘর",
+    roomsTitle: "প্রতিটি ঘরের জন্য তৈরি",
+    collectionKicker: "এখন কর্মশালায়",
+    collectionTitle: "এই মৌসুমের নতুন",
+    workshopKicker: "কর্মশালা",
+    workshopTitle: "আমরাই বানাই, তাই বদলে দিতে পারি।",
+    workshopBody:
+      "প্রতিটি ডেস্ক, ক্যাবিনেট ও খাটের ফ্রেম আমাদের নিজস্ব ঢাকার ফ্লোর থেকে তৈরি হয়। ভিন্ন মাপ, নতুন ফিনিশ, কিংবা একশোটি একই রকম ইউনিট — এটি একটি আলোচনা, বিদেশ থেকে বিশেষ অর্ডার নয়।",
+    stat1Label: "বছর",
+    stat2Label: "প্রকল্প",
+    stat3Label: "ওয়ারেন্টি",
+    svc1Title: "ফ্রি পরামর্শ",
+    svc1Body: "আমরা গিয়ে আপনার জায়গা মেপে একটি লেআউট, পরিমাণ ও স্পষ্ট দাম দিয়ে আসি।",
+    svc2Title: "ডেলিভারি ও অ্যাসেম্বলি",
+    svc2Body: "ঢাকায় পরদিন; সারাদেশে এক সপ্তাহের মধ্যে — পৌঁছে দিয়ে জায়গায় বসিয়ে দেওয়া হয়।",
+    svc3Title: "ট্রেড ও বাল্ক মূল্য",
+    svc3Body: "দশ ইউনিট থেকে অফিস ও প্রকল্পের জন্য ধাপে ধাপে মূল্য। টেন্ডার ডকুমেন্ট চাহিদামতো।",
+    enquiryTitle: "কোনো জায়গা সাজাচ্ছেন?",
+    enquiryTitleEm: "আমাদের প্ল্যান পাঠান।",
+    enquiryBody:
+      "একটি ড্রইং বা কর্মীসংখ্যা পাঠান, আমরা এক কর্মদিবসের মধ্যে লেআউট, পরিমাণ ও দাম নিয়ে ফিরে আসব।",
+    enquiryFormHeading: "দ্রুত জিজ্ঞাসা",
   },
 };
 

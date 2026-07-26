@@ -56,3 +56,38 @@ body {
     transform: none !important;
   }
 }
+
+/* --- Workshop landing motion (Type 6) ----------------------------------- */
+
+@keyframes wsp-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Masked "curtain" reveal for the hero headline lines. */
+@keyframes wsp-mask {
+  from { transform: translateY(108%) rotate(2deg); }
+  to { transform: translateY(0) rotate(0); }
+}
+
+@keyframes wsp-rise {
+  from { opacity: 0; transform: translateY(26px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes wsp-cue {
+  0%, 100% { transform: translateY(0); opacity: 0.85; }
+  50% { transform: translateY(8px); opacity: 0.3; }
+}
+
+/* Tag hero entrance animations with .wsp-anim so reduced-motion users get
+   the settled frame instantly. The marquee keeps looping (it conveys no
+   information and pauses under reduced-motion via the block below). */
+@media (prefers-reduced-motion: reduce) {
+  .wsp-anim,
+  .wsp-marquee {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
