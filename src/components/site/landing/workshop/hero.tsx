@@ -3,6 +3,7 @@ import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import type { LandingProduct } from "@/components/site/landing/types";
 import { newsreader } from "./fonts";
+import { hd, HERO_FALLBACK } from "./imagery";
 import { WorkshopHeroCopy } from "./hero-copy";
 
 /**
@@ -14,6 +15,7 @@ import { WorkshopHeroCopy } from "./hero-copy";
  */
 export function WorkshopHero({ heroProduct }: { heroProduct?: LandingProduct }) {
   const image = heroProduct?.images[0];
+  const heroSrc = hd(image?.url, 1500) ?? HERO_FALLBACK;
 
   return (
     <section className="relative overflow-hidden bg-[#17140f] text-[#f6f1e9]">
@@ -45,20 +47,14 @@ export function WorkshopHero({ heroProduct }: { heroProduct?: LandingProduct }) 
             className="wsp-anim group relative block opacity-0 [animation:wsp-rise_0.9s_0.5s_ease-out_forwards]"
           >
             <div className="relative aspect-[4/5] w-full overflow-hidden border border-[#f6f1e9]/15 bg-[#241f18]">
-              {image ? (
-                <Image
-                  src={image.url}
-                  alt={image.alt ?? heroProduct.name}
-                  fill
-                  priority
-                  sizes="(min-width: 1024px) 44vw, 100vw"
-                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-                />
-              ) : (
-                <div className="absolute inset-0 grid place-items-center text-xs text-[#f6f1e9]/40">
-                  {heroProduct.name}
-                </div>
-              )}
+              <Image
+                src={heroSrc}
+                alt={image?.alt ?? heroProduct.name}
+                fill
+                priority
+                sizes="(min-width: 1024px) 44vw, 100vw"
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+              />
               <span className="absolute left-4 top-4 bg-[#f6f1e9] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-[#17140f]">
                 Featured piece
               </span>

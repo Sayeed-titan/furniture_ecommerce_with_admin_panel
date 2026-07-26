@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { LandingProduct } from "@/components/site/landing/types";
 import { Reveal } from "@/components/site/reveal";
 import { newsreader } from "./fonts";
+import { hd, WORKSHOP_SHOTS } from "./imagery";
 import { Eyebrow, DisplayHeading, TranslatedText } from "./chrome";
 
 /**
@@ -11,7 +12,13 @@ import { Eyebrow, DisplayHeading, TranslatedText } from "./chrome";
  * back to a woven texture when there aren't enough.
  */
 export function WorkshopStory({ products }: { products: LandingProduct[] }) {
-  const shots = products.flatMap((p) => p.images).slice(0, 3);
+  // Prefer real product photos (upgraded to HD); pad with craft shots so all
+  // three mosaic tiles always carry an image.
+  const productShots = products
+    .flatMap((p) => p.images)
+    .map((im) => hd(im.url, 1000))
+    .filter((u): u is string => Boolean(u));
+  const mosaic = [0, 1, 2].map((i) => productShots[i] ?? WORKSHOP_SHOTS[i]);
 
   const stats = [
     { value: "27", label: "workshop.stat1Label" },
@@ -49,37 +56,31 @@ export function WorkshopStory({ products }: { products: LandingProduct[] }) {
 
         <Reveal delay={120} className="grid aspect-[4/3] grid-cols-2 grid-rows-2 gap-3">
           <div className="relative row-span-2 overflow-hidden" style={{ background: weave }}>
-            {shots[0] && (
-              <Image
-                src={shots[0].url}
-                alt={shots[0].alt ?? ""}
-                fill
-                sizes="(min-width: 1024px) 22vw, 45vw"
-                className="object-cover"
-              />
-            )}
+            <Image
+              src={mosaic[0]}
+              alt=""
+              fill
+              sizes="(min-width: 1024px) 22vw, 45vw"
+              className="object-cover"
+            />
           </div>
           <div className="relative overflow-hidden" style={{ background: weave }}>
-            {shots[1] && (
-              <Image
-                src={shots[1].url}
-                alt={shots[1].alt ?? ""}
-                fill
-                sizes="(min-width: 1024px) 22vw, 45vw"
-                className="object-cover"
-              />
-            )}
+            <Image
+              src={mosaic[1]}
+              alt=""
+              fill
+              sizes="(min-width: 1024px) 22vw, 45vw"
+              className="object-cover"
+            />
           </div>
           <div className="relative overflow-hidden" style={{ background: weave }}>
-            {shots[2] && (
-              <Image
-                src={shots[2].url}
-                alt={shots[2].alt ?? ""}
-                fill
-                sizes="(min-width: 1024px) 22vw, 45vw"
-                className="object-cover"
-              />
-            )}
+            <Image
+              src={mosaic[2]}
+              alt=""
+              fill
+              sizes="(min-width: 1024px) 22vw, 45vw"
+              className="object-cover"
+            />
           </div>
         </Reveal>
       </div>

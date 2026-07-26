@@ -6,6 +6,7 @@ import { Reveal } from "@/components/site/reveal";
 import { WishlistButton } from "@/components/site/wishlist-button";
 import { StockLabel } from "@/components/site/stock-label";
 import { newsreader } from "./fonts";
+import { hd, COLLECTION_FALLBACKS } from "./imagery";
 import { Eyebrow, DisplayHeading, ArrowLink, TranslatedText } from "./chrome";
 
 /**
@@ -34,6 +35,7 @@ export function WorkshopCollection({ products }: { products: LandingProduct[] })
         <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
           {products.map((product, i) => {
             const image = product.images[0];
+            const src = hd(image?.url, 900) ?? COLLECTION_FALLBACKS[i % COLLECTION_FALLBACKS.length];
             return (
               <Reveal key={product.id} delay={(i % 4) * 80}>
                 <Link
@@ -41,24 +43,13 @@ export function WorkshopCollection({ products }: { products: LandingProduct[] })
                   className="group flex h-full flex-col gap-3 border border-[#e2d9cb] bg-[#fffdf9] p-3.5 transition-all duration-300 hover:-translate-y-1 hover:border-[#17140f]"
                 >
                   <div className="relative aspect-[4/5] overflow-hidden bg-[#e9e1d2]">
-                    {image ? (
-                      <Image
-                        src={image.url}
-                        alt={image.alt ?? product.name}
-                        fill
-                        sizes="(min-width: 1024px) 22vw, 45vw"
-                        className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                      />
-                    ) : (
-                      <div
-                        aria-hidden="true"
-                        className="absolute inset-0"
-                        style={{
-                          background:
-                            "repeating-linear-gradient(135deg,#e9e1d2 0 9px,#f2ece1 9px 18px)",
-                        }}
-                      />
-                    )}
+                    <Image
+                      src={src}
+                      alt={image?.alt ?? product.name}
+                      fill
+                      sizes="(min-width: 1024px) 22vw, 45vw"
+                      className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                    />
                     {product.stockStatus !== "IN_STOCK" && (
                       <span className="absolute left-2.5 top-2.5 bg-[#17140f] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-[#f6f1e9]">
                         <StockLabel status={product.stockStatus} />

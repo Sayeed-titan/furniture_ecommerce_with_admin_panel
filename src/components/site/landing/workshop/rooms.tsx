@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { LandingCategory } from "@/components/site/landing/types";
 import { Reveal } from "@/components/site/reveal";
 import { newsreader } from "./fonts";
+import { hd, ROOM_FALLBACKS } from "./imagery";
 import { Eyebrow, DisplayHeading, ArrowLink, TranslatedText } from "./chrome";
 
 /**
@@ -32,28 +33,18 @@ export function WorkshopRooms({ categories }: { categories: LandingCategory[] })
         <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
           {rooms.map((room, i) => {
             const cover = room.products[0]?.images[0];
+            const coverSrc = hd(cover?.url, 900) ?? ROOM_FALLBACKS[i % ROOM_FALLBACKS.length];
             return (
               <Reveal key={room.id} delay={(i % 4) * 80}>
                 <Link href={`/products?category=${room.slug}`} className="group flex flex-col gap-3.5">
                   <div className="relative aspect-[3/4] overflow-hidden border border-[#d3c8b5] bg-[#e6ddcd]">
-                    {cover ? (
-                      <Image
-                        src={cover.url}
-                        alt={cover.alt ?? room.name}
-                        fill
-                        sizes="(min-width: 1024px) 22vw, 45vw"
-                        className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                      />
-                    ) : (
-                      <div
-                        aria-hidden="true"
-                        className="absolute inset-0"
-                        style={{
-                          background:
-                            "repeating-linear-gradient(135deg,#e6ddcd 0 9px,#efe8dc 9px 18px)",
-                        }}
-                      />
-                    )}
+                    <Image
+                      src={coverSrc}
+                      alt={cover?.alt ?? room.name}
+                      fill
+                      sizes="(min-width: 1024px) 22vw, 45vw"
+                      className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                    />
                   </div>
                   <div className="flex flex-col gap-1">
                     <span
