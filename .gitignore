@@ -37,6 +37,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# user-uploaded product images (created at runtime, not part of the repo)
+/public/uploads/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

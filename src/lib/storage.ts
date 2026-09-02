@@ -1,22 +1,18 @@
 /**
- * Server-only product-image uploads to Supabase Storage via its REST API
- * (no SDK, no extra dependency). Configured via env:
+ * Server-only product-image uploads to local disk, under public/uploads/products.
+ * Next.js serves the public/ directory as-is (dev and `next start` alike), so a
+ * file written here is immediately reachable at the returned URL — no separate
+ * static-file route needed.
  *
- *   NEXT_PUBLIC_SUPABASE_URL      https://<ref>.supabase.co
- *   SUPABASE_SERVICE_ROLE_KEY     service role key (server-only secret)
- *   SUPABASE_STORAGE_BUCKET       bucket name (defaults to "product-images")
- *
- * The bucket must exist and be public. When unconfigured, isStorageConfigured()
- * is false and the admin UI falls back to pasting an image URL.
+ * Production note (Hostinger): this directory must survive redeploys — make
+ * sure whatever deploy process is used does not wipe/replace public/uploads.
  */
 
-const BUCKET = process.env.SUPABASE_STORAGE_BUCKET ?? "product-images";
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
 
-export function isStorageConfigured(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
-  );
-}
+const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "products");
+const PUBLIC_PATH = "/uploads/products";
 
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp", "image/avif", "image/gif"]);
 const MAX_BYTES = 8 * 1024 * 1024; // 8 MB
@@ -33,10 +29,6 @@ function extensionFor(contentType: string): string {
 }
 
 export async function uploadProductImage(file: File): Promise<{ url: string }> {
-  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!base || !key) throw new Error("Supabase Storage is not configured");
-
   if (!ALLOWED.has(file.type)) {
     throw new Error("Unsupported image type. Use JPG, PNG, WebP, AVIF, or GIF.");
   }
@@ -44,25 +36,10 @@ export async function uploadProductImage(file: File): Promise<{ url: string }> {
     throw new Error("Image is too large (max 8 MB).");
   }
 
-  const ext = extensionFor(file.type);
-  const path = `${crypto.randomUUID()}.${ext}`;
-  const uploadUrl = `${base}/storage/v1/object/${BUCKET}/${path}`;
+  const filename = `${crypto.randomUUID()}.${extensionFor(file.type)}`;
 
-  const res = await fetch(uploadUrl, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${key}`,
-      "Content-Type": file.type,
-      "x-upsert": "true",
-      "cache-control": "max-age=31536000",
-    },
-    body: await file.arrayBuffer(),
-  });
+  await mkdir(UPLOAD_DIR, { recursive: true });
+  await writeFile(path.join(UPLOAD_DIR, filename), Buffer.from(await file.arrayBuffer()));
 
-  if (!res.ok) {
-    const detail = await res.text().catch(() => "");
-    throw new Error(`Upload failed (${res.status}): ${detail.slice(0, 200)}`);
-  }
-
-  return { url: `${base}/storage/v1/object/public/${BUCKET}/${path}` };
+  return { url: `${PUBLIC_PATH}/${filename}` };
 }

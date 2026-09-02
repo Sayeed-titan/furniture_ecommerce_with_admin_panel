@@ -130,7 +130,6 @@ the repo's `vercel-build` script runs `prisma migrate deploy` before
 
 | Variable | Feature |
 | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET` | product image uploads |
 | `GITHUB_TOKEN`, `GITHUB_REPO_OWNER`, `GITHUB_REPO_NAME` | website issue reporting → GitHub |
 | `RESEND_API_KEY`, `EMAIL_FROM`, `NOTIFY_EMAIL` | email notifications |
 
@@ -165,13 +164,16 @@ business gets an email. Uses [Resend](https://resend.com) over HTTPS.
 - Set `RESEND_API_KEY`, `EMAIL_FROM` (a verified sender), `NOTIFY_EMAIL`.
 - Without these, notifications are silently skipped — submissions still save.
 
-### Product image uploads (Supabase Storage)
+### Product image uploads
 
 The admin product form lets you upload an image file (or keep pasting a URL).
+Uploads are saved to disk at `public/uploads/products` and served directly by
+Next.js — no external storage service or env vars needed.
 
-- Create a **public** Supabase Storage bucket named `product-images` (or set
-  `SUPABASE_STORAGE_BUCKET`), and set `SUPABASE_SERVICE_ROLE_KEY`.
-- Without these, the form falls back to the URL field.
+Production note: that folder must survive redeploys. If the Hostinger deploy
+process ever replaces the app directory wholesale, point it at a path outside
+that directory (or exclude `public/uploads` from the redeploy) so uploaded
+images aren't lost.
 
 ## Project structure
 

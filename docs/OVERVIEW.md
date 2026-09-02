@@ -25,7 +25,7 @@ the admin panel, without touching code.
 | Styling | **Tailwind CSS v4** + a small in-house component set |
 | Database | **PostgreSQL** on Supabase, via the **Prisma** ORM |
 | Auth | **Auth.js** (NextAuth v5) — credentials, JWT sessions, role-based |
-| Images | **Supabase Storage** — product image uploads |
+| Images | Local disk (`public/uploads`) — product image uploads |
 | Email | **Resend** — lead & issue notifications |
 | Issues | **GitHub REST** — website requests become repo issues |
 | Hosting | **Vercel** — push to GitHub → auto-migrate & deploy |
@@ -127,7 +127,7 @@ and status colour used to surface what needs attention.
 | --- | --- | --- |
 | **GitHub issues** | The site's "Report an issue" form opens a labelled repo issue — new requests become trackable, billable work | `GITHUB_TOKEN`, `GITHUB_REPO_OWNER`, `GITHUB_REPO_NAME` |
 | **Email alerts** | New leads and new requests email the business immediately (Resend) | `RESEND_API_KEY`, `EMAIL_FROM`, `NOTIFY_EMAIL` |
-| **Image storage** | Product photos upload to a public Supabase bucket from the admin | `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET` |
+| **Image storage** | Product photos upload straight to disk (`public/uploads/products`) from the admin — no env vars, no external service | — |
 
 Each is off until its keys are set, and degrades gracefully: a missing GitHub
 token still saves the request locally; a missing email key just skips the alert.
