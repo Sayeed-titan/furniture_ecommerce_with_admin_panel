@@ -1,40 +1,52 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Upload, Loader2, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { addProductImage } from "@/lib/actions/product-images";
 
 /**
- * "Add image" control for the product gallery. An uncontrolled URL input
- * (name="imageUrl") plus an upload-to-fill button and an Add submit button.
- * Lives inside a <form action={addProductImage}>; React 19 auto-resets the
- * uncontrolled input after the action runs, so the field clears itself.
+ * "Add image" control for the product gallery: a URL paste + Add button
+ * (form action) for the single-URL path, plus a multi-select file picker
+ * that uploads every chosen file and appends each straight to the gallery
+ * via the addProductImage server action — no need to select/add one at a time.
  */
-export function ImageUrlUploader() {
+export function ImageUrlUploader({ productId }: { productId: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  async function onFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
     setUploading(true);
     setError(null);
-    try {
-      const data = new FormData();
-      data.append("file", file);
-      const res = await fetch("/api/admin/upload", { method: "POST", body: data });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(json.error ?? "Upload failed");
-      if (inputRef.current) inputRef.current.value = json.url;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed");
-    } finally {
-      setUploading(false);
-      if (fileRef.current) fileRef.current.value = "";
+    const failures: string[] = [];
+
+    for (const file of files) {
+      try {
+        const data = new FormData();
+        data.append("file", file);
+        const res = await fetch("/api/admin/upload", { method: "POST", body: data });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(json.error ?? "Upload failed");
+
+        const addData = new FormData();
+        addData.append("imageUrl", json.url);
+        await addProductImage(productId, addData);
+      } catch (err) {
+        failures.push(`${file.name}: ${err instanceof Error ? err.message : "Upload failed"}`);
+      }
     }
+
+    setUploading(false);
+    if (fileRef.current) fileRef.current.value = "";
+    if (failures.length > 0) setError(failures.join(" · "));
+    router.refresh();
   }
 
   return (
@@ -53,10 +65,12 @@ export function ImageUrlUploader() {
         <Button type="submit" className="shrink-0">
           <Plus className="h-4 w-4" /> Add
         </Button>
-        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onFile} />
+        <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={onFiles} />
       </div>
       {error && <p className="text-xs text-red-600">{error}</p>}
-      <p className="text-xs text-neutral-500">Add multiple images — the first is used as the primary/homepage image.</p>
+      <p className="text-xs text-neutral-500">
+        Select multiple files at once to add them all — the first image in the gallery is used as the primary/homepage image.
+      </p>
     </div>
   );
 }

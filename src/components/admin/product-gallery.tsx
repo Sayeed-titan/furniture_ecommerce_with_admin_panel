@@ -78,7 +78,7 @@ export function ProductGallery({ productId, images }: { productId: string; image
       )}
 
       <form action={addAction} className="border-t border-neutral-200 pt-4">
-        <ImageUrlUploader />
+        <ImageUrlUploader productId={productId} />
       </form>
     </div>
   );
