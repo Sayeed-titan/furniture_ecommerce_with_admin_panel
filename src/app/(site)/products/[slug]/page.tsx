@@ -1,7 +1,7 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { WishlistButton } from "@/components/site/wishlist-button";
+import { ProductImageGallery } from "@/components/site/product-image-gallery";
 import { AddToCartButton } from "@/components/site/add-to-cart-button";
 import { LeadForm } from "@/components/site/lead-form";
 import { ProductInterestHeading, ProductInterestSubtitle, RelatedProductsHeading } from "@/components/site/product-interest-block";
@@ -43,21 +43,8 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <ViewTracker productId={product.id} />
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-        <div className="relative aspect-square overflow-hidden rounded-xl bg-neutral-100">
-          {image ? (
-            <Image
-              src={image.url}
-              alt={image.alt ?? product.name}
-              fill
-              className="object-cover"
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              priority
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center text-neutral-400">
-              No image
-            </div>
-          )}
+        <div className="relative">
+          <ProductImageGallery images={product.images} productName={product.name} />
           <WishlistButton productId={product.id} className="absolute left-4 top-4 h-11 w-11" />
         </div>
 
