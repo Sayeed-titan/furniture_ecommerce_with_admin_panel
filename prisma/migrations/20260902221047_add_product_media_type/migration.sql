@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `productimage` ADD COLUMN `type` ENUM('IMAGE', 'VIDEO_EMBED', 'VIDEO_FILE') NOT NULL DEFAULT 'IMAGE';

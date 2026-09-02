@@ -128,14 +128,21 @@ model Product {
   @@index([stockStatus])
 }
 
+enum ProductMediaType {
+  IMAGE
+  VIDEO_EMBED
+  VIDEO_FILE
+}
+
 model ProductImage {
-  id        String   @id @default(cuid())
+  id        String           @id @default(cuid())
   url       String
   alt       String?
-  position  Int      @default(0)
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  position  Int              @default(0)
+  type      ProductMediaType @default(IMAGE)
+  product   Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
-  createdAt DateTime @default(now())
+  createdAt DateTime         @default(now())
 
   @@index([productId])
 }
