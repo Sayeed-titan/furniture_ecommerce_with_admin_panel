@@ -26,7 +26,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
   const { q, category, stock } = await searchParams;
 
   const where: Prisma.ProductWhereInput = {};
-  if (q) where.name = { contains: q, mode: "insensitive" };
+  if (q) where.name = { contains: q };
   if (category) where.categoryId = category;
   if (stock) where.stockStatus = stock as Prisma.EnumStockStatusFilter["equals"];
 

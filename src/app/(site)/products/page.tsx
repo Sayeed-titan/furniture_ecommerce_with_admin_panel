@@ -30,8 +30,8 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
   if (params.q?.trim()) {
     const q = params.q.trim();
     where.OR = [
-      { name: { contains: q, mode: "insensitive" } },
-      { description: { contains: q, mode: "insensitive" } },
+      { name: { contains: q } },
+      { description: { contains: q } },
     ];
   }
 

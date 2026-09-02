@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -103,7 +102,7 @@ model Product {
   id               String         @id @default(cuid())
   name             String
   slug             String         @unique
-  description      String
+  description      String         @db.Text
   price            Decimal        @db.Decimal(10, 2)
   compareAtPrice   Decimal?       @db.Decimal(10, 2)
   material         MaterialType
@@ -146,8 +145,8 @@ model Lead {
   name      String
   email     String
   phone     String?
-  message   String?
-  notes     String?
+  message   String?    @db.Text
+  notes     String?    @db.Text
   status    LeadStatus @default(NEW)
   items     LeadItem[]
   createdAt DateTime   @default(now())
@@ -160,7 +159,7 @@ model Lead {
 /// (active landing variant, WhatsApp number, etc.).
 model SiteSetting {
   key       String   @id
-  value     String
+  value     String   @db.Text
   updatedAt DateTime @updatedAt
 }
 
@@ -181,7 +180,7 @@ model IssueReport {
   id                String    @id @default(cuid())
   type              IssueType @default(BUG)
   title             String
-  body              String
+  body              String    @db.Text
   reporterName      String?
   reporterEmail     String?
   pageUrl           String?
@@ -254,7 +253,7 @@ model Order {
   status        OrderStatus   @default(PLACED)
   paymentMethod PaymentMethod
   paymentStatus PaymentStatus @default(PENDING)
-  notes         String?
+  notes         String?       @db.Text
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 

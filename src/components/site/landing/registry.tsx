@@ -4,6 +4,7 @@ import { PremiumLanding } from "@/components/site/landing/premium";
 import { ImmersiveLanding } from "@/components/site/landing/immersive";
 import { PresidentLanding } from "@/components/site/landing/president";
 import { CommerceLanding } from "@/components/site/landing/commerce";
+import { ShowroomLanding } from "@/components/site/landing/showroom";
 import type { LandingVariantComponent, LandingVariantKey } from "@/components/site/landing/types";
 
 /**
@@ -24,6 +25,7 @@ export const landingVariants: Record<LandingVariantKey, LandingVariantComponent>
   immersive: ImmersiveLanding,
   president: PresidentLanding,
   commerce: CommerceLanding,
+  showroom: ShowroomLanding,
 };
 
 export const landingVariantLabels: Record<LandingVariantKey, string> = {
@@ -33,4 +35,5 @@ export const landingVariantLabels: Record<LandingVariantKey, string> = {
   immersive: "Type 4 — Immersive: same hero, richer & more playful page",
   president: "Type 5 — President: flagship brand experience (WebGL + motion)",
   commerce: "Type 6 — Commerce: merchandising storefront (office · industrial · hospital)",
+  showroom: "Type 7 — Showroom: interactive 3D hero (Three.js)",
 };

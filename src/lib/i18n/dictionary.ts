@@ -353,6 +353,20 @@ const en = {
     bulkSubtitle: "Send us your list or floor plan and we'll come back with a quote — bulk and made-to-order welcome.",
     bulkCta: "Request a bulk quote",
   },
+  showroom: {
+    heroKicker: "Office · Industrial · Hospital",
+    heroTitle: "A showroom you can walk through, on any screen.",
+    heroSubtitle:
+      "Explore the range in three dimensions — engineered furniture for offices, industry, and healthcare, delivered and installed across Bangladesh.",
+    ctaPrimary: "Explore the catalogue",
+    ctaSecondary: "Get a bulk quote",
+    pillar1Title: "Engineered to spec",
+    pillar1Desc: "Every piece measured, manufactured, and finished for daily contract-grade use.",
+    pillar2Title: "Made to order",
+    pillar2Desc: "Workstations, counters, and storage built to your exact dimensions.",
+    pillar3Title: "Delivered & installed",
+    pillar3Desc: "Nationwide delivery, assembled and installed by our own team.",
+  },
 };
 
 const bn: typeof en = {
@@ -699,6 +713,20 @@ const bn: typeof en = {
     bulkTitle: "অফিস, কারখানা বা প্রতিষ্ঠান সাজাচ্ছেন?",
     bulkSubtitle: "আপনার তালিকা বা ফ্লোর প্ল্যান পাঠান, আমরা কোট নিয়ে ফিরব — বাল্ক ও অর্ডারে তৈরি স্বাগত।",
     bulkCta: "বাল্ক কোট চান",
+  },
+  showroom: {
+    heroKicker: "অফিস · ইন্ডাস্ট্রিয়াল · হাসপাতাল",
+    heroTitle: "যে শোরুম যেকোনো স্ক্রিনেই ঘুরে দেখা যায়।",
+    heroSubtitle:
+      "ত্রিমাত্রিকভাবে দেখুন আমাদের রেঞ্জ — অফিস, শিল্প ও স্বাস্থ্যসেবার জন্য তৈরি আসবাব, বাংলাদেশ জুড়ে ডেলিভারি ও ইনস্টলসহ।",
+    ctaPrimary: "ক্যাটালগ দেখুন",
+    ctaSecondary: "বাল্ক কোট নিন",
+    pillar1Title: "মাপ অনুযায়ী প্রকৌশলকৃত",
+    pillar1Desc: "প্রতিটি পণ্য পরিমাপ, তৈরি ও ফিনিশ করা হয় দৈনিক কন্ট্রাক্ট-গ্রেড ব্যবহারের জন্য।",
+    pillar2Title: "অর্ডারে তৈরি",
+    pillar2Desc: "ওয়ার্কস্টেশন, কাউন্টার ও স্টোরেজ আপনার সঠিক মাপে তৈরি।",
+    pillar3Title: "ডেলিভারি ও ইনস্টলেশন",
+    pillar3Desc: "সারাদেশে ডেলিভারি, আমাদের নিজস্ব টিমের অ্যাসেম্বল ও ইনস্টল।",
   },
 };
 

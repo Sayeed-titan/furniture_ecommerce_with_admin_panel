@@ -30,4 +30,5 @@ export type LandingVariantKey =
   | "premium"
   | "immersive"
   | "president"
-  | "commerce";
+  | "commerce"
+  | "showroom";
