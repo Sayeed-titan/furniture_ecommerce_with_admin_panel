@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { toEmbedUrl } from "@/lib/video-embed";
+import type { ProductMediaType } from "@prisma/client";
 
 function revalidate(productId: string) {
   revalidatePath(`/admin/products/${productId}`);
@@ -10,14 +12,27 @@ function revalidate(productId: string) {
   revalidatePath("/");
 }
 
-/** Append an image (by URL) to a product's gallery, at the end. */
-export async function addProductImage(productId: string, formData: FormData) {
-  const url = String(formData.get("imageUrl") ?? "").trim();
-  if (!productId || !url) return;
+/**
+ * Append a media item to a product's gallery, at the end. `url` is either a
+ * plain image URL (default), a recognized YouTube/Vimeo link (auto-detected
+ * and normalized to an embed URL), or an already-uploaded file URL with an
+ * explicit `type` (set by the uploader after it saves an image/video file).
+ */
+export async function addProductImage(
+  productId: string,
+  formData: FormData,
+  explicitType?: ProductMediaType
+) {
+  const rawUrl = String(formData.get("imageUrl") ?? "").trim();
+  if (!productId || !rawUrl) return;
+
+  const embedUrl = explicitType ? null : toEmbedUrl(rawUrl);
+  const type: ProductMediaType = explicitType ?? (embedUrl ? "VIDEO_EMBED" : "IMAGE");
+  const url = embedUrl ?? rawUrl;
 
   const count = await prisma.productImage.count({ where: { productId } });
   await prisma.productImage.create({
-    data: { productId, url, position: count },
+    data: { productId, url, type, position: count },
   });
   revalidate(productId);
 }

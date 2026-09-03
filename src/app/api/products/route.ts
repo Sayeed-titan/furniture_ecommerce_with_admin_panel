@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   const ids = idsParam.split(",").filter(Boolean);
   const products = await prisma.product.findMany({
     where: { id: { in: ids } },
-    include: { images: { orderBy: { position: "asc" }, take: 1 } },
+    include: { images: { where: { type: "IMAGE" }, orderBy: { position: "asc" }, take: 1 } },
   });
 
   return NextResponse.json({ products });

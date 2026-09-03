@@ -42,7 +42,7 @@ export default async function EditProductPage({ params }: { params: Params }) {
         <p className="mb-4 text-xs text-neutral-500">Changes here save immediately, separately from the details below.</p>
         <ProductGallery
           productId={product.id}
-          images={product.images.map((img) => ({ id: img.id, url: img.url, position: img.position }))}
+          images={product.images.map((img) => ({ id: img.id, url: img.url, position: img.position, type: img.type }))}
         />
       </Section>
 

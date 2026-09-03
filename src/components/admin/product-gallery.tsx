@@ -1,8 +1,41 @@
-import { ArrowUp, ArrowDown, Trash2, Star } from "lucide-react";
+import { ArrowUp, ArrowDown, Trash2, Star, Play } from "lucide-react";
 import { addProductImage, removeProductImage, moveProductImage } from "@/lib/actions/product-images";
 import { ImageUrlUploader } from "@/components/admin/image-url-uploader";
+import { embedThumbnail } from "@/lib/video-embed";
+import type { ProductMediaType } from "@prisma/client";
 
-type Image = { id: string; url: string; position: number };
+type Image = { id: string; url: string; position: number; type: ProductMediaType };
+
+function GalleryThumb({ item }: { item: Image }) {
+  if (item.type === "IMAGE") {
+    // eslint-disable-next-line @next/next/no-img-element -- admin preview of an arbitrary URL
+    return <img src={item.url} alt="" className="h-full w-full object-cover" />;
+  }
+
+  if (item.type === "VIDEO_FILE") {
+    return (
+      <>
+        <video src={item.url} muted playsInline className="h-full w-full object-cover" />
+        <Play className="absolute inset-0 m-auto h-8 w-8 text-white drop-shadow" />
+      </>
+    );
+  }
+
+  const thumb = embedThumbnail(item.url);
+  return (
+    <>
+      {thumb ? (
+        // eslint-disable-next-line @next/next/no-img-element -- third-party thumbnail CDN
+        <img src={thumb} alt="" className="h-full w-full object-cover" />
+      ) : (
+        <div className="flex h-full items-center justify-center bg-neutral-800 text-xs font-medium text-white">
+          Video
+        </div>
+      )}
+      <Play className="absolute inset-0 m-auto h-8 w-8 text-white drop-shadow" />
+    </>
+  );
+}
 
 /**
  * Full gallery manager for the product edit page. Lists existing images
@@ -19,8 +52,7 @@ export function ProductGallery({ productId, images }: { productId: string; image
           {images.map((img, i) => (
             <li key={img.id} className="group relative overflow-hidden rounded-lg border border-neutral-200">
               <div className="relative aspect-square bg-neutral-100">
-                {/* eslint-disable-next-line @next/next/no-img-element -- admin preview of an arbitrary URL */}
-                <img src={img.url} alt="" className="h-full w-full object-cover" />
+                <GalleryThumb item={img} />
                 {i === 0 && (
                   <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-neutral-900 px-2 py-0.5 text-[10px] font-medium text-white">
                     <Star className="h-3 w-3 fill-white" /> Primary

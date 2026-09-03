@@ -30,11 +30,13 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
 
   if (!product) notFound();
 
-  const image = product.images[0];
+  // Cart/wishlist only ever show a static <img>, so they need an actual
+  // photo, not whichever gallery item happens to be first.
+  const image = product.images.find((img) => img.type === "IMAGE");
 
   const related = await prisma.product.findMany({
     where: { categoryId: product.categoryId, id: { not: product.id } },
-    include: { images: { orderBy: { position: "asc" }, take: 1 } },
+    include: { images: { where: { type: "IMAGE" }, orderBy: { position: "asc" }, take: 1 } },
     orderBy: { createdAt: "desc" },
     take: 4,
   });

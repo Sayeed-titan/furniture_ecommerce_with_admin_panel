@@ -34,7 +34,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
     prisma.product.findMany({
       where,
       orderBy: { createdAt: "desc" },
-      include: { category: true, images: { orderBy: { position: "asc" }, take: 1 } },
+      include: { category: true, images: { where: { type: "IMAGE" }, orderBy: { position: "asc" }, take: 1 } },
     }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
   ]);

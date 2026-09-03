@@ -6,12 +6,14 @@ import { Upload, Loader2, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { addProductImage } from "@/lib/actions/product-images";
+import type { ProductMediaType } from "@prisma/client";
 
 /**
- * "Add image" control for the product gallery: a URL paste + Add button
- * (form action) for the single-URL path, plus a multi-select file picker
- * that uploads every chosen file and appends each straight to the gallery
- * via the addProductImage server action — no need to select/add one at a time.
+ * "Add media" control for the product gallery: a URL paste + Add button
+ * (form action) for the single-URL path — auto-detects a YouTube/Vimeo link
+ * and stores it as an embedded video — plus a multi-select file picker that
+ * uploads every chosen image/video file and appends each straight to the
+ * gallery via the addProductImage server action.
  */
 export function ImageUrlUploader({ productId }: { productId: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -37,7 +39,7 @@ export function ImageUrlUploader({ productId }: { productId: string }) {
 
         const addData = new FormData();
         addData.append("imageUrl", json.url);
-        await addProductImage(productId, addData);
+        await addProductImage(productId, addData, json.type as ProductMediaType);
       } catch (err) {
         failures.push(`${file.name}: ${err instanceof Error ? err.message : "Upload failed"}`);
       }
@@ -52,7 +54,7 @@ export function ImageUrlUploader({ productId }: { productId: string }) {
   return (
     <div className="space-y-1.5">
       <div className="flex flex-wrap gap-2">
-        <Input ref={inputRef} name="imageUrl" placeholder="Paste image URL or upload →" className="min-w-[12rem] flex-1" required />
+        <Input ref={inputRef} name="imageUrl" placeholder="Paste image/YouTube/Vimeo URL or upload →" className="min-w-[12rem] flex-1" required />
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
@@ -65,11 +67,19 @@ export function ImageUrlUploader({ productId }: { productId: string }) {
         <Button type="submit" className="shrink-0">
           <Plus className="h-4 w-4" /> Add
         </Button>
-        <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={onFiles} />
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*,video/mp4,video/webm,video/quicktime"
+          multiple
+          className="hidden"
+          onChange={onFiles}
+        />
       </div>
       {error && <p className="text-xs text-red-600">{error}</p>}
       <p className="text-xs text-neutral-500">
-        Select multiple files at once to add them all — the first image in the gallery is used as the primary/homepage image.
+        Select multiple images/videos at once to add them all, or paste a YouTube/Vimeo link — the
+        first item in the gallery is used as the primary/homepage image.
       </p>
     </div>
   );

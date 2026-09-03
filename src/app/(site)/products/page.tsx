@@ -46,7 +46,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
     prisma.product.findMany({
       where,
       orderBy,
-      include: { images: { orderBy: { position: "asc" }, take: 1 } },
+      include: { images: { where: { type: "IMAGE" }, orderBy: { position: "asc" }, take: 1 } },
     }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
   ]);

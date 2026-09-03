@@ -8,7 +8,7 @@ export default async function HomePage() {
   const [featuredProducts, categories, activeVariant] = await Promise.all([
     prisma.product.findMany({
       where: { featured: true },
-      include: { images: { orderBy: { position: "asc" }, take: 1 } },
+      include: { images: { where: { type: "IMAGE" }, orderBy: { position: "asc" }, take: 1 } },
       take: 4,
       orderBy: { createdAt: "desc" },
     }),
@@ -19,7 +19,7 @@ export default async function HomePage() {
         products: {
           take: 1,
           orderBy: { createdAt: "desc" },
-          include: { images: { take: 1, orderBy: { position: "asc" } } },
+          include: { images: { where: { type: "IMAGE" }, take: 1, orderBy: { position: "asc" } } },
         },
       },
     }),
