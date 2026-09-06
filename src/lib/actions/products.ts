@@ -3,7 +3,16 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import type { MaterialType, RoomType, StockStatus } from "@prisma/client";
+
+export type ProductFormState = { error?: string } | null;
+
+/** True for Prisma's unique-constraint violation (P2002) — e.g. a product
+ *  name whose slug collides with an existing one. */
+function isUniqueConstraintError(err: unknown): boolean {
+  return err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002";
+}
 
 function slugify(value: string) {
   return value
@@ -47,30 +56,40 @@ function parseProductForm(formData: FormData) {
   };
 }
 
-export async function createProduct(formData: FormData) {
+export async function createProduct(
+  _prevState: ProductFormState,
+  formData: FormData
+): Promise<ProductFormState> {
   const data = parseProductForm(formData);
 
-  await prisma.product.create({
-    data: {
-      name: data.name,
-      slug: slugify(data.name),
-      description: data.description,
-      price: data.price,
-      compareAtPrice: data.compareAtPrice,
-      material: data.material,
-      room: data.room,
-      color: data.color,
-      dimensions: data.dimensions,
-      deliveryEstimate: data.deliveryEstimate,
-      stockStatus: data.stockStatus,
-      stockQty: data.stockQty,
-      featured: data.featured,
-      categoryId: data.categoryId,
-      images: data.imageUrl
-        ? { create: [{ url: data.imageUrl, alt: data.name, position: 0 }] }
-        : undefined,
-    },
-  });
+  try {
+    await prisma.product.create({
+      data: {
+        name: data.name,
+        slug: slugify(data.name),
+        description: data.description,
+        price: data.price,
+        compareAtPrice: data.compareAtPrice,
+        material: data.material,
+        room: data.room,
+        color: data.color,
+        dimensions: data.dimensions,
+        deliveryEstimate: data.deliveryEstimate,
+        stockStatus: data.stockStatus,
+        stockQty: data.stockQty,
+        featured: data.featured,
+        categoryId: data.categoryId,
+        images: data.imageUrl
+          ? { create: [{ url: data.imageUrl, alt: data.name, position: 0 }] }
+          : undefined,
+      },
+    });
+  } catch (err) {
+    if (isUniqueConstraintError(err)) {
+      return { error: `A product named "${data.name}" already exists. Try a different name.` };
+    }
+    throw err;
+  }
 
   revalidatePath("/admin/products");
   revalidatePath("/products");
@@ -78,29 +97,40 @@ export async function createProduct(formData: FormData) {
   redirect("/admin/products");
 }
 
-export async function updateProduct(id: string, formData: FormData) {
+export async function updateProduct(
+  id: string,
+  _prevState: ProductFormState,
+  formData: FormData
+): Promise<ProductFormState> {
   const data = parseProductForm(formData);
 
-  // Images are managed separately via the gallery on the edit page
-  // (src/lib/actions/product-images.ts), so we don't touch them here.
-  await prisma.product.update({
-    where: { id },
-    data: {
-      name: data.name,
-      description: data.description,
-      price: data.price,
-      compareAtPrice: data.compareAtPrice,
-      material: data.material,
-      room: data.room,
-      color: data.color,
-      dimensions: data.dimensions,
-      deliveryEstimate: data.deliveryEstimate,
-      stockStatus: data.stockStatus,
-      stockQty: data.stockQty,
-      featured: data.featured,
-      categoryId: data.categoryId,
-    },
-  });
+  try {
+    // Images are managed separately via the gallery on the edit page
+    // (src/lib/actions/product-images.ts), so we don't touch them here.
+    await prisma.product.update({
+      where: { id },
+      data: {
+        name: data.name,
+        description: data.description,
+        price: data.price,
+        compareAtPrice: data.compareAtPrice,
+        material: data.material,
+        room: data.room,
+        color: data.color,
+        dimensions: data.dimensions,
+        deliveryEstimate: data.deliveryEstimate,
+        stockStatus: data.stockStatus,
+        stockQty: data.stockQty,
+        featured: data.featured,
+        categoryId: data.categoryId,
+      },
+    });
+  } catch (err) {
+    if (isUniqueConstraintError(err)) {
+      return { error: `A product named "${data.name}" already exists. Try a different name.` };
+    }
+    throw err;
+  }
 
   revalidatePath("/admin/products");
   revalidatePath("/products");

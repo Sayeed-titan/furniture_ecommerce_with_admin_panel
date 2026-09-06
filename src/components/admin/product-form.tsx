@@ -1,8 +1,13 @@
+"use client";
+
+import { useActionState, useEffect } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Section } from "@/components/admin/ui";
 import { ImageField } from "@/components/admin/image-field";
+import type { ProductFormState } from "@/lib/actions/products";
 
 type Category = { id: string; name: string };
 
@@ -30,7 +35,7 @@ export function ProductForm({
   submitLabel,
 }: {
   categories: Category[];
-  action: (formData: FormData) => void;
+  action: (prevState: ProductFormState, formData: FormData) => Promise<ProductFormState>;
   defaultValues?: {
     name: string;
     description: string;
@@ -52,8 +57,14 @@ export function ProductForm({
   showImageField?: boolean;
   submitLabel?: string;
 }) {
+  const [state, formAction, isPending] = useActionState(action, null);
+
+  useEffect(() => {
+    if (state?.error) toast.error(state.error);
+  }, [state]);
+
   return (
-    <form action={action} className="max-w-3xl space-y-5">
+    <form action={formAction} className="max-w-3xl space-y-5">
       <Card title="Details">
         <div className="space-y-4">
           <div className="space-y-1.5">
@@ -197,7 +208,9 @@ export function ProductForm({
       </Card>
 
       <div className="flex justify-end">
-        <Button type="submit">{submitLabel ?? (defaultValues ? "Save changes" : "Create product")}</Button>
+        <Button type="submit" disabled={isPending}>
+          {isPending ? "Saving..." : (submitLabel ?? (defaultValues ? "Save changes" : "Create product"))}
+        </Button>
       </div>
     </form>
   );
