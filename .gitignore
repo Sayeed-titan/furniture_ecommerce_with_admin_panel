@@ -40,6 +40,9 @@ yarn-error.log*
 # user-uploaded product images (created at runtime, not part of the repo)
 /public/uploads/
 
+# database backups (created at runtime, contains password hashes/PII — never commit)
+/storage/backups/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
