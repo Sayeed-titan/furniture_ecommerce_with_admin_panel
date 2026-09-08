@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/authz";
 import { ProductForm } from "@/components/admin/product-form";
 import { PageHeader } from "@/components/admin/ui";
 import { createProduct } from "@/lib/actions/products";
@@ -8,7 +9,11 @@ import { createProduct } from "@/lib/actions/products";
 export const metadata = { title: "New Product" };
 
 export default async function NewProductPage() {
-  const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
+  await requirePermission("products.create");
+  const [categories, materials] = await Promise.all([
+    prisma.category.findMany({ orderBy: { name: "asc" } }),
+    prisma.material.findMany({ orderBy: { name: "asc" } }),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -21,7 +26,7 @@ export default async function NewProductPage() {
         </Link>
         <PageHeader title="New product" description="Add a piece to your catalog. You can add more images after saving." />
       </div>
-      <ProductForm categories={categories} action={createProduct} />
+      <ProductForm categories={categories} materials={materials} action={createProduct} />
     </div>
   );
 }

@@ -2,10 +2,12 @@ import Link from "next/link";
 import { Plus, Pencil, Star } from "lucide-react";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/authz";
 import { PageHeader, Section, StatusPill, EmptyRow, type PillTone } from "@/components/admin/ui";
 import { SearchInput } from "@/components/admin/search-input";
 import { FilterSelect } from "@/components/admin/filter-select";
 import { ConfirmSubmit } from "@/components/admin/confirm-submit";
+import { RestockControl } from "@/components/admin/restock-control";
 import { formatPrice } from "@/lib/utils";
 import { formatStockStatus } from "@/lib/format";
 import { deleteProduct } from "@/lib/actions/products";
@@ -23,6 +25,10 @@ const STOCK_TONE: Record<string, PillTone> = {
 type SearchParams = Promise<{ q?: string; category?: string; stock?: string }>;
 
 export default async function AdminProductsPage({ searchParams }: { searchParams: SearchParams }) {
+  const { permissions } = await requirePermission("products.view");
+  const canCreate = permissions.includes("products.create");
+  const canEdit = permissions.includes("products.edit");
+  const canDelete = permissions.includes("products.delete");
   const { q, category, stock } = await searchParams;
 
   const where: Prisma.ProductWhereInput = {};
@@ -42,12 +48,14 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
   return (
     <div className="space-y-5">
       <PageHeader title="Products" description={`${products.length} ${products.length === 1 ? "product" : "products"}`}>
-        <Link
-          href="/admin/products/new"
-          className="inline-flex items-center gap-2 rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
-        >
-          <Plus className="h-4 w-4" /> New product
-        </Link>
+        {canCreate && (
+          <Link
+            href="/admin/products/new"
+            className="inline-flex items-center gap-2 rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
+          >
+            <Plus className="h-4 w-4" /> New product
+          </Link>
+        )}
       </PageHeader>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -100,9 +108,14 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                     <td className="px-4 py-3 text-neutral-600">{p.category.name}</td>
                     <td className="px-4 py-3 font-medium">{formatPrice(p.price.toString())}</td>
                     <td className="px-4 py-3">
-                      <StatusPill tone={STOCK_TONE[p.stockStatus] ?? "neutral"}>
-                        {formatStockStatus(p.stockStatus)}
-                      </StatusPill>
+                      <div className="flex flex-col items-start gap-1">
+                        <StatusPill tone={STOCK_TONE[p.stockStatus] ?? "neutral"}>
+                          {formatStockStatus(p.stockStatus)} · {p.stockQty}
+                        </StatusPill>
+                        {canEdit && p.stockStatus !== "MADE_TO_ORDER" && (
+                          <RestockControl productId={p.id} stockQty={p.stockQty} />
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-1">
@@ -112,12 +125,14 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                         >
                           <Pencil className="h-3.5 w-3.5" /> Edit
                         </Link>
-                        <form action={deleteProduct}>
-                          <input type="hidden" name="id" value={p.id} />
-                          <ConfirmSubmit message={`Delete "${p.name}"? This cannot be undone.`} variant="danger">
-                            Delete
-                          </ConfirmSubmit>
-                        </form>
+                        {canDelete && (
+                          <form action={deleteProduct}>
+                            <input type="hidden" name="id" value={p.id} />
+                            <ConfirmSubmit message={`Delete "${p.name}"? This cannot be undone.`} variant="danger">
+                              Delete
+                            </ConfirmSubmit>
+                          </form>
+                        )}
                       </div>
                     </td>
                   </tr>

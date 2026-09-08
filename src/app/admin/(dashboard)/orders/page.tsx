@@ -2,10 +2,17 @@ import Link from "next/link";
 import { Download } from "lucide-react";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/authz";
 import { PageHeader, StatusPill, type PillTone } from "@/components/admin/ui";
+import { SearchInput } from "@/components/admin/search-input";
+import { FilterSelect } from "@/components/admin/filter-select";
+import { DateRangeFilter } from "@/components/admin/date-range-filter";
 import { formatPrice } from "@/lib/utils";
 import { formatOrderStatus, formatPaymentMethod } from "@/lib/format";
 import { cn } from "@/lib/utils";
+
+const PAYMENT_METHODS = ["COD", "SSLCOMMERZ"] as const;
+const PAYMENT_STATUSES = ["PENDING", "PAID", "FAILED", "CANCELLED", "REFUNDED"] as const;
 
 export const metadata = { title: "Orders" };
 export const dynamic = "force-dynamic";
@@ -38,15 +45,64 @@ const PAYMENT_TONE: Record<string, PillTone> = {
   REFUNDED: "red",
 };
 
-type SearchParams = Promise<{ status?: string }>;
+type SearchParams = Promise<{
+  status?: string;
+  q?: string;
+  paymentMethod?: string;
+  paymentStatus?: string;
+  from?: string;
+  to?: string;
+}>;
 
 export default async function AdminOrdersPage({ searchParams }: { searchParams: SearchParams }) {
-  const { status } = await searchParams;
+  const { permissions } = await requirePermission("orders.view");
+  const canExport = permissions.includes("orders.export");
+  const { status, q, paymentMethod, paymentStatus, from, to } = await searchParams;
   const activeStatus = STATUSES.includes(status as (typeof STATUSES)[number]) ? status : undefined;
+  const activePaymentMethod = PAYMENT_METHODS.includes(paymentMethod as (typeof PAYMENT_METHODS)[number])
+    ? paymentMethod
+    : undefined;
+  const activePaymentStatus = PAYMENT_STATUSES.includes(paymentStatus as (typeof PAYMENT_STATUSES)[number])
+    ? paymentStatus
+    : undefined;
+
+  // Filters other than status — reused for the tab counts, so they reflect
+  // search/payment/date filters without being narrowed by the tab itself.
+  const baseWhere: Prisma.OrderWhereInput = {
+    ...(activePaymentMethod
+      ? { paymentMethod: activePaymentMethod as Prisma.EnumPaymentMethodFilter["equals"] }
+      : {}),
+    ...(activePaymentStatus
+      ? { paymentStatus: activePaymentStatus as Prisma.EnumPaymentStatusFilter["equals"] }
+      : {}),
+    ...(from || to
+      ? {
+          createdAt: {
+            ...(from ? { gte: new Date(`${from}T00:00:00`) } : {}),
+            ...(to ? { lte: new Date(`${to}T23:59:59.999`) } : {}),
+          },
+        }
+      : {}),
+    ...(q?.trim()
+      ? {
+          OR: [
+            { orderNumber: { contains: q.trim() } },
+            { shipName: { contains: q.trim() } },
+            { shipPhone: { contains: q.trim() } },
+            { guestName: { contains: q.trim() } },
+            { guestPhone: { contains: q.trim() } },
+            { guestEmail: { contains: q.trim() } },
+            { customer: { name: { contains: q.trim() } } },
+            { customer: { phone: { contains: q.trim() } } },
+            { customer: { email: { contains: q.trim() } } },
+          ],
+        }
+      : {}),
+  };
 
   const where: Prisma.OrderWhereInput = activeStatus
-    ? { status: activeStatus as Prisma.EnumOrderStatusFilter["equals"] }
-    : {};
+    ? { ...baseWhere, status: activeStatus as Prisma.EnumOrderStatusFilter["equals"] }
+    : baseWhere;
 
   const [orders, counts] = await Promise.all([
     prisma.order.findMany({
@@ -54,7 +110,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
       orderBy: { createdAt: "desc" },
       include: { items: true },
     }),
-    prisma.order.groupBy({ by: ["status"], _count: true }),
+    prisma.order.groupBy({ where: baseWhere, by: ["status"], _count: true }),
   ]);
 
   const countFor = (s: string) => counts.find((c) => c.status === s)?._count ?? 0;
@@ -65,10 +121,23 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
     ...STATUSES.map((s) => ({ key: s, label: formatOrderStatus(s), count: countFor(s) })),
   ];
 
+  // Preserve the other active filters when switching status tabs.
+  const tabHref = (statusKey?: string) => {
+    const params = new URLSearchParams();
+    if (statusKey) params.set("status", statusKey);
+    if (q) params.set("q", q);
+    if (activePaymentMethod) params.set("paymentMethod", activePaymentMethod);
+    if (activePaymentStatus) params.set("paymentStatus", activePaymentStatus);
+    if (from) params.set("from", from);
+    if (to) params.set("to", to);
+    const qs = params.toString();
+    return qs ? `/admin/orders?${qs}` : "/admin/orders";
+  };
+
   return (
     <div className="space-y-5">
       <PageHeader title="Orders" description="Every order placed on the site, newest first.">
-        {total > 0 && (
+        {total > 0 && canExport && (
           // eslint-disable-next-line @next/next/no-html-link-for-pages -- CSV download, not a page transition; shares a URL prefix with the [id] dynamic route
           <a
             href="/admin/orders/export"
@@ -79,13 +148,28 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
         )}
       </PageHeader>
 
+      <div className="flex flex-wrap items-center gap-2">
+        <SearchInput placeholder="Search order #, name, phone, email..." />
+        <FilterSelect
+          param="paymentMethod"
+          placeholder="All payment methods"
+          options={PAYMENT_METHODS.map((m) => ({ value: m, label: formatPaymentMethod(m) }))}
+        />
+        <FilterSelect
+          param="paymentStatus"
+          placeholder="All payment statuses"
+          options={PAYMENT_STATUSES.map((s) => ({ value: s, label: formatOrderStatus(s) }))}
+        />
+        <DateRangeFilter />
+      </div>
+
       <div className="flex flex-wrap gap-2">
         {tabs.map((tab) => {
           const active = activeStatus === tab.key || (!activeStatus && tab.key === undefined);
           return (
             <Link
               key={tab.label}
-              href={tab.key ? `/admin/orders?status=${tab.key}` : "/admin/orders"}
+              href={tabHref(tab.key)}
               className={cn(
                 "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
                 active
@@ -130,7 +214,11 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
         ))}
         {orders.length === 0 && (
           <p className="rounded-xl border border-dashed border-neutral-300 py-16 text-center text-sm text-neutral-500">
-            {activeStatus ? `No ${formatOrderStatus(activeStatus).toLowerCase()} orders.` : "No orders yet."}
+            {q || activePaymentMethod || activePaymentStatus || from || to
+              ? "No orders match these filters."
+              : activeStatus
+                ? `No ${formatOrderStatus(activeStatus).toLowerCase()} orders.`
+                : "No orders yet."}
           </p>
         )}
       </div>

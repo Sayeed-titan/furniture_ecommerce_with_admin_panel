@@ -2,28 +2,31 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, Loader2, Plus } from "lucide-react";
+import { Upload, Loader2, Plus, ImagePlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { addProductImage } from "@/lib/actions/product-images";
 import type { ProductMediaType } from "@prisma/client";
 
 /**
  * "Add media" control for the product gallery: a URL paste + Add button
  * (form action) for the single-URL path — auto-detects a YouTube/Vimeo link
- * and stores it as an embedded video — plus a multi-select file picker that
- * uploads every chosen image/video file and appends each straight to the
- * gallery via the addProductImage server action.
+ * and stores it as an embedded video — plus a multi-select file picker,
+ * a drag-and-drop zone, and clipboard-paste support (e.g. copy a file in
+ * Windows Explorer, paste it here) — all three upload every chosen
+ * image/video file and append each straight to the gallery via the
+ * addProductImage server action.
  */
 export function ImageUrlUploader({ productId }: { productId: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const [uploading, setUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function onFiles(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
+  async function uploadFiles(files: File[]) {
     if (files.length === 0) return;
     setUploading(true);
     setError(null);
@@ -51,10 +54,45 @@ export function ImageUrlUploader({ productId }: { productId: string }) {
     router.refresh();
   }
 
+  function onFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    void uploadFiles(Array.from(e.target.files ?? []));
+  }
+
+  function onDrop(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    setDragActive(false);
+    void uploadFiles(Array.from(e.dataTransfer.files ?? []));
+  }
+
+  function onPaste(e: React.ClipboardEvent<HTMLInputElement>) {
+    const files = Array.from(e.clipboardData?.files ?? []);
+    if (files.length === 0) return; // plain text paste — let it through normally
+    e.preventDefault();
+    void uploadFiles(files);
+  }
+
   return (
-    <div className="space-y-1.5">
+    <div
+      className={cn(
+        "space-y-1.5 rounded-lg border-2 border-dashed p-2 transition-colors",
+        dragActive ? "border-neutral-900 bg-neutral-50" : "border-transparent"
+      )}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragActive(true);
+      }}
+      onDragLeave={() => setDragActive(false)}
+      onDrop={onDrop}
+    >
       <div className="flex flex-wrap gap-2">
-        <Input ref={inputRef} name="imageUrl" placeholder="Paste image/YouTube/Vimeo URL or upload →" className="min-w-[12rem] flex-1" required />
+        <Input
+          ref={inputRef}
+          name="imageUrl"
+          placeholder="Paste a URL, an image file, or drop files here →"
+          className="min-w-[12rem] flex-1"
+          onPaste={onPaste}
+          required
+        />
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
@@ -77,9 +115,11 @@ export function ImageUrlUploader({ productId }: { productId: string }) {
         />
       </div>
       {error && <p className="text-xs text-red-600">{error}</p>}
-      <p className="text-xs text-neutral-500">
-        Select multiple images/videos at once to add them all, or paste a YouTube/Vimeo link — the
-        first item in the gallery is used as the primary/homepage image.
+      <p className="flex items-center gap-1.5 text-xs text-neutral-500">
+        <ImagePlus className="h-3.5 w-3.5 shrink-0" />
+        Drag and drop files anywhere in this box, paste a copied file (e.g. from Windows Explorer)
+        into the field above, select multiple at once with Upload, or paste a YouTube/Vimeo link —
+        the first item in the gallery is used as the primary/homepage image.
       </p>
     </div>
   );

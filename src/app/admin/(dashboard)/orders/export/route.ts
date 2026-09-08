@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { getRolePermissions, hasPermission } from "@/lib/authz";
 
 /** Escape a value for CSV (quote, and double any inner quotes). */
 function csv(value: string | null | undefined): string {
@@ -10,8 +11,13 @@ function csv(value: string | null | undefined): string {
 
 export async function GET() {
   const session = await auth();
-  if (!session?.user) {
+  const user = session?.user as { userType?: string; roleId?: string } | undefined;
+  if (!session?.user || user?.userType !== "admin" || !user.roleId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const permissions = await getRolePermissions(user.roleId);
+  if (!hasPermission(permissions, "orders.export")) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const orders = await prisma.order.findMany({

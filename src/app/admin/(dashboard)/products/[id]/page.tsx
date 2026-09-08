@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/authz";
 import { ProductForm } from "@/components/admin/product-form";
 import { ProductGallery } from "@/components/admin/product-gallery";
 import { PageHeader, Section } from "@/components/admin/ui";
@@ -12,14 +13,16 @@ export const metadata = { title: "Edit Product" };
 type Params = Promise<{ id: string }>;
 
 export default async function EditProductPage({ params }: { params: Params }) {
+  await requirePermission("products.edit");
   const { id } = await params;
 
-  const [product, categories] = await Promise.all([
+  const [product, categories, materials] = await Promise.all([
     prisma.product.findUnique({
       where: { id },
       include: { images: { orderBy: { position: "asc" } } },
     }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
+    prisma.material.findMany({ orderBy: { name: "asc" } }),
   ]);
 
   if (!product) notFound();
@@ -48,6 +51,7 @@ export default async function EditProductPage({ params }: { params: Params }) {
 
       <ProductForm
         categories={categories}
+        materials={materials}
         action={updateProductWithId}
         showImageField={false}
         defaultValues={{
@@ -55,13 +59,14 @@ export default async function EditProductPage({ params }: { params: Params }) {
           description: product.description,
           price: product.price.toString(),
           compareAtPrice: product.compareAtPrice?.toString() ?? null,
-          material: product.material,
+          materialId: product.materialId,
           room: product.room,
           color: product.color,
           dimensions: product.dimensions,
           deliveryEstimate: product.deliveryEstimate,
           stockStatus: product.stockStatus,
           stockQty: product.stockQty,
+          reorderLevel: product.reorderLevel,
           featured: product.featured,
           categoryId: product.categoryId,
         }}

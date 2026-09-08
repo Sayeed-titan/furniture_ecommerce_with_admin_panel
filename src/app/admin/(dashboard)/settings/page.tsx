@@ -1,17 +1,20 @@
-import { Save } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { PageHeader, Section, SectionHeader } from "@/components/admin/ui";
-import { getAllSettings, SETTING_KEYS } from "@/lib/settings";
+import { requirePermission, isProtectedRole } from "@/lib/authz";
+import { getAllSettings, SETTING_KEYS, isEnabled } from "@/lib/settings";
 import { landingVariants, landingVariantLabels } from "@/components/site/landing/registry";
 import { ACTIVE_LANDING_VARIANT } from "@/config/landing";
-import { saveSettings } from "@/lib/actions/settings";
+import { SettingsForm } from "@/components/admin/settings-form";
+import { BrandAssetUploader } from "@/components/admin/brand-asset-uploader";
 
 export const metadata = { title: "Settings" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminSettingsPage() {
+  const { user, permissions } = await requirePermission("settings.view");
+  const canEdit = permissions.includes("settings.edit");
+  // Active Design is Administrator-only — anyone else shouldn't see this
+  // section at all, regardless of their settings.edit permission.
+  const canSeeActiveDesign = !!user?.roleId && (await isProtectedRole(user.roleId));
   const settings = await getAllSettings();
   const currentVariant = settings[SETTING_KEYS.landingVariant] ?? ACTIVE_LANDING_VARIANT;
 
@@ -19,59 +22,45 @@ export default async function AdminSettingsPage() {
     <div className="max-w-2xl space-y-5">
       <PageHeader title="Settings" description="Control the public site without touching code." />
 
-      <form action={saveSettings} className="space-y-5">
-        <Section>
-          <SectionHeader title="Landing page" description="Choose which homepage design visitors see." />
-          <div className="space-y-1.5 p-5">
-            <Label htmlFor="landingVariant">Active design</Label>
-            <select
-              id="landingVariant"
-              name="landingVariant"
-              defaultValue={currentVariant}
-              className="flex h-10 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
-            >
-              {(Object.keys(landingVariants) as (keyof typeof landingVariants)[]).map((key) => (
-                <option key={key} value={key}>
-                  {landingVariantLabels[key]}
-                </option>
-              ))}
-            </select>
-            <p className="text-xs text-neutral-500">Changes go live immediately after saving.</p>
+      {canEdit && (
+        <Section className="p-5">
+          <SectionHeader title="Branding" description="Uploaded here, shown everywhere the President Furniture mark appears." />
+          <div className="grid grid-cols-1 gap-6 pt-4 sm:grid-cols-2">
+            <BrandAssetUploader
+              kind="icon"
+              label="Logo icon"
+              description="Square mark used in compact spots (nav bar, sidebar). Falls back to the full logo, then the built-in mark, if not set."
+              currentUrl={settings[SETTING_KEYS.brandIconUrl] ?? null}
+            />
+            <BrandAssetUploader
+              kind="logo"
+              label="Full logo"
+              description="Wordmark/lockup image, shown wherever no icon is set."
+              currentUrl={settings[SETTING_KEYS.brandLogoUrl] ?? null}
+            />
           </div>
         </Section>
+      )}
 
-        <Section>
-          <SectionHeader title="Contact" description="Shown on the site so customers can reach you fast." />
-          <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="whatsappNumber">WhatsApp number</Label>
-              <Input
-                id="whatsappNumber"
-                name="whatsappNumber"
-                placeholder="+8801XXXXXXXXX"
-                defaultValue={settings[SETTING_KEYS.whatsappNumber] ?? ""}
-              />
-              <p className="text-xs text-neutral-500">Adds a floating &ldquo;Chat on WhatsApp&rdquo; button. Leave blank to hide it.</p>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="businessPhone">Phone number</Label>
-              <Input
-                id="businessPhone"
-                name="businessPhone"
-                placeholder="+8801XXXXXXXXX"
-                defaultValue={settings[SETTING_KEYS.businessPhone] ?? ""}
-              />
-              <p className="text-xs text-neutral-500">Used for the call button.</p>
-            </div>
-          </div>
-        </Section>
-
-        <div className="flex justify-end">
-          <Button type="submit">
-            <Save className="h-4 w-4" /> Save settings
-          </Button>
-        </div>
-      </form>
+      <SettingsForm
+        canEdit={canEdit}
+        showActiveDesign={canSeeActiveDesign}
+        currentVariant={currentVariant}
+        variantOptions={(Object.keys(landingVariants) as (keyof typeof landingVariants)[]).map((key) => ({
+          value: key,
+          label: landingVariantLabels[key],
+        }))}
+        whatsappNumber={settings[SETTING_KEYS.whatsappNumber] ?? ""}
+        businessPhone={settings[SETTING_KEYS.businessPhone] ?? ""}
+        shopAddress={settings[SETTING_KEYS.shopAddress] ?? ""}
+        googleMapsUrl={settings[SETTING_KEYS.googleMapsUrl] ?? ""}
+        facebookUrl={settings[SETTING_KEYS.facebookUrl] ?? ""}
+        instagramUrl={settings[SETTING_KEYS.instagramUrl] ?? ""}
+        youtubeUrl={settings[SETTING_KEYS.youtubeUrl] ?? ""}
+        tiktokUrl={settings[SETTING_KEYS.tiktokUrl] ?? ""}
+        codEnabled={isEnabled(settings[SETTING_KEYS.paymentCodEnabled])}
+        onlinePaymentEnabled={isEnabled(settings[SETTING_KEYS.paymentOnlineEnabled])}
+      />
     </div>
   );
 }

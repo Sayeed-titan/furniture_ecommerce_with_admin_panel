@@ -1,34 +1,32 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getRolePermissions, hasPermission } from "@/lib/authz";
-import { uploadProductImage, uploadProductVideo, isVideoFile } from "@/lib/storage";
+import { uploadBrandAsset } from "@/lib/storage";
 
 export async function POST(request: Request) {
-  // Admin-only: the middleware already guards /admin, but API routes need
-  // their own check. Also gate on products.edit specifically — this saves
-  // a file to storage before the caller ever calls addProductImage (which
-  // does check products.edit), so without this check a session lacking
-  // that permission could still upload arbitrary files here.
   const session = await auth();
   const user = session?.user as { userType?: string; roleId?: string } | undefined;
   if (!session?.user || user?.userType !== "admin" || !user.roleId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const permissions = await getRolePermissions(user.roleId);
-  if (!hasPermission(permissions, "products.edit")) {
+  if (!hasPermission(permissions, "settings.edit")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const formData = await request.formData();
   const file = formData.get("file");
+  const kind = formData.get("kind");
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
   }
+  if (kind !== "icon" && kind !== "logo") {
+    return NextResponse.json({ error: "Invalid kind" }, { status: 400 });
+  }
 
   try {
-    const isVideo = isVideoFile(file.type);
-    const { url } = isVideo ? await uploadProductVideo(file) : await uploadProductImage(file);
-    return NextResponse.json({ url, type: isVideo ? "VIDEO_FILE" : "IMAGE" }, { status: 201 });
+    const { url } = await uploadBrandAsset(file, kind);
+    return NextResponse.json({ url }, { status: 201 });
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Upload failed" },

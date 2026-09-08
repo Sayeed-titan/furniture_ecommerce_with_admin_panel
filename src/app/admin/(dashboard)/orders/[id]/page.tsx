@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/authz";
 import { PageHeader, Section, SectionHeader, StatusPill, type PillTone } from "@/components/admin/ui";
 import { updateOrderStatus } from "@/lib/actions/orders";
 import { formatPrice } from "@/lib/utils";
@@ -29,11 +30,18 @@ const PAYMENT_TONE: Record<string, PillTone> = {
 type Params = Promise<{ id: string }>;
 
 export default async function AdminOrderDetailPage({ params }: { params: Params }) {
+  const { permissions } = await requirePermission("orders.view");
+  const canEdit = permissions.includes("orders.edit");
   const { id } = await params;
 
   const order = await prisma.order.findUnique({
     where: { id },
-    include: { items: true, payments: { orderBy: { createdAt: "desc" } }, customer: true },
+    include: {
+      items: true,
+      payments: { orderBy: { createdAt: "desc" } },
+      customer: true,
+      shippingZone: true,
+    },
   });
 
   if (!order) notFound();
@@ -73,7 +81,9 @@ export default async function AdminOrderDetailPage({ params }: { params: Params 
                 <span>{formatPrice(order.subtotal.toString())}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-neutral-500">Shipping</span>
+                <span className="text-neutral-500">
+                  Shipping{order.shippingZone ? ` (${order.shippingZone.name})` : ""}
+                </span>
                 <span>{formatPrice(order.shippingFee.toString())}</span>
               </div>
               <div className="flex justify-between font-semibold text-neutral-900">
@@ -139,28 +149,31 @@ export default async function AdminOrderDetailPage({ params }: { params: Params 
             </div>
           </Section>
 
-          <Section>
-            <SectionHeader title="Order status" />
-            <form action={updateStatus} className="flex flex-col gap-2 px-5 py-4">
-              <select
-                name="status"
-                defaultValue={order.status}
-                className="h-9 rounded-md border border-neutral-300 bg-white px-2 text-sm"
-              >
-                {STATUSES.map((s) => (
-                  <option key={s} value={s}>
-                    {formatOrderStatus(s)}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="submit"
-                className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium hover:bg-neutral-100"
-              >
-                Update status
-              </button>
-            </form>
-          </Section>
+          {canEdit && (
+            <Section>
+              <SectionHeader title="Order status" />
+              <form action={updateStatus} className="flex flex-col gap-2 px-5 py-4">
+                <select
+                  key={order.status}
+                  name="status"
+                  defaultValue={order.status}
+                  className="h-9 rounded-md border border-neutral-300 bg-white px-2 text-sm"
+                >
+                  {STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {formatOrderStatus(s)}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="submit"
+                  className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium hover:bg-neutral-100"
+                >
+                  Update status
+                </button>
+              </form>
+            </Section>
+          )}
         </div>
       </div>
     </div>

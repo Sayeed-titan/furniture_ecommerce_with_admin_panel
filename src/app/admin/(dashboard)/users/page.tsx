@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { requirePermission } from "@/lib/authz";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,12 +13,20 @@ export const metadata = { title: "Users" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminUsersPage() {
-  const [users, session] = await Promise.all([
-    prisma.adminUser.findMany({ orderBy: { createdAt: "asc" } }),
-    auth(),
-  ]);
+  const { session, permissions } = await requirePermission("users.view");
   const currentEmail = session?.user?.email;
-  const adminCount = users.filter((u) => u.role === "ADMIN").length;
+  const canCreate = permissions.includes("users.create");
+  const canDelete = permissions.includes("users.delete");
+
+  const [users, roles] = await Promise.all([
+    prisma.adminUser.findMany({ orderBy: { createdAt: "asc" }, include: { role: true } }),
+    prisma.role.findMany({ orderBy: { name: "asc" } }),
+  ]);
+
+  const protectedRoleCounts = new Map<string, number>();
+  for (const u of users) {
+    if (u.role.isProtected) protectedRoleCounts.set(u.roleId, (protectedRoleCounts.get(u.roleId) ?? 0) + 1);
+  }
 
   return (
     <div className="max-w-3xl space-y-5">
@@ -29,49 +37,57 @@ export default async function AdminUsersPage() {
         <ChangePasswordForm />
       </Section>
 
-      <Section>
-        <SectionHeader title="Add a user" />
-        <form action={createUser} className="space-y-4 p-5">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" name="name" required />
+      {canCreate && (
+        <Section>
+          <SectionHeader title="Add a user" />
+          <form action={createUser} className="space-y-4 p-5">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="name">Name</Label>
+                <Input id="name" name="name" required />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" name="email" type="email" required />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" name="password" type="password" minLength={8} required />
+                <p className="text-xs text-neutral-500">At least 8 characters.</p>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="roleId">Role</Label>
+                <select
+                  id="roleId"
+                  name="roleId"
+                  defaultValue={roles.find((r) => !r.isProtected)?.id ?? roles[0]?.id}
+                  className="flex h-10 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm"
+                >
+                  {roles.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" required />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="password" minLength={8} required />
-              <p className="text-xs text-neutral-500">At least 8 characters.</p>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="role">Role</Label>
-              <select
-                id="role"
-                name="role"
-                defaultValue="STAFF"
-                className="flex h-10 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm"
-              >
-                <option value="ADMIN">Admin</option>
-                <option value="STAFF">Staff</option>
-              </select>
-            </div>
-          </div>
-          <Button type="submit">
-            <Plus className="h-4 w-4" /> Create user
-          </Button>
-        </form>
-      </Section>
+            <Button type="submit">
+              <Plus className="h-4 w-4" /> Create user
+            </Button>
+          </form>
+        </Section>
+      )}
 
       <Section>
-        <SectionHeader title="All users" description={`${users.length} total · ${adminCount} admin${adminCount === 1 ? "" : "s"}`} />
+        <SectionHeader
+          title="All users"
+          description={`${users.length} total`}
+        />
         <ul className="divide-y divide-neutral-100">
           {users.map((u) => {
             const isSelf = currentEmail === u.email;
-            const isLastAdmin = u.role === "ADMIN" && adminCount <= 1;
-            const canDelete = !isSelf && !isLastAdmin;
+            const isLastInProtectedRole = u.role.isProtected && (protectedRoleCounts.get(u.roleId) ?? 0) <= 1;
+            const rowCanDelete = canDelete && !isSelf && !isLastInProtectedRole;
             return (
               <li key={u.id} className="flex items-center justify-between gap-3 px-5 py-3">
                 <div className="flex items-center gap-3">
@@ -87,22 +103,22 @@ export default async function AdminUsersPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <StatusPill tone={u.role === "ADMIN" ? "purple" : "neutral"}>{u.role}</StatusPill>
-                  {canDelete ? (
+                  <StatusPill tone={u.role.isProtected ? "purple" : "neutral"}>{u.role.name}</StatusPill>
+                  {rowCanDelete ? (
                     <form action={deleteUser}>
                       <input type="hidden" name="id" value={u.id} />
                       <ConfirmSubmit message={`Remove ${u.name}'s access?`} variant="danger">
                         Delete
                       </ConfirmSubmit>
                     </form>
-                  ) : (
+                  ) : canDelete ? (
                     <span
-                      title={isSelf ? "You can't delete your own account" : "Can't delete the last admin"}
+                      title={isSelf ? "You can't delete your own account" : "Can't delete the last user in a protected role"}
                       className="cursor-not-allowed px-3 py-1.5 text-sm font-medium text-neutral-300"
                     >
                       Delete
                     </span>
-                  )}
+                  ) : null}
                 </div>
               </li>
             );
