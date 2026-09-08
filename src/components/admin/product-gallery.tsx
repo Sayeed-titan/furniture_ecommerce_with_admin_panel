@@ -16,7 +16,7 @@ function GalleryThumb({ item }: { item: Image }) {
     return (
       <>
         <video src={item.url} muted playsInline className="h-full w-full object-cover" />
-        <Play className="absolute inset-0 m-auto h-8 w-8 text-white drop-shadow" />
+        <Play className="absolute inset-0 m-auto h-8 w-8 text-onmedia drop-shadow" />
       </>
     );
   }
@@ -32,7 +32,7 @@ function GalleryThumb({ item }: { item: Image }) {
           Video
         </div>
       )}
-      <Play className="absolute inset-0 m-auto h-8 w-8 text-white drop-shadow" />
+      <Play className="absolute inset-0 m-auto h-8 w-8 text-onmedia drop-shadow" />
     </>
   );
 }

@@ -1,17 +1,23 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Section } from "@/components/admin/ui";
+import { Section, StatusPill } from "@/components/admin/ui";
 import { ImageField } from "@/components/admin/image-field";
+import { formatPrice, discountPercent } from "@/lib/utils";
 import type { ProductFormState } from "@/lib/actions/products";
 
 type Category = { id: string; name: string };
+type MaterialOption = { id: string; name: string };
 
-const materials = ["SOLID_WOOD", "ENGINEERED_WOOD", "ARTIFICIAL_WOOD", "LEATHER", "FABRIC", "METAL"];
+// HEALTHCARE is kept selectable here (unlike the public product-filters
+// dropdown) even though President Furniture no longer markets hospital
+// furniture — removing it would make the <select> silently fall back to
+// the first option for any existing HEALTHCARE-tagged product opened for
+// editing, corrupting its room on save without anyone touching the field.
 const rooms = ["OFFICE", "WORKSPACE", "CONFERENCE", "RECEPTION", "HEALTHCARE", "INDUSTRIAL"];
 const stockStatuses = ["IN_STOCK", "LOW_STOCK", "OUT_OF_STOCK", "MADE_TO_ORDER"];
 
@@ -29,25 +35,28 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
 
 export function ProductForm({
   categories,
+  materials,
   action,
   defaultValues,
   showImageField = true,
   submitLabel,
 }: {
   categories: Category[];
+  materials: MaterialOption[];
   action: (prevState: ProductFormState, formData: FormData) => Promise<ProductFormState>;
   defaultValues?: {
     name: string;
     description: string;
     price: number | string;
     compareAtPrice?: number | string | null;
-    material: string;
+    materialId: string;
     room: string;
     color?: string | null;
     dimensions?: string | null;
     deliveryEstimate?: string | null;
     stockStatus: string;
     stockQty: number;
+    reorderLevel?: number;
     featured: boolean;
     categoryId: string;
     imageUrl?: string;
@@ -58,10 +67,31 @@ export function ProductForm({
   submitLabel?: string;
 }) {
   const [state, formAction, isPending] = useActionState(action, null);
+  const [price, setPrice] = useState(defaultValues?.price?.toString() ?? "");
+  const [compareAtPrice, setCompareAtPrice] = useState(defaultValues?.compareAtPrice?.toString() ?? "");
+  const [stockQty, setStockQty] = useState(String(defaultValues?.stockQty ?? 0));
+  const [reorderLevel, setReorderLevel] = useState(String(defaultValues?.reorderLevel ?? 5));
 
   useEffect(() => {
     if (state?.error) toast.error(state.error);
   }, [state]);
+
+  const priceNum = Number(price);
+  const compareAtPriceNum = Number(compareAtPrice);
+  const percentOff = discountPercent(price, compareAtPrice);
+  const hasDiscount = percentOff !== null;
+  const discountAmount = hasDiscount ? compareAtPriceNum - priceNum : 0;
+
+  const stockQtyNum = Number(stockQty);
+  const reorderLevelNum = Number(reorderLevel);
+  const suggestedStatus =
+    Number.isFinite(stockQtyNum) && Number.isFinite(reorderLevelNum)
+      ? stockQtyNum <= 0
+        ? "Out of Stock"
+        : stockQtyNum <= reorderLevelNum
+          ? "Low Stock"
+          : "In Stock"
+      : null;
 
   return (
     <form action={formAction} className="max-w-3xl space-y-5">
@@ -89,7 +119,16 @@ export function ProductForm({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="price">Price (BDT)</Label>
-            <Input id="price" name="price" type="number" step="0.01" min="0" defaultValue={defaultValues?.price} required />
+            <Input
+              id="price"
+              name="price"
+              type="number"
+              step="0.01"
+              min="0"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              required
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="compareAtPrice">Compare-at price (optional)</Label>
@@ -99,11 +138,26 @@ export function ProductForm({
               type="number"
               step="0.01"
               min="0"
-              defaultValue={defaultValues?.compareAtPrice ?? ""}
+              value={compareAtPrice}
+              onChange={(e) => setCompareAtPrice(e.target.value)}
             />
             <p className="text-xs text-neutral-500">Shown struck-through to signal a discount.</p>
           </div>
         </div>
+        {hasDiscount && (
+          <div className="mt-4 flex items-center gap-2 rounded-md bg-emerald-50 px-3 py-2">
+            <StatusPill tone="green">{percentOff}% off</StatusPill>
+            <p className="text-sm text-emerald-800">
+              Customers save {formatPrice(discountAmount)} off the {formatPrice(compareAtPriceNum)}{" "}
+              compare-at price.
+            </p>
+          </div>
+        )}
+        {compareAtPrice.trim() !== "" && !hasDiscount && (
+          <p className="mt-3 text-xs text-amber-600">
+            Compare-at price must be higher than the price for a discount to show.
+          </p>
+        )}
       </Card>
 
       <Card title="Classification & stock">
@@ -122,11 +176,20 @@ export function ProductForm({
             </select>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="material">Material</Label>
-            <select id="material" name="material" defaultValue={defaultValues?.material} required className={selectClass}>
+            <Label htmlFor="materialId">Material</Label>
+            <select
+              id="materialId"
+              name="materialId"
+              defaultValue={defaultValues?.materialId ?? ""}
+              required
+              className={selectClass}
+            >
+              <option value="" disabled>
+                Select material
+              </option>
               {materials.map((m) => (
-                <option key={m} value={m}>
-                  {m.replaceAll("_", " ")}
+                <option key={m.id} value={m.id}>
+                  {m.name}
                 </option>
               ))}
             </select>
@@ -151,10 +214,36 @@ export function ProductForm({
                   </option>
                 ))}
               </select>
+              {suggestedStatus && (
+                <p className="text-xs text-neutral-500">
+                  Suggested from quantity vs. reorder level: <span className="font-medium">{suggestedStatus}</span>
+                </p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="stockQty">Quantity</Label>
-              <Input id="stockQty" name="stockQty" type="number" min="0" defaultValue={defaultValues?.stockQty ?? 0} required />
+              <Input
+                id="stockQty"
+                name="stockQty"
+                type="number"
+                min="0"
+                value={stockQty}
+                onChange={(e) => setStockQty(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="reorderLevel">Reorder level</Label>
+              <Input
+                id="reorderLevel"
+                name="reorderLevel"
+                type="number"
+                min="0"
+                value={reorderLevel}
+                onChange={(e) => setReorderLevel(e.target.value)}
+                required
+              />
+              <p className="text-xs text-neutral-500">Quantity at or below which stock is considered low.</p>
             </div>
           </div>
         </div>
