@@ -1,10 +1,11 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/authz";
 import { Prisma } from "@prisma/client";
-import type { MaterialType, RoomType, StockStatus } from "@prisma/client";
+import type { RoomType, StockStatus } from "@prisma/client";
 
 export type ProductFormState = { error?: string } | null;
 
@@ -27,10 +28,11 @@ function parseProductForm(formData: FormData) {
   const description = String(formData.get("description") ?? "").trim();
   const price = Number(formData.get("price"));
   const compareAtPriceRaw = String(formData.get("compareAtPrice") ?? "").trim();
-  const material = String(formData.get("material")) as MaterialType;
+  const materialId = String(formData.get("materialId") ?? "");
   const room = String(formData.get("room")) as RoomType;
   const stockStatus = String(formData.get("stockStatus")) as StockStatus;
   const stockQty = Number(formData.get("stockQty") ?? 0);
+  const reorderLevel = Number(formData.get("reorderLevel") ?? 5);
   const featured = formData.get("featured") === "on";
   const categoryId = String(formData.get("categoryId"));
   const imageUrl = String(formData.get("imageUrl") ?? "").trim();
@@ -43,13 +45,14 @@ function parseProductForm(formData: FormData) {
     description,
     price,
     compareAtPrice: compareAtPriceRaw ? Number(compareAtPriceRaw) : null,
-    material,
+    materialId,
     room,
     color,
     dimensions,
     deliveryEstimate,
     stockStatus,
     stockQty,
+    reorderLevel,
     featured,
     categoryId,
     imageUrl,
@@ -60,6 +63,7 @@ export async function createProduct(
   _prevState: ProductFormState,
   formData: FormData
 ): Promise<ProductFormState> {
+  await requirePermission("products.create");
   const data = parseProductForm(formData);
 
   try {
@@ -70,13 +74,14 @@ export async function createProduct(
         description: data.description,
         price: data.price,
         compareAtPrice: data.compareAtPrice,
-        material: data.material,
+        materialId: data.materialId,
         room: data.room,
         color: data.color,
         dimensions: data.dimensions,
         deliveryEstimate: data.deliveryEstimate,
         stockStatus: data.stockStatus,
         stockQty: data.stockQty,
+        reorderLevel: data.reorderLevel,
         featured: data.featured,
         categoryId: data.categoryId,
         images: data.imageUrl
@@ -102,6 +107,7 @@ export async function updateProduct(
   _prevState: ProductFormState,
   formData: FormData
 ): Promise<ProductFormState> {
+  await requirePermission("products.edit");
   const data = parseProductForm(formData);
 
   try {
@@ -114,13 +120,14 @@ export async function updateProduct(
         description: data.description,
         price: data.price,
         compareAtPrice: data.compareAtPrice,
-        material: data.material,
+        materialId: data.materialId,
         room: data.room,
         color: data.color,
         dimensions: data.dimensions,
         deliveryEstimate: data.deliveryEstimate,
         stockStatus: data.stockStatus,
         stockQty: data.stockQty,
+        reorderLevel: data.reorderLevel,
         featured: data.featured,
         categoryId: data.categoryId,
       },
@@ -138,7 +145,45 @@ export async function updateProduct(
   redirect("/admin/products");
 }
 
+/** Adds (or subtracts, for a correction) units to a product's existing
+ *  stock — for restocking an existing SKU, not creating a new product.
+ *  Also auto-derives stockStatus from the new quantity vs reorderLevel,
+ *  unless the product is MADE_TO_ORDER (not quantity-tracked the same way). */
+export async function adjustStock(formData: FormData) {
+  await requirePermission("products.edit");
+  const id = String(formData.get("id") ?? "");
+  const delta = Number(formData.get("delta"));
+  if (!id || !Number.isFinite(delta) || delta === 0) return;
+
+  const product = await prisma.product.findUnique({
+    where: { id },
+    select: { stockQty: true, reorderLevel: true, stockStatus: true },
+  });
+  if (!product) return;
+
+  const newQty = product.stockQty + delta;
+  const newStatus: StockStatus =
+    product.stockStatus === "MADE_TO_ORDER"
+      ? "MADE_TO_ORDER"
+      : newQty <= 0
+        ? "OUT_OF_STOCK"
+        : newQty <= product.reorderLevel
+          ? "LOW_STOCK"
+          : "IN_STOCK";
+
+  await prisma.product.update({
+    where: { id },
+    data: { stockQty: newQty, stockStatus: newStatus },
+  });
+
+  revalidatePath("/admin/products");
+  revalidatePath(`/admin/products/${id}`);
+  revalidatePath("/products");
+  refresh();
+}
+
 export async function deleteProduct(formData: FormData) {
+  await requirePermission("products.delete");
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
@@ -147,4 +192,5 @@ export async function deleteProduct(formData: FormData) {
   revalidatePath("/admin/products");
   revalidatePath("/products");
   revalidatePath("/");
+  refresh();
 }

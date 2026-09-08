@@ -1,7 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, refresh } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/authz";
 import { toEmbedUrl } from "@/lib/video-embed";
 import type { ProductMediaType } from "@prisma/client";
 
@@ -10,6 +11,7 @@ function revalidate(productId: string) {
   revalidatePath("/admin/products");
   revalidatePath("/products");
   revalidatePath("/");
+  refresh();
 }
 
 /**
@@ -23,6 +25,7 @@ export async function addProductImage(
   formData: FormData,
   explicitType?: ProductMediaType
 ) {
+  await requirePermission("products.edit");
   const rawUrl = String(formData.get("imageUrl") ?? "").trim();
   if (!productId || !rawUrl) return;
 
@@ -38,6 +41,7 @@ export async function addProductImage(
 }
 
 export async function removeProductImage(formData: FormData) {
+  await requirePermission("products.edit");
   const id = String(formData.get("imageId") ?? "");
   const productId = String(formData.get("productId") ?? "");
   if (!id) return;
@@ -59,6 +63,7 @@ export async function removeProductImage(formData: FormData) {
 
 /** Move an image up/down in the ordering by swapping with its neighbour. */
 export async function moveProductImage(formData: FormData) {
+  await requirePermission("products.edit");
   const id = String(formData.get("imageId") ?? "");
   const productId = String(formData.get("productId") ?? "");
   const direction = String(formData.get("direction") ?? "");

@@ -1,11 +1,14 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { requirePermission } from "@/lib/authz";
 import { sendNotification, escapeHtml } from "@/lib/email";
 import { formatPrice } from "@/lib/utils";
+import { getAllSettings, SETTING_KEYS, isEnabled } from "@/lib/settings";
+import { isSslcommerzConfigured } from "@/lib/payment/sslcommerz";
 import type { OrderStatus, PaymentMethod } from "@prisma/client";
 
 export type PlaceOrderState = { error?: string };
@@ -42,11 +45,30 @@ export async function placeOrder(
   const shipPostCode = String(formData.get("shipPostCode") ?? "").trim() || null;
   const guestEmail = String(formData.get("guestEmail") ?? "").trim() || null;
   const paymentMethod = String(formData.get("paymentMethod") ?? "COD") as PaymentMethod;
+  const zoneId = String(formData.get("zoneId") ?? "").trim() || null;
   const notes = String(formData.get("notes") ?? "").trim() || null;
 
   if (!shipName || !shipPhone || !shipLine1 || !shipCity) {
     return { error: "Please fill in all required shipping details." };
   }
+
+  // Re-validate the payment method server-side — a client could submit a
+  // method that's actually disabled (or never render-checked in the first
+  // place) by posting directly to this action.
+  if (paymentMethod !== "COD" && paymentMethod !== "SSLCOMMERZ") {
+    return { error: "Invalid payment method." };
+  }
+  const settings = await getAllSettings();
+  const codEnabled = isEnabled(settings[SETTING_KEYS.paymentCodEnabled]);
+  const onlinePaymentEnabled = isSslcommerzConfigured() && isEnabled(settings[SETTING_KEYS.paymentOnlineEnabled]);
+  if (paymentMethod === "COD" && !codEnabled) {
+    return { error: "Cash on Delivery isn't available right now — please choose another payment method." };
+  }
+  if (paymentMethod === "SSLCOMMERZ" && !onlinePaymentEnabled) {
+    return { error: "Online payment isn't available right now — please choose another payment method." };
+  }
+
+  const shippingZone = zoneId ? await prisma.shippingZone.findUnique({ where: { id: zoneId } }) : null;
 
   const session = await auth();
   const user = session?.user as { id?: string; userType?: string } | undefined;
@@ -89,7 +111,7 @@ export async function placeOrder(
   }
 
   const subtotal = lineItems.reduce((sum, li) => sum + li.lineTotal, 0);
-  const shippingFee = 0;
+  const shippingFee = shippingZone ? Number(shippingZone.fee) : 0;
   const total = subtotal + shippingFee;
   const orderNumber = generateOrderNumber();
 
@@ -110,6 +132,7 @@ export async function placeOrder(
           shipCity,
           shipArea,
           shipPostCode,
+          shippingZoneId: shippingZone?.id ?? null,
           subtotal,
           shippingFee,
           total,
@@ -167,10 +190,16 @@ export async function placeOrder(
 }
 
 export async function updateOrderStatus(id: string, formData: FormData) {
+  await requirePermission("orders.edit");
   const status = String(formData.get("status")) as OrderStatus;
 
   await prisma.order.update({ where: { id }, data: { status } });
 
   revalidatePath("/admin/orders");
   revalidatePath("/admin");
+  // This page is force-dynamic and reads straight from Prisma, so there's no
+  // Next.js cache entry for revalidatePath to invalidate on it — refresh()
+  // is what actually makes the current route re-render with fresh data in
+  // this same response, instead of only on the next full navigation/reload.
+  refresh();
 }
