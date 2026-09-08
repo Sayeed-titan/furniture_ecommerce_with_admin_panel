@@ -10,6 +10,28 @@ export const SETTING_KEYS = {
   landingVariant: "landing_variant",
   whatsappNumber: "whatsapp_number",
   businessPhone: "business_phone",
+  termsContent: "policy_terms_content",
+  deliveryContent: "policy_delivery_content",
+  returnPolicyContent: "policy_return_content",
+  warrantyContent: "policy_warranty_content",
+  shopAddress: "shop_address",
+  googleMapsUrl: "google_maps_url",
+  brandIconUrl: "brand_icon_url",
+  brandLogoUrl: "brand_logo_url",
+  paymentCodEnabled: "payment_cod_enabled",
+  paymentOnlineEnabled: "payment_online_enabled",
+  heroEyebrow: "hero_eyebrow",
+  heroHeadline: "hero_headline",
+  heroSubtitle: "hero_subtitle",
+  heroPrimaryLabel: "hero_primary_label",
+  heroPrimaryHref: "hero_primary_href",
+  heroSecondaryLabel: "hero_secondary_label",
+  heroSecondaryHref: "hero_secondary_href",
+  heroSlidesJson: "hero_slides_json",
+  facebookUrl: "social_facebook_url",
+  instagramUrl: "social_instagram_url",
+  youtubeUrl: "social_youtube_url",
+  tiktokUrl: "social_tiktok_url",
 } as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[keyof typeof SETTING_KEYS];
@@ -22,6 +44,14 @@ export async function getAllSettings(): Promise<Record<string, string>> {
   } catch {
     return {};
   }
+}
+
+/** Reads a boolean setting stored as the literal string "true"/"false".
+ *  Missing (never saved) defaults to `defaultValue` — opt-out semantics, so
+ *  existing behavior doesn't change until an admin explicitly disables it. */
+export function isEnabled(value: string | undefined, defaultValue = true): boolean {
+  if (value === undefined) return defaultValue;
+  return value !== "false";
 }
 
 export async function getSetting(key: SettingKey): Promise<string | null> {

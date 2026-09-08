@@ -13,3 +13,15 @@ export function formatPrice(value: number | string) {
     maximumFractionDigits: 0,
   }).format(n);
 }
+
+/** Rounded discount percentage when compareAtPrice is a valid, higher price than price; otherwise null. */
+export function discountPercent(
+  price: number | string,
+  compareAtPrice: number | string | null | undefined
+): number | null {
+  if (compareAtPrice == null || compareAtPrice === "") return null;
+  const p = typeof price === "string" ? parseFloat(price) : price;
+  const c = typeof compareAtPrice === "string" ? parseFloat(compareAtPrice) : compareAtPrice;
+  if (!Number.isFinite(p) || !Number.isFinite(c) || c <= p || p < 0) return null;
+  return Math.round(((c - p) / c) * 100);
+}

@@ -54,3 +54,21 @@ export async function uploadProductVideo(file: File): Promise<{ url: string }> {
 export function isVideoFile(mimeType: string): boolean {
   return mimeType in VIDEO_TYPES;
 }
+
+const BRAND_IMAGE_TYPES: Record<string, string> = { ...IMAGE_TYPES, "image/svg+xml": "svg" };
+
+/** Admin-uploaded branding assets (logo icon / full logo) — separate from product images. */
+export async function uploadBrandAsset(file: File, kind: "icon" | "logo"): Promise<{ url: string }> {
+  const ext = BRAND_IMAGE_TYPES[file.type];
+  if (!ext) throw new Error("Unsupported image type. Use JPG, PNG, WebP, AVIF, GIF, or SVG.");
+  if (file.size > IMAGE_MAX_BYTES) throw new Error("Image is too large (max 8 MB).");
+  return saveFile(file, `branding/${kind}`, `branding/${kind}`, ext);
+}
+
+/** Admin-uploaded homepage hero background photos. */
+export async function uploadHeroImage(file: File): Promise<{ url: string }> {
+  const ext = IMAGE_TYPES[file.type];
+  if (!ext) throw new Error("Unsupported image type. Use JPG, PNG, WebP, AVIF, or GIF.");
+  if (file.size > IMAGE_MAX_BYTES) throw new Error("Image is too large (max 8 MB).");
+  return saveFile(file, "hero", "hero", ext);
+}

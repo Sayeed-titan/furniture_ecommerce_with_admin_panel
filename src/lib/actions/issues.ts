@@ -1,7 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, refresh } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/authz";
 import { createGithubIssue, isGithubConfigured, labelsForIssueType } from "@/lib/github";
 
 const TYPE_LABEL: Record<string, string> = {
@@ -13,6 +14,7 @@ const TYPE_LABEL: Record<string, string> = {
 
 /** Retry pushing a locally-stored report to GitHub (e.g. after a token was added). */
 export async function retryIssueSync(formData: FormData) {
+  await requirePermission("issues.edit");
   const id = String(formData.get("id") ?? "");
   if (!id || !isGithubConfigured()) return;
 
@@ -50,11 +52,14 @@ export async function retryIssueSync(formData: FormData) {
   }
 
   revalidatePath("/admin/issues");
+  refresh();
 }
 
 export async function deleteIssueReport(formData: FormData) {
+  await requirePermission("issues.delete");
   const id = String(formData.get("id") ?? "");
   if (!id) return;
   await prisma.issueReport.delete({ where: { id } });
   revalidatePath("/admin/issues");
+  refresh();
 }
