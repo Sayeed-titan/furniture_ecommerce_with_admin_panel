@@ -51,6 +51,41 @@ export async function sendNotification(input: {
   }
 }
 
+/** Send to an arbitrary recipient (password resets, etc.) rather than the
+ *  fixed business NOTIFY_EMAIL address that sendNotification() targets. */
+export async function sendEmail(input: {
+  to: string;
+  subject: string;
+  html: string;
+}): Promise<boolean> {
+  if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) return false;
+
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: process.env.EMAIL_FROM,
+        to: [input.to],
+        subject: input.subject,
+        html: input.html,
+      }),
+    });
+
+    if (!res.ok) {
+      console.error("Email send failed:", res.status, await res.text().catch(() => ""));
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("Email send error:", err);
+    return false;
+  }
+}
+
 /** Minimal HTML escaping for interpolating user-provided text into emails. */
 export function escapeHtml(value: string): string {
   return value
