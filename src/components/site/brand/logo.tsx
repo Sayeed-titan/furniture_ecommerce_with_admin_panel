@@ -50,6 +50,29 @@ export function ThroneMark({ className, strokeWidth = 3.5 }: { className?: strin
   );
 }
 
+function Wordmark({ tone }: { tone: "light" | "dark" }) {
+  return (
+    <span className="flex flex-col justify-center leading-none">
+      <span
+        className={cn(
+          "font-serif text-[17px] font-semibold tracking-[0.02em]",
+          tone === "light" ? "text-neutral-900" : "text-[#f4efe6]"
+        )}
+      >
+        President
+      </span>
+      <span
+        className={cn(
+          "mt-1 text-[8.5px] font-medium uppercase tracking-[0.42em]",
+          tone === "light" ? "text-neutral-500" : "text-[#b8925a]"
+        )}
+      >
+        Furniture
+      </span>
+    </span>
+  );
+}
+
 /**
  * Full lockup: mark tile + stacked wordmark. `tone` controls which surface
  * it sits on; the mark tile always renders the throne in brass.
@@ -71,24 +94,7 @@ export function BrandLockup({
       >
         <ThroneMark className="h-6 w-6" />
       </span>
-      <span className="flex flex-col justify-center leading-none">
-        <span
-          className={cn(
-            "font-serif text-[17px] font-semibold tracking-[0.02em]",
-            tone === "light" ? "text-neutral-900" : "text-[#f4efe6]"
-          )}
-        >
-          President
-        </span>
-        <span
-          className={cn(
-            "mt-1 text-[8.5px] font-medium uppercase tracking-[0.42em]",
-            tone === "light" ? "text-neutral-500" : "text-[#b8925a]"
-          )}
-        >
-          Furniture
-        </span>
-      </span>
+      <Wordmark tone={tone} />
     </span>
   );
 }

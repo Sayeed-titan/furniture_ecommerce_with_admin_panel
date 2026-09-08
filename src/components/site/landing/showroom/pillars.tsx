@@ -5,8 +5,8 @@ import { useTranslation } from "@/lib/i18n/use-translation";
 
 /**
  * Sits right below the dark 3D hero — a light band for contrast, three
- * pillars restating the same office/industrial/hospital promise in
- * concrete, no-nonsense terms.
+ * pillars restating the same office/industrial promise in concrete,
+ * no-nonsense terms.
  */
 export function ShowroomPillars() {
   const { t } = useTranslation();

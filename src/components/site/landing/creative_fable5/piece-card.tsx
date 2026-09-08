@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { LandingProduct } from "@/components/site/landing/types";
 import { WishlistButton } from "@/components/site/wishlist-button";
 import { cn, formatPrice } from "@/lib/utils";
-import { formatMaterial, formatRoom, formatStockStatus } from "@/lib/format";
+import { formatRoom, formatStockStatus } from "@/lib/format";
 
 /**
  * Editorial "plate" treatment for a product — a numbered folio entry rather
@@ -78,7 +78,7 @@ export function PieceCard({
             </p>
           </div>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-[#6b5a48]">
-            {formatMaterial(product.material)} &middot; {formatRoom(product.room)}
+            {product.material.name} &middot; {formatRoom(product.room)}
             {product.stockStatus !== "IN_STOCK" && !outOfStock && (
               <> &middot; {formatStockStatus(product.stockStatus)}</>
             )}

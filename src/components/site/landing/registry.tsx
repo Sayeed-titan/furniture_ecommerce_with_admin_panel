@@ -34,6 +34,6 @@ export const landingVariantLabels: Record<LandingVariantKey, string> = {
   premium: "Type 3 — Premium: clean & product-led",
   immersive: "Type 4 — Immersive: same hero, richer & more playful page",
   president: "Type 5 — President: flagship brand experience (WebGL + motion)",
-  commerce: "Type 6 — Commerce: merchandising storefront (office · industrial · hospital)",
+  commerce: "Type 6 — Commerce: merchandising storefront (office · industrial)",
   showroom: "Type 7 — Showroom: interactive 3D hero (Three.js)",
 };

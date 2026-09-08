@@ -8,13 +8,13 @@ import { CommerceCategoryGrid } from "./category-grid";
 import { CommerceBulkBand } from "./bulk-band";
 
 /**
- * Type 6 — Commerce: a merchandising storefront for President's office,
- * industrial, and hospital ranges. Structured like a modern furniture-retail
+ * Type 6 — Commerce: a merchandising storefront for President's office and
+ * industrial ranges. Structured like a modern furniture-retail
  * homepage (banner → sectors → products → services → categories → quote),
  * adapted to a single-brand B2B supplier: no invented discounts, and the
  * hero/sector tiles double as navigation into the catalogue.
  */
-export function CommerceLanding({ featuredProducts, categories }: LandingPageData) {
+export function CommerceLanding({ featuredProducts, categories, heroContent, heroSlides }: LandingPageData) {
   // "Across the range" = one product per category, minus anything already
   // shown in Trending, so the two grids don't repeat.
   const featuredIds = new Set(featuredProducts.map((p) => p.id));
@@ -32,7 +32,7 @@ export function CommerceLanding({ featuredProducts, categories }: LandingPageDat
 
   return (
     <div className="bg-white">
-      <CommercePromoHero />
+      <CommercePromoHero content={heroContent} slides={heroSlides} />
       <CommerceSectors />
 
       {featuredProducts.length > 0 && (

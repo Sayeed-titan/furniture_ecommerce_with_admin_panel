@@ -14,7 +14,7 @@ export type CommerceCategoryItem = {
 /**
  * Category tiles. Receives plain data (no Prisma Decimal) so it can be a
  * Client Component and translate its own count label. Category names come
- * straight from the DB — already the correct office/industrial/hospital set.
+ * straight from the DB — already the correct office/industrial set.
  */
 export function CommerceCategoryGrid({ items }: { items: CommerceCategoryItem[] }) {
   const { t } = useTranslation();
@@ -47,8 +47,8 @@ export function CommerceCategoryGrid({ items }: { items: CommerceCategoryItem[] 
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
               <div className="relative p-4">
-                <p className="font-semibold text-white">{cat.name}</p>
-                <p className="text-xs text-white/75">
+                <p className="font-semibold text-onmedia">{cat.name}</p>
+                <p className="text-xs text-onmedia/75">
                   {cat.count}{" "}
                   {cat.count === 1 ? t("commerce.categoriesItemOne") : t("commerce.categoriesItemMany")}
                 </p>

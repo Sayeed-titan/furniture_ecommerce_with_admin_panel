@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Building2, Factory, HeartPulse, ArrowRight } from "lucide-react";
+import { Building2, Factory, ArrowRight } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/use-translation";
 
 /**
- * The three markets President serves. Each card links into the catalogue
+ * The markets President serves. Each card links into the catalogue
  * pre-filtered by setting, so it doubles as primary navigation.
  */
 export function CommerceSectors() {
@@ -24,17 +24,11 @@ export function CommerceSectors() {
       desc: t("commerce.sectorIndustrialDesc"),
       href: "/products?room=INDUSTRIAL",
     },
-    {
-      icon: HeartPulse,
-      title: t("commerce.sectorHospital"),
-      desc: t("commerce.sectorHospitalDesc"),
-      href: "/products?room=HEALTHCARE",
-    },
   ];
 
   return (
     <section className="border-b border-neutral-200 bg-white">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-px overflow-hidden bg-neutral-200 sm:grid-cols-3 sm:rounded-none">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-px overflow-hidden bg-neutral-200 sm:grid-cols-2 sm:rounded-none">
         {sectors.map(({ icon: Icon, title, desc, href }) => (
           <Link
             key={title}

@@ -12,10 +12,10 @@ export function CommerceBulkBand() {
     <section className="bg-[#12181d]">
       <div className="mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-16 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
         <div className="max-w-2xl">
-          <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+          <h2 className="text-2xl font-bold tracking-tight text-onmedia sm:text-3xl">
             {t("commerce.bulkTitle")}
           </h2>
-          <p className="mt-3 text-neutral-300">{t("commerce.bulkSubtitle")}</p>
+          <p className="mt-3 text-onmedia/75">{t("commerce.bulkSubtitle")}</p>
         </div>
         <Link
           href="/contact"
