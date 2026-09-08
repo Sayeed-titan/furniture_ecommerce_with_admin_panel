@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Mail, Phone, Download } from "lucide-react";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/authz";
 import { PageHeader, StatusPill, type PillTone } from "@/components/admin/ui";
 import { ConfirmSubmit } from "@/components/admin/confirm-submit";
 import { updateLeadStatus, updateLeadNotes, deleteLead } from "@/lib/actions/leads";
@@ -25,6 +26,10 @@ const label = (s: string) => s.replace("_", " ");
 type SearchParams = Promise<{ status?: string }>;
 
 export default async function AdminLeadsPage({ searchParams }: { searchParams: SearchParams }) {
+  const { permissions } = await requirePermission("leads.view");
+  const canEdit = permissions.includes("leads.edit");
+  const canDelete = permissions.includes("leads.delete");
+  const canExport = permissions.includes("leads.export");
   const { status } = await searchParams;
   const activeStatus = STATUSES.includes(status as (typeof STATUSES)[number]) ? status : undefined;
 
@@ -52,7 +57,7 @@ export default async function AdminLeadsPage({ searchParams }: { searchParams: S
   return (
     <div className="space-y-5">
       <PageHeader title="Leads" description="People who reached out through the site. Update status as you work them.">
-        {total > 0 && (
+        {total > 0 && canExport && (
           <a
             href="/admin/leads/export"
             className="inline-flex items-center gap-2 rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium hover:bg-neutral-100"
@@ -127,54 +132,61 @@ export default async function AdminLeadsPage({ searchParams }: { searchParams: S
                 </div>
               )}
 
-              <form action={saveNotes} className="mt-4">
-                <label htmlFor={`notes-${lead.id}`} className="text-xs font-medium text-neutral-500">
-                  Internal notes
-                </label>
-                <div className="mt-1 flex flex-col gap-2 sm:flex-row">
-                  <textarea
-                    id={`notes-${lead.id}`}
-                    name="notes"
-                    rows={2}
-                    defaultValue={lead.notes ?? ""}
-                    placeholder="Private notes about this lead — not visible to the customer."
-                    className="flex-1 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm placeholder:text-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
-                  />
-                  <button
-                    type="submit"
-                    className="h-fit shrink-0 rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium hover:bg-neutral-100"
-                  >
-                    Save note
-                  </button>
-                </div>
-              </form>
+              {canEdit && (
+                <form action={saveNotes} className="mt-4">
+                  <label htmlFor={`notes-${lead.id}`} className="text-xs font-medium text-neutral-500">
+                    Internal notes
+                  </label>
+                  <div className="mt-1 flex flex-col gap-2 sm:flex-row">
+                    <textarea
+                      id={`notes-${lead.id}`}
+                      name="notes"
+                      rows={2}
+                      defaultValue={lead.notes ?? ""}
+                      placeholder="Private notes about this lead — not visible to the customer."
+                      className="flex-1 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm placeholder:text-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
+                    />
+                    <button
+                      type="submit"
+                      className="h-fit shrink-0 rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium hover:bg-neutral-100"
+                    >
+                      Save note
+                    </button>
+                  </div>
+                </form>
+              )}
 
               <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-100 pt-4">
-                <form action={updateStatus} className="flex items-center gap-2">
-                  <select
-                    name="status"
-                    defaultValue={lead.status}
-                    className="h-9 rounded-md border border-neutral-300 bg-white px-2 text-sm"
-                  >
-                    {STATUSES.map((s) => (
-                      <option key={s} value={s}>
-                        {label(s)}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    type="submit"
-                    className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium hover:bg-neutral-100"
-                  >
-                    Update status
-                  </button>
-                </form>
-                <form action={deleteLead}>
-                  <input type="hidden" name="id" value={lead.id} />
-                  <ConfirmSubmit message={`Delete lead from ${lead.name}?`} variant="danger">
-                    Delete
-                  </ConfirmSubmit>
-                </form>
+                {canEdit && (
+                  <form action={updateStatus} className="flex items-center gap-2">
+                    <select
+                      key={lead.status}
+                      name="status"
+                      defaultValue={lead.status}
+                      className="h-9 rounded-md border border-neutral-300 bg-white px-2 text-sm"
+                    >
+                      {STATUSES.map((s) => (
+                        <option key={s} value={s}>
+                          {label(s)}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="submit"
+                      className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium hover:bg-neutral-100"
+                    >
+                      Update status
+                    </button>
+                  </form>
+                )}
+                {canDelete && (
+                  <form action={deleteLead}>
+                    <input type="hidden" name="id" value={lead.id} />
+                    <ConfirmSubmit message={`Delete lead from ${lead.name}?`} variant="danger">
+                      Delete
+                    </ConfirmSubmit>
+                  </form>
+                )}
               </div>
             </div>
           );

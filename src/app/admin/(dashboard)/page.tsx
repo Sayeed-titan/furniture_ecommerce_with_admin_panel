@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Package, Tags, Inbox, Bug, ArrowRight, Plus, ShoppingCart } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/authz";
 import { PageHeader, Section, SectionHeader, StatusPill, EmptyRow } from "@/components/admin/ui";
 import { formatPrice } from "@/lib/utils";
 
@@ -16,6 +17,9 @@ const LEAD_TONE: Record<string, "blue" | "amber" | "purple" | "green" | "red"> =
 };
 
 export default async function AdminDashboardPage() {
+  const { permissions } = await requirePermission("dashboard.view");
+  const canCreateProduct = permissions.includes("products.create");
+
   const [
     productCount,
     categoryCount,
@@ -59,12 +63,14 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Dashboard" description="At-a-glance view of your store and inbox.">
-        <Link
-          href="/admin/products/new"
-          className="inline-flex items-center gap-2 rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
-        >
-          <Plus className="h-4 w-4" /> New product
-        </Link>
+        {canCreateProduct && (
+          <Link
+            href="/admin/products/new"
+            className="inline-flex items-center gap-2 rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
+          >
+            <Plus className="h-4 w-4" /> New product
+          </Link>
+        )}
       </PageHeader>
 
       {/* Stat cards */}

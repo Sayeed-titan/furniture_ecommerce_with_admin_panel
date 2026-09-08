@@ -24,7 +24,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
 
   const where: Prisma.ProductWhereInput = {};
   if (params.category) where.category = { slug: params.category };
-  if (params.material) where.material = params.material as Prisma.EnumMaterialTypeFilter["equals"];
+  if (params.material) where.materialId = params.material;
   if (params.room) where.room = params.room as Prisma.EnumRoomTypeFilter["equals"];
   if (params.stock) where.stockStatus = params.stock as Prisma.EnumStockStatusFilter["equals"];
   if (params.q?.trim()) {
@@ -42,13 +42,14 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
         ? { price: "desc" }
         : { createdAt: "desc" };
 
-  const [products, categories] = await Promise.all([
+  const [products, categories, materials] = await Promise.all([
     prisma.product.findMany({
       where,
       orderBy,
       include: { images: { where: { type: "IMAGE" }, orderBy: { position: "asc" }, take: 1 } },
     }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
+    prisma.material.findMany({ orderBy: { name: "asc" } }),
   ]);
 
   return (
@@ -56,7 +57,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
       <ProductsHeading />
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[240px_1fr]">
-        <ProductFilters categories={categories} activeParams={params} />
+        <ProductFilters categories={categories} materials={materials} activeParams={params} />
 
         <div>
           <div className="mb-6">

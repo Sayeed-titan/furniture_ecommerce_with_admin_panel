@@ -1,40 +1,13 @@
-import { PolicyLayout, PolicySection } from "@/components/site/policy-layout";
+import { PolicyLayout } from "@/components/site/policy-layout";
+import { renderPolicyContent } from "@/lib/policy-markdown";
+import { getSetting, SETTING_KEYS } from "@/lib/settings";
+import { DEFAULT_DELIVERY_CONTENT } from "@/lib/policy-content";
 
 export const metadata = { title: "Delivery Information" };
+export const dynamic = "force-dynamic";
 
-export default function DeliveryPage() {
-  return (
-    <PolicyLayout title="Delivery Information">
-      <PolicySection heading="Delivery time">
-        <p>
-          Estimated delivery time is shown on every product page — it varies by piece, since some
-          are kept in stock and others are made to order. As a rule of thumb, in-stock items reach
-          Dhaka within a week and other divisions within 2 weeks; made-to-order pieces take longer.
-        </p>
-      </PolicySection>
+export default async function DeliveryPage() {
+  const content = (await getSetting(SETTING_KEYS.deliveryContent)) ?? DEFAULT_DELIVERY_CONTENT;
 
-      <PolicySection heading="Delivery areas">
-        <p>
-          We deliver nationwide across Bangladesh. Delivery charges and timelines outside Dhaka can
-          vary by distance — the exact charge is confirmed at checkout or when we contact you to
-          confirm the order.
-        </p>
-      </PolicySection>
-
-      <PolicySection heading="Assembly & installation">
-        <p>
-          Ready-made furniture is delivered assembled or with our team assembling on-site, at no
-          extra charge. Contract fit-outs (workstations, reception counters, custom storage) are
-          installed directly by the team that measured and built them.
-        </p>
-      </PolicySection>
-
-      <PolicySection heading="Cash on Delivery">
-        <p>
-          Cash on Delivery is available on every order, nationwide. You can also pay online at
-          checkout where that option is shown.
-        </p>
-      </PolicySection>
-    </PolicyLayout>
-  );
+  return <PolicyLayout title="Delivery Information">{renderPolicyContent(content)}</PolicyLayout>;
 }

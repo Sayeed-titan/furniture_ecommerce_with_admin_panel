@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Eye, Heart, Inbox, TrendingUp, ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/authz";
 import { PageHeader, Section, SectionHeader, StatusPill, EmptyRow, type PillTone } from "@/components/admin/ui";
 
 export const metadata = { title: "Insights" };
@@ -17,6 +18,7 @@ const LEAD_TONE: Record<string, PillTone> = {
 const STATUS_ORDER = ["NEW", "CONTACTED", "QUALIFIED", "CLOSED_WON", "CLOSED_LOST"] as const;
 
 export default async function InsightsPage() {
+  await requirePermission("insights.view");
   // eslint-disable-next-line react-hooks/purity -- server component; evaluated per request
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/authz";
 import { PageHeader, StatusPill, type PillTone } from "@/components/admin/ui";
 import { ConfirmSubmit } from "@/components/admin/confirm-submit";
 import { isGithubConfigured } from "@/lib/github";
@@ -29,6 +30,9 @@ const TYPE_LABEL: Record<string, string> = {
 type SearchParams = Promise<{ type?: string }>;
 
 export default async function AdminIssuesPage({ searchParams }: { searchParams: SearchParams }) {
+  const { permissions } = await requirePermission("issues.view");
+  const canEdit = permissions.includes("issues.edit");
+  const canDelete = permissions.includes("issues.delete");
   const { type } = await searchParams;
   const activeType = TYPES.includes(type as (typeof TYPES)[number]) ? type : undefined;
 
@@ -115,7 +119,7 @@ export default async function AdminIssuesPage({ searchParams }: { searchParams: 
                   </StatusPill>
                 )}
                 <div className="flex items-center gap-1">
-                  {!report.githubIssueUrl && githubReady && (
+                  {canEdit && !report.githubIssueUrl && githubReady && (
                     <form action={retryIssueSync}>
                       <input type="hidden" name="id" value={report.id} />
                       <button
@@ -126,12 +130,14 @@ export default async function AdminIssuesPage({ searchParams }: { searchParams: 
                       </button>
                     </form>
                   )}
-                  <form action={deleteIssueReport}>
-                    <input type="hidden" name="id" value={report.id} />
-                    <ConfirmSubmit message="Delete this report?" variant="danger" className="text-xs">
-                      Delete
-                    </ConfirmSubmit>
-                  </form>
+                  {canDelete && (
+                    <form action={deleteIssueReport}>
+                      <input type="hidden" name="id" value={report.id} />
+                      <ConfirmSubmit message="Delete this report?" variant="danger" className="text-xs">
+                        Delete
+                      </ConfirmSubmit>
+                    </form>
+                  )}
                 </div>
               </div>
             </div>

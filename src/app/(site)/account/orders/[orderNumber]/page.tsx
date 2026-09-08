@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { AccountNav } from "@/components/site/account/account-nav";
+import { OrderStatusStepper } from "@/components/site/order-status-stepper";
 import { formatPrice } from "@/lib/utils";
 import { formatOrderStatus, formatPaymentMethod } from "@/lib/format";
 
@@ -38,6 +39,10 @@ export default async function AccountOrderDetailPage({ params }: { params: Param
         Placed {order.createdAt.toLocaleDateString()} · {formatPaymentMethod(order.paymentMethod)} ·{" "}
         {formatOrderStatus(order.paymentStatus)}
       </p>
+
+      <div className="mt-6 rounded-xl border border-neutral-200 p-4">
+        <OrderStatusStepper status={order.status} />
+      </div>
 
       <div className="mt-6 divide-y divide-neutral-200 rounded-xl border border-neutral-200">
         {order.items.map((item) => (

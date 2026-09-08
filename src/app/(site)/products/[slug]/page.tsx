@@ -11,7 +11,7 @@ import { StockIndicator } from "@/components/site/stock-indicator";
 import { ProductSpecTable } from "@/components/site/product-spec-table";
 import { DeliveryEstimate } from "@/components/site/delivery-estimate";
 import { PaymentMethodsStrip } from "@/components/site/payment-methods-strip";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, discountPercent } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +25,7 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
     include: {
       images: { orderBy: { position: "asc" } },
       category: true,
+      material: true,
     },
   });
 
@@ -40,6 +41,8 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
     orderBy: { createdAt: "desc" },
     take: 4,
   });
+
+  const percentOff = discountPercent(product.price.toString(), product.compareAtPrice?.toString());
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -60,6 +63,9 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
               <span className="text-lg text-neutral-400 line-through">
                 {formatPrice(product.compareAtPrice.toString())}
               </span>
+            )}
+            {percentOff !== null && (
+              <span className="text-sm font-semibold text-emerald-600">{percentOff}% off</span>
             )}
           </div>
 
