@@ -7,20 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ADMIN
-  STAFF
-}
-
-enum MaterialType {
-  SOLID_WOOD
-  ENGINEERED_WOOD
-  ARTIFICIAL_WOOD
-  LEATHER
-  FABRIC
-  METAL
-}
-
 /// The setting a piece is built for. Values were renamed from the original
 /// home-furniture set (living room, bedroom, …) to President's actual
 /// market: office, industrial, and hospital furniture. Enum positions are
@@ -84,15 +70,46 @@ model AdminUser {
   name         String
   email        String   @unique
   passwordHash String
-  role         Role     @default(STAFF)
+  roleId       String
+  role         Role     @relation(fields: [roleId], references: [id])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@index([roleId])
+}
+
+/// A named, admin-manageable set of permissions. Seeded with a protected
+/// "Administrator" role (isProtected = true) that always has every
+/// permission and can't be edited/deleted, so the panel can't be
+/// permission-locked-out.
+model Role {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  isProtected Boolean     @default(false)
+  /// string[] of "module.action" permission keys — see src/lib/permissions.ts
+  permissions Json
+  users       AdminUser[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
 
 model Category {
   id        String    @id @default(cuid())
   name      String    @unique
   slug      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+/// Admin-manageable material types (was a fixed enum) — lets the catalog
+/// add/rename a material without a code change. `nameBn` is optional so
+/// the storefront can still show a Bangla name where one's been set,
+/// falling back to `name` otherwise.
+model Material {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  nameBn    String?
   products  Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -105,13 +122,18 @@ model Product {
   description      String         @db.Text
   price            Decimal        @db.Decimal(10, 2)
   compareAtPrice   Decimal?       @db.Decimal(10, 2)
-  material         MaterialType
+  material         Material       @relation(fields: [materialId], references: [id])
+  materialId       String
   room             RoomType
   color            String?
   dimensions       String?
   deliveryEstimate String?
   stockStatus      StockStatus    @default(IN_STOCK)
   stockQty         Int            @default(0)
+  /// Below this quantity, the admin form suggests (but doesn't force)
+  /// switching stockStatus to LOW_STOCK — see adjustStock in
+  /// src/lib/actions/products.ts for where this is applied automatically.
+  reorderLevel     Int            @default(5)
   featured         Boolean        @default(false)
   viewCount        Int            @default(0)
   images           ProductImage[]
@@ -123,7 +145,7 @@ model Product {
   updatedAt        DateTime       @updatedAt
 
   @@index([categoryId])
-  @@index([material])
+  @@index([materialId])
   @@index([room])
   @@index([stockStatus])
 }
@@ -211,8 +233,24 @@ model Customer {
   passwordHash String?
   addresses    Address[]
   orders       Order[]
+  resetTokens  PasswordResetToken[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+}
+
+/// A single-use, expiring token for the customer "forgot password" flow.
+/// Only a hash of the token is stored — the raw token exists only in the
+/// emailed link, same principle as never storing a plaintext password.
+model PasswordResetToken {
+  id         String    @id @default(cuid())
+  customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId String
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([customerId])
 }
 
 model Address {
@@ -234,40 +272,59 @@ model Address {
   @@index([customerId])
 }
 
+/// Admin-defined delivery zones (e.g. "Inside Dhaka", "Outside Dhaka") —
+/// each order is charged whichever zone's fee the customer selects at
+/// checkout. A fee of 0 is how a zone offers free shipping.
+model ShippingZone {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  fee       Decimal  @default(0) @db.Decimal(10, 2)
+  /// Pre-selected at checkout; exactly one zone should be default at a time
+  /// (enforced in the admin action, not the DB).
+  isDefault Boolean  @default(false)
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 /// A placed order. Shipping details are denormalized (ship*) so later
 /// address edits never rewrite order history.
 model Order {
-  id            String        @id @default(cuid())
-  orderNumber   String        @unique
-  customer      Customer?     @relation(fields: [customerId], references: [id])
-  customerId    String?
-  guestName     String?
-  guestEmail    String?
-  guestPhone    String?
-  shipName      String
-  shipPhone     String
-  shipLine1     String
-  shipLine2     String?
-  shipCity      String
-  shipArea      String?
-  shipPostCode  String?
-  items         OrderItem[]
-  payments      Payment[]
-  subtotal      Decimal       @db.Decimal(10, 2)
-  shippingFee   Decimal       @default(0) @db.Decimal(10, 2)
-  total         Decimal       @db.Decimal(10, 2)
-  currency      String        @default("BDT")
-  status        OrderStatus   @default(PLACED)
-  paymentMethod PaymentMethod
-  paymentStatus PaymentStatus @default(PENDING)
-  notes         String?       @db.Text
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id             String        @id @default(cuid())
+  orderNumber    String        @unique
+  customer       Customer?     @relation(fields: [customerId], references: [id])
+  customerId     String?
+  guestName      String?
+  guestEmail     String?
+  guestPhone     String?
+  shipName       String
+  shipPhone      String
+  shipLine1      String
+  shipLine2      String?
+  shipCity       String
+  shipArea       String?
+  shipPostCode   String?
+  shippingZone   ShippingZone? @relation(fields: [shippingZoneId], references: [id])
+  /// Nullable: orders placed before shipping zones existed have none.
+  shippingZoneId String?
+  items          OrderItem[]
+  payments       Payment[]
+  subtotal       Decimal       @db.Decimal(10, 2)
+  shippingFee    Decimal       @default(0) @db.Decimal(10, 2)
+  total          Decimal       @db.Decimal(10, 2)
+  currency       String        @default("BDT")
+  status         OrderStatus   @default(PLACED)
+  paymentMethod  PaymentMethod
+  paymentStatus  PaymentStatus @default(PENDING)
+  notes          String?       @db.Text
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@index([customerId])
   @@index([status])
   @@index([paymentStatus])
   @@index([createdAt])
+  @@index([shippingZoneId])
 }
 
 /// Snapshot of a product's name/price at order time, so later catalog

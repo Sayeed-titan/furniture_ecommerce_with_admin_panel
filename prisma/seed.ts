@@ -1,7 +1,20 @@
-import { PrismaClient, MaterialType, RoomType, StockStatus, Role } from "@prisma/client";
+import { PrismaClient, RoomType, StockStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { allPermissions } from "../src/lib/permissions";
 
 const prisma = new PrismaClient();
+
+// Matches the Material rows seeded by prisma/migrations/20260906140000_add_shipping_and_materials
+// — keyed by the old MaterialType enum value so the `products` list below
+// (written before materials became a table) doesn't need every entry rewritten.
+const MATERIALS_BY_OLD_ENUM: Record<string, { name: string; nameBn: string }> = {
+  SOLID_WOOD: { name: "Solid Wood", nameBn: "সলিড উড" },
+  ENGINEERED_WOOD: { name: "Engineered Wood", nameBn: "ইঞ্জিনিয়ার্ড উড" },
+  ARTIFICIAL_WOOD: { name: "Laminate", nameBn: "ল্যামিনেট" },
+  LEATHER: { name: "Leather", nameBn: "লেদার" },
+  FABRIC: { name: "Fabric", nameBn: "ফ্যাব্রিক" },
+  METAL: { name: "Metal", nameBn: "মেটাল" },
+};
 
 // President Furniture supplies OFFICE, INDUSTRIAL, and HOSPITAL furniture —
 // not home furniture. Categories and products reflect that market.
@@ -23,7 +36,7 @@ const products = [
     description:
       "Engineered-wood executive desk with a laminate top, integrated cable management, and a lockable drawer pedestal. Built for daily use in management and administrative offices.",
     price: 39900.0,
-    material: MaterialType.ENGINEERED_WOOD,
+    material: "ENGINEERED_WOOD",
     room: RoomType.OFFICE,
     color: "Teak Laminate",
     dimensions: "1600 x 800 x 750 mm",
@@ -40,7 +53,7 @@ const products = [
     description:
       "Breathable mesh back with adjustable lumbar support, synchro-tilt mechanism, and height-adjustable arms. The everyday workhorse chair for open workspaces.",
     price: 22900.0,
-    material: MaterialType.FABRIC,
+    material: "FABRIC",
     room: RoomType.OFFICE,
     color: "Black",
     dimensions: "680 x 680 x 1150 mm",
@@ -57,7 +70,7 @@ const products = [
     description:
       "High-back executive chair in premium bonded leather with a chrome base, class-4 gas lift, and multi-tilt lock. Made for boardrooms and management cabins.",
     price: 34900.0,
-    material: MaterialType.LEATHER,
+    material: "LEATHER",
     room: RoomType.OFFICE,
     color: "Black",
     dimensions: "720 x 720 x 1250 mm",
@@ -74,7 +87,7 @@ const products = [
     description:
       "A four-seat cluster workstation with 40 mm partition screens, shared cable trays, and a laminate work surface per seat. Scales cleanly across open-plan floors.",
     price: 129900.0,
-    material: MaterialType.ENGINEERED_WOOD,
+    material: "ENGINEERED_WOOD",
     room: RoomType.WORKSPACE,
     color: "Grey / Maple",
     dimensions: "2400 x 2400 x 1150 mm",
@@ -91,7 +104,7 @@ const products = [
     description:
       "An eight-seat conference table with a laminate top, powered flip-box for data and power, and a sturdy panel-leg base. The centrepiece of a modern meeting room.",
     price: 64900.0,
-    material: MaterialType.ENGINEERED_WOOD,
+    material: "ENGINEERED_WOOD",
     room: RoomType.CONFERENCE,
     color: "Walnut Laminate",
     dimensions: "2400 x 1200 x 750 mm",
@@ -108,7 +121,7 @@ const products = [
     description:
       "Powder-coated steel filing cabinet with four full-extension drawers, a central locking system, and anti-tilt interlock. Foolscap and A4 compatible.",
     price: 27900.0,
-    material: MaterialType.METAL,
+    material: "METAL",
     room: RoomType.OFFICE,
     color: "Light Grey",
     dimensions: "460 x 620 x 1320 mm",
@@ -125,7 +138,7 @@ const products = [
     description:
       "A three-drawer mobile pedestal on castors that rolls under any desk — box, box, and a filing drawer, all lockable.",
     price: 12900.0,
-    material: MaterialType.METAL,
+    material: "METAL",
     room: RoomType.OFFICE,
     color: "Light Grey",
     dimensions: "390 x 500 x 600 mm",
@@ -143,7 +156,7 @@ const products = [
       "A firm, hard-wearing three-seater in premium leather with a powder-coated steel base — sized for busy office and clinic reception areas.",
     price: 89900.0,
     compareAtPrice: 109900.0,
-    material: MaterialType.LEATHER,
+    material: "LEATHER",
     room: RoomType.RECEPTION,
     color: "Tan",
     dimensions: "2100 x 850 x 780 mm",
@@ -160,7 +173,7 @@ const products = [
     description:
       "A curved front-desk counter with a laminate finish, a raised transaction ledge, and a concealed cable route for terminals and phones.",
     price: 74900.0,
-    material: MaterialType.ENGINEERED_WOOD,
+    material: "ENGINEERED_WOOD",
     room: RoomType.RECEPTION,
     color: "White / Oak",
     dimensions: "2000 x 800 x 1100 mm",
@@ -177,7 +190,7 @@ const products = [
     description:
       "Five-function electric hospital bed with a powder-coated steel frame, ABS side rails, castors with central braking, and a washable board. Supplied with an IV-pole mount.",
     price: 54900.0,
-    material: MaterialType.METAL,
+    material: "METAL",
     room: RoomType.HEALTHCARE,
     color: "White",
     dimensions: "2150 x 950 x 500 mm",
@@ -194,7 +207,7 @@ const products = [
     description:
       "A stainless-steel medical cabinet with glass upper doors, adjustable shelves, and a lockable lower cupboard — easy to wipe down and clinic-ready.",
     price: 38900.0,
-    material: MaterialType.METAL,
+    material: "METAL",
     room: RoomType.HEALTHCARE,
     color: "Stainless Steel",
     dimensions: "900 x 400 x 1800 mm",
@@ -211,7 +224,7 @@ const products = [
     description:
       "Boltless steel racking rated to 350 kg per level, with five adjustable shelves. Configurable into runs for stockrooms, warehouses, and workshops.",
     price: 45900.0,
-    material: MaterialType.METAL,
+    material: "METAL",
     room: RoomType.INDUSTRIAL,
     color: "Blue / Galvanised",
     dimensions: "1800 x 600 x 2000 mm",
@@ -233,6 +246,16 @@ async function main() {
     });
   }
 
+  const materialIdByOldEnum: Record<string, string> = {};
+  for (const [oldEnum, m] of Object.entries(MATERIALS_BY_OLD_ENUM)) {
+    const row = await prisma.material.upsert({
+      where: { name: m.name },
+      update: { nameBn: m.nameBn },
+      create: { name: m.name, nameBn: m.nameBn },
+    });
+    materialIdByOldEnum[oldEnum] = row.id;
+  }
+
   for (const p of products) {
     const category = await prisma.category.findUniqueOrThrow({
       where: { slug: p.categorySlug },
@@ -246,7 +269,7 @@ async function main() {
         description: p.description,
         price: p.price,
         compareAtPrice: p.compareAtPrice,
-        material: p.material,
+        materialId: materialIdByOldEnum[p.material],
         room: p.room,
         color: p.color,
         dimensions: p.dimensions,
@@ -262,6 +285,15 @@ async function main() {
     });
   }
 
+  const adminRole = await prisma.role.upsert({
+    where: { name: "Administrator" },
+    // Keep the stored column reasonably fresh for display purposes — the
+    // actual permission check (src/lib/authz.ts getRoleInfo) always
+    // recomputes this for protected roles regardless of what's stored.
+    update: { permissions: allPermissions() },
+    create: { name: "Administrator", isProtected: true, permissions: allPermissions() },
+  });
+
   const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@example.com";
   const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? "ChangeMe123!";
   await prisma.adminUser.upsert({
@@ -271,7 +303,7 @@ async function main() {
       name: "Admin",
       email: adminEmail,
       passwordHash: await bcrypt.hash(adminPassword, 10),
-      role: Role.ADMIN,
+      roleId: adminRole.id,
     },
   });
 
