@@ -44,7 +44,12 @@ export function CustomerLoginForm() {
         <Input id="email" name="email" type="email" required autoComplete="email" />
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="password">Password</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="password">Password</Label>
+          <Link href="/account/forgot-password" className="text-sm text-neutral-500 hover:text-neutral-900 hover:underline">
+            Forgot password?
+          </Link>
+        </div>
         <Input id="password" name="password" type="password" required autoComplete="current-password" />
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}

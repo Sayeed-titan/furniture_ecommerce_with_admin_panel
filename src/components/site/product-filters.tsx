@@ -5,21 +5,26 @@ import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/i18n/use-translation";
 
 type Category = { slug: string; name: string };
+type MaterialOption = { id: string; name: string; nameBn: string | null };
 
-const materialValues = ["SOLID_WOOD", "ENGINEERED_WOOD", "ARTIFICIAL_WOOD", "LEATHER", "FABRIC", "METAL"];
-const roomValues = ["OFFICE", "WORKSPACE", "CONFERENCE", "RECEPTION", "HEALTHCARE", "INDUSTRIAL"];
+// HEALTHCARE deliberately omitted: President Furniture doesn't make/sell
+// hospital furniture, so it's hidden from selection here (the RoomType
+// enum value itself is left alone in case any existing product still uses it).
+const roomValues = ["OFFICE", "WORKSPACE", "CONFERENCE", "RECEPTION", "INDUSTRIAL"];
 const stockValues = ["IN_STOCK", "LOW_STOCK", "MADE_TO_ORDER"];
 
 export function ProductFilters({
   categories,
+  materials,
   activeParams,
 }: {
   categories: Category[];
+  materials: MaterialOption[];
   activeParams: Record<string, string | undefined>;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   function setParam(key: string, value: string | null) {
     const next = new URLSearchParams(searchParams.toString());
@@ -46,13 +51,13 @@ export function ProductFilters({
       </FilterGroup>
 
       <FilterGroup title={t("productsPage.filters.material")}>
-        {materialValues.map((value) => (
+        {materials.map((m) => (
           <FilterButton
-            key={value}
-            active={activeParams.material === value}
-            onClick={() => setParam("material", value)}
+            key={m.id}
+            active={activeParams.material === m.id}
+            onClick={() => setParam("material", m.id)}
           >
-            {t(`materials.${value}`)}
+            {locale === "bn" && m.nameBn ? m.nameBn : m.name}
           </FilterButton>
         ))}
       </FilterGroup>

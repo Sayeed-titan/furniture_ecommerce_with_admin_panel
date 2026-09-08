@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { Product, ProductImage } from "@prisma/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, discountPercent } from "@/lib/utils";
 import { WishlistButton } from "@/components/site/wishlist-button";
 import { StockLabel } from "@/components/site/stock-label";
 
@@ -18,6 +18,7 @@ const stockVariant: Record<string, "success" | "warning" | "destructive" | "seco
 
 export function ProductCard({ product }: { product: ProductWithImages }) {
   const image = product.images[0];
+  const percentOff = discountPercent(product.price.toString(), product.compareAtPrice?.toString());
 
   return (
     <Link href={`/products/${product.slug}`}>
@@ -54,6 +55,9 @@ export function ProductCard({ product }: { product: ProductWithImages }) {
               <span className="text-sm text-neutral-400 line-through">
                 {formatPrice(product.compareAtPrice.toString())}
               </span>
+            )}
+            {percentOff !== null && (
+              <span className="text-xs font-semibold text-emerald-600">{percentOff}% off</span>
             )}
           </div>
         </CardContent>

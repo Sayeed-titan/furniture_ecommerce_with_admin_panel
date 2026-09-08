@@ -2,6 +2,7 @@
 
 import { useTranslation } from "@/lib/i18n/use-translation";
 import { EnumLabel } from "@/components/site/enum-label";
+import { MaterialLabel } from "@/components/site/material-label";
 
 export function ProductSpecTable({
   material,
@@ -9,7 +10,7 @@ export function ProductSpecTable({
   color,
   dimensions,
 }: {
-  material: string;
+  material: { name: string; nameBn?: string | null };
   room: string;
   color?: string | null;
   dimensions?: string | null;
@@ -17,7 +18,10 @@ export function ProductSpecTable({
   const { t } = useTranslation();
 
   const rows: { label: string; value: React.ReactNode }[] = [
-    { label: t("productDetail.specMaterial"), value: <EnumLabel group="materials" value={material} /> },
+    {
+      label: t("productDetail.specMaterial"),
+      value: <MaterialLabel name={material.name} nameBn={material.nameBn} />,
+    },
     { label: t("productDetail.specRoom"), value: <EnumLabel group="rooms" value={room} /> },
   ];
   if (color) rows.push({ label: t("productDetail.specColor"), value: color });

@@ -47,7 +47,7 @@ function Thumb({ item }: { item: GalleryImage }) {
     return (
       <>
         <video src={item.url} muted playsInline className="h-full w-full object-cover" />
-        <Play className="absolute inset-0 m-auto h-6 w-6 text-white drop-shadow" />
+        <Play className="absolute inset-0 m-auto h-6 w-6 text-onmedia drop-shadow" />
       </>
     );
   }
@@ -63,7 +63,7 @@ function Thumb({ item }: { item: GalleryImage }) {
           Video
         </div>
       )}
-      <Play className="absolute inset-0 m-auto h-6 w-6 text-white drop-shadow" />
+      <Play className="absolute inset-0 m-auto h-6 w-6 text-onmedia drop-shadow" />
     </>
   );
 }
