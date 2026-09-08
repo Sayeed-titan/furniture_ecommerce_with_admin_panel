@@ -11,53 +11,70 @@ import {
   Inbox,
   Bug,
   Users,
+  ShieldCheck,
   Settings,
+  FileText,
   Menu,
   X,
   ExternalLink,
   LogOut,
   ShoppingCart,
+  UserRound,
+  DatabaseBackup,
+  Layers,
+  Truck,
+  Image as ImageIcon,
 } from "lucide-react";
 import { signOutAdmin } from "@/lib/actions/auth";
 import { ThroneMark } from "@/components/site/brand/logo";
+import { ThemeToggle } from "@/components/site/theme/theme-toggle";
 import { cn } from "@/lib/utils";
 
 type NavGroup = {
   label: string;
-  links: { href: string; label: string; icon: typeof LayoutDashboard }[];
+  links: { href: string; label: string; icon: typeof LayoutDashboard; module: string }[];
 };
 
 const NAV: NavGroup[] = [
   {
     label: "Overview",
     links: [
-      { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/admin/insights", label: "Insights", icon: BarChart3 },
+      { href: "/admin", label: "Dashboard", icon: LayoutDashboard, module: "dashboard" },
+      { href: "/admin/insights", label: "Insights", icon: BarChart3, module: "insights" },
     ],
   },
   {
     label: "Catalog",
     links: [
-      { href: "/admin/products", label: "Products", icon: Package },
-      { href: "/admin/categories", label: "Categories", icon: Tags },
+      { href: "/admin/products", label: "Products", icon: Package, module: "products" },
+      { href: "/admin/categories", label: "Categories", icon: Tags, module: "categories" },
+      { href: "/admin/materials", label: "Materials", icon: Layers, module: "materials" },
     ],
   },
   {
     label: "Sales",
-    links: [{ href: "/admin/orders", label: "Orders", icon: ShoppingCart }],
+    links: [
+      { href: "/admin/orders", label: "Orders", icon: ShoppingCart, module: "orders" },
+      { href: "/admin/customers", label: "Customers", icon: UserRound, module: "customers" },
+      { href: "/admin/shipping", label: "Shipping", icon: Truck, module: "shipping" },
+    ],
   },
   {
     label: "Inbox",
     links: [
-      { href: "/admin/leads", label: "Leads", icon: Inbox },
-      { href: "/admin/issues", label: "Issues", icon: Bug },
+      { href: "/admin/leads", label: "Leads", icon: Inbox, module: "leads" },
+      { href: "/admin/issues", label: "Issues", icon: Bug, module: "issues" },
     ],
   },
   {
     label: "Configure",
     links: [
-      { href: "/admin/settings", label: "Settings", icon: Settings },
-      { href: "/admin/users", label: "Users", icon: Users },
+      { href: "/admin/settings", label: "Settings", icon: Settings, module: "settings" },
+      { href: "/admin/hero", label: "Hero Section", icon: ImageIcon, module: "settings" },
+      { href: "/admin/policies", label: "Policy Pages", icon: FileText, module: "settings" },
+      { href: "/admin/users", label: "Users", icon: Users, module: "users" },
+      { href: "/admin/roles", label: "Roles", icon: ShieldCheck, module: "users" },
+      { href: "/admin/backup", label: "Backup", icon: DatabaseBackup, module: "backup" },
     ],
   },
 ];
@@ -66,13 +83,25 @@ export function AdminShell({
   userName,
   userEmail,
   role,
+  permissions = [],
+  brandIconUrl,
+  brandLogoUrl,
   children,
 }: {
   userName?: string | null;
   userEmail?: string | null;
   role?: string | null;
+  permissions?: string[];
+  brandIconUrl?: string | null;
+  brandLogoUrl?: string | null;
   children: React.ReactNode;
 }) {
+  const canView = (module: string) => permissions.includes(`${module}.view`);
+  const visibleNav = NAV.map((group) => ({
+    ...group,
+    links: group.links.filter((link) => canView(link.module)),
+  })).filter((group) => group.links.length > 0);
+
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -104,20 +133,32 @@ export function AdminShell({
     <div className="flex h-full flex-col">
       {/* Brand */}
       <div className="flex h-16 items-center gap-2.5 border-b border-neutral-200 px-5">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#171310] text-[#d9b779]">
-          <ThroneMark className="h-5 w-5" />
-        </span>
-        <span className="flex flex-col leading-none">
-          <span className="text-sm font-semibold tracking-tight text-neutral-900">President</span>
-          <span className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
-            Admin
-          </span>
-        </span>
+        {brandLogoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element -- admin-uploaded asset
+          <img src={brandLogoUrl} alt="President Furniture" className="h-8 w-auto object-contain" />
+        ) : (
+          <>
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#171310] text-[#d9b779]">
+              {brandIconUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element -- admin-uploaded asset
+                <img src={brandIconUrl} alt="" className="h-5 w-5 object-contain" />
+              ) : (
+                <ThroneMark className="h-5 w-5" />
+              )}
+            </span>
+            <span className="flex flex-col leading-none">
+              <span className="text-sm font-semibold tracking-tight text-neutral-900">President</span>
+              <span className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
+                Admin
+              </span>
+            </span>
+          </>
+        )}
       </div>
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-3 py-4">
-        {NAV.map((group) => (
+        {visibleNav.map((group) => (
           <div key={group.label} className="mb-5">
             <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
               {group.label}
@@ -187,7 +228,7 @@ export function AdminShell({
         <div
           onClick={() => setOpen(false)}
           className={cn(
-            "absolute inset-0 bg-neutral-900/40 transition-opacity",
+            "absolute inset-0 bg-black/50 transition-opacity",
             open ? "opacity-100" : "opacity-0"
           )}
         />
@@ -214,6 +255,7 @@ export function AdminShell({
           </button>
           <div className="hidden lg:block" />
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <div className="text-right leading-tight">
               <p className="text-sm font-medium text-neutral-900">{userName}</p>
               <p className="text-xs text-neutral-500">
