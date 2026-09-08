@@ -9,6 +9,7 @@
  */
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { allPermissions } from "../src/lib/permissions";
 
 const prisma = new PrismaClient();
 
@@ -29,14 +30,21 @@ async function main() {
   const passwordHash = await bcrypt.hash(password, 10);
   const existing = await prisma.adminUser.findUnique({ where: { email } });
 
+  const adminRole = await prisma.role.upsert({
+    where: { name: "Administrator" },
+    update: {},
+    create: { name: "Administrator", isProtected: true, permissions: allPermissions() },
+  });
+
   const user = await prisma.adminUser.upsert({
     where: { email },
-    update: { passwordHash, role: "ADMIN" },
-    create: { email, name, passwordHash, role: "ADMIN" },
+    update: { passwordHash, roleId: adminRole.id },
+    create: { email, name, passwordHash, roleId: adminRole.id },
+    include: { role: true },
   });
 
   console.log(
-    `✔ ${existing ? "Reset password for" : "Created"} admin: ${user.email} (role ${user.role}).`
+    `✔ ${existing ? "Reset password for" : "Created"} admin: ${user.email} (role ${user.role.name}).`
   );
   console.log("  Sign in at /admin/login.");
 }

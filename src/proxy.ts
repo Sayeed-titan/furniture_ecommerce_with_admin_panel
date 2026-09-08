@@ -3,10 +3,15 @@ import { NextResponse } from "next/server";
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
-  const userType = (req.auth?.user as { userType?: string } | undefined)?.userType;
+  const authUser = req.auth?.user as { userType?: string; roleId?: string } | undefined;
+  const userType = authUser?.userType;
 
   if (pathname.startsWith("/admin")) {
-    const isLoggedInAsAdmin = userType === "admin";
+    // roleId matters as much as userType: a session minted before roles existed
+    // carries userType but no roleId, and the page-level guard rejects those.
+    // Without checking it here too, the two layers disagree and bounce the user
+    // between /admin and /admin/login forever.
+    const isLoggedInAsAdmin = userType === "admin" && Boolean(authUser?.roleId);
     const isLoginPage = pathname === "/admin/login";
 
     if (!isLoggedInAsAdmin && !isLoginPage) {
@@ -24,7 +29,11 @@ export default auth((req) => {
 
   if (pathname.startsWith("/account")) {
     const isLoggedInAsCustomer = userType === "customer";
-    const isAuthPage = pathname === "/account/login" || pathname === "/account/register";
+    const isAuthPage =
+      pathname === "/account/login" ||
+      pathname === "/account/register" ||
+      pathname === "/account/forgot-password" ||
+      pathname.startsWith("/account/reset-password/");
 
     if (!isLoggedInAsCustomer && !isAuthPage) {
       const loginUrl = new URL("/account/login", req.nextUrl.origin);

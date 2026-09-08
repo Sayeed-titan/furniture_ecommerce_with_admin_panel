@@ -23,7 +23,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const password = credentials?.password as string | undefined;
         if (!email || !password) return null;
 
-        const user = await prisma.adminUser.findUnique({ where: { email } });
+        const user = await prisma.adminUser.findUnique({
+          where: { email },
+          include: { role: true },
+        });
         if (!user) return null;
 
         const valid = await bcrypt.compare(password, user.passwordHash);
@@ -33,7 +36,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           id: user.id,
           name: user.name,
           email: user.email,
-          role: user.role,
+          roleId: user.roleId,
+          roleName: user.role.name,
           userType: "admin",
         };
       },
@@ -67,7 +71,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     jwt: async ({ token, user }) => {
       if (user) {
-        token.role = (user as { role?: string }).role;
+        token.roleId = (user as { roleId?: string }).roleId;
+        token.roleName = (user as { roleName?: string }).roleName;
         token.userType = (user as { userType?: string }).userType;
       }
       return token;
@@ -75,7 +80,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     session: async ({ session, token }) => {
       if (session.user) {
         (session.user as { id?: string }).id = token.sub;
-        (session.user as { role?: string }).role = token.role as string | undefined;
+        (session.user as { roleId?: string }).roleId = token.roleId as string | undefined;
+        (session.user as { roleName?: string }).roleName = token.roleName as string | undefined;
         (session.user as { userType?: string }).userType = token.userType as string | undefined;
       }
       return session;

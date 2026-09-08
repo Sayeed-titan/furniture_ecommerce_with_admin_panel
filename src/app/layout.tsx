@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Cormorant_Garamond } from "next/font/google";
+import { Inter, Geist_Mono, Cormorant_Garamond } from "next/font/google";
 import { Toaster } from "sonner";
+import { ThemeScript } from "@/components/site/theme/theme-script";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+/** Body/UI font — replaces Geist Sans, which read as too generic. Inter is
+ *  the current standard for crisp, clean small-size text/UI rendering. */
+const bodySans = Inter({
+  variable: "--font-body-sans",
   subsets: ["latin"],
 });
 
@@ -27,7 +30,7 @@ export const metadata: Metadata = {
     template: "%s | President Furniture",
   },
   description:
-    "President Furniture — office, industrial, and hospital furniture supplied, delivered, and installed across Bangladesh. Desks, seating, storage, workstations, hospital beds, and industrial racking.",
+    "President Furniture — office and industrial furniture supplied, delivered, and installed across Bangladesh. Desks, seating, storage, workstations, and industrial racking.",
 };
 
 export default function RootLayout({
@@ -38,9 +41,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${displaySerif.variable} h-full antialiased scroll-smooth snap-y snap-proximity`}
+      className={`${bodySans.variable} ${geistMono.variable} ${displaySerif.variable} h-full antialiased scroll-smooth snap-y snap-proximity`}
       suppressHydrationWarning
     >
+      <head>
+        <ThemeScript />
+      </head>
       <body className="min-h-full flex flex-col">
         {children}
         <Toaster position="top-right" richColors closeButton />
