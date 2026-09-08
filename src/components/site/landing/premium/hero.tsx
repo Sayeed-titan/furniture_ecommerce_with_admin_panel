@@ -17,7 +17,7 @@ export function PremiumHero({ heroProduct }: { heroProduct?: LandingProduct }) {
   const image = heroProduct?.images[0];
 
   return (
-    <section className="relative flex min-h-[560px] w-full items-end overflow-hidden bg-neutral-900 sm:min-h-[640px] lg:min-h-[85vh]">
+    <section className="relative flex min-h-[560px] w-full items-end overflow-hidden bg-[#171310] sm:min-h-[640px] lg:min-h-[85vh]">
       {image ? (
         <Image
           src={image.url}
@@ -28,7 +28,7 @@ export function PremiumHero({ heroProduct }: { heroProduct?: LandingProduct }) {
           className="object-cover"
         />
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-950" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#2a2622] to-[#0d0c0b]" />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
 
@@ -38,9 +38,9 @@ export function PremiumHero({ heroProduct }: { heroProduct?: LandingProduct }) {
         {heroProduct && (
           <Link
             href={`/products/${heroProduct.slug}`}
-            className="group flex items-center gap-3 self-start rounded-full bg-white/10 py-2 pl-2 pr-5 text-white backdrop-blur-sm transition-colors hover:bg-white/20 lg:self-end"
+            className="group flex items-center gap-3 self-start rounded-full bg-onmedia/10 py-2 pl-2 pr-5 text-onmedia backdrop-blur-sm transition-colors hover:bg-onmedia/20 lg:self-end"
           >
-            <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-white/20">
+            <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-onmedia/20">
               {image && (
                 <Image src={image.url} alt="" fill sizes="48px" className="object-cover" />
               )}

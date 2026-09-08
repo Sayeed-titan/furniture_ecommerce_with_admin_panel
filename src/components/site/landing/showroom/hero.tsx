@@ -55,11 +55,11 @@ export function ShowroomHero() {
             {t("showroom.heroKicker")}
           </p>
           <h1
-            className={`mt-4 text-4xl font-semibold leading-[1.08] text-white sm:text-5xl lg:text-6xl ${displayFont}`}
+            className={`mt-4 text-4xl font-semibold leading-[1.08] text-onmedia sm:text-5xl lg:text-6xl ${displayFont}`}
           >
             {t("showroom.heroTitle")}
           </h1>
-          <p className="mt-5 text-base text-neutral-300 sm:text-lg">
+          <p className="mt-5 text-base text-onmedia/75 sm:text-lg">
             {t("showroom.heroSubtitle")}
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -70,7 +70,7 @@ export function ShowroomHero() {
               asChild
               size="lg"
               variant="outline"
-              className="border-white/30 bg-transparent text-white hover:bg-white/10"
+              className="border-onmedia/30 bg-transparent text-onmedia hover:bg-onmedia/10"
             >
               <Link href="/contact">{t("showroom.ctaSecondary")}</Link>
             </Button>

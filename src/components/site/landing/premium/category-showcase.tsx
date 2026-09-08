@@ -40,12 +40,12 @@ export function CategoryShowcase({ categories }: { categories: LandingCategory[]
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
               <div className="relative mt-auto flex w-full items-center justify-between p-5">
                 <div>
-                  <p className="text-lg font-medium text-white">{category.name}</p>
-                  <p className="text-sm text-white/75">
+                  <p className="text-lg font-medium text-onmedia">{category.name}</p>
+                  <p className="text-sm text-onmedia/75">
                     <ItemCountLabel count={category._count.products} />
                   </p>
                 </div>
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-neutral-900 transition-transform group-hover:translate-x-1">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-onmedia/90 text-[#171717] transition-transform group-hover:translate-x-1">
                   &rarr;
                 </span>
               </div>

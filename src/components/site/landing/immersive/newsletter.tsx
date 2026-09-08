@@ -32,10 +32,10 @@ export function NewsletterStrip() {
   }
 
   return (
-    <section className="border-t border-neutral-200 bg-neutral-900">
+    <section className="border-t border-neutral-200 bg-[#1c1a17]">
       <div className="mx-auto max-w-3xl px-4 py-14 text-center sm:px-6 lg:px-8">
-        <h2 className="text-xl font-semibold text-white sm:text-2xl">{t("newsletter.heading")}</h2>
-        <p className="mt-2 text-neutral-400">{t("newsletter.subtitle")}</p>
+        <h2 className="text-xl font-semibold text-onmedia sm:text-2xl">{t("newsletter.heading")}</h2>
+        <p className="mt-2 text-onmedia/60">{t("newsletter.subtitle")}</p>
 
         {status === "success" ? (
           <p className="mt-6 text-sm text-emerald-400">{t("newsletter.success")}</p>
@@ -47,7 +47,7 @@ export function NewsletterStrip() {
               placeholder={t("newsletter.placeholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="border-neutral-700 bg-neutral-800 text-white placeholder:text-neutral-500"
+              className="border-onmedia/15 bg-onmedia/5 text-onmedia placeholder:text-onmedia/40"
             />
             <Button type="submit" disabled={status === "loading"} className="shrink-0">
               {status === "loading" ? t("newsletter.buttonLoading") : t("newsletter.button")}
