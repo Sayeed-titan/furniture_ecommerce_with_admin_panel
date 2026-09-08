@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Heart, Menu, ShoppingCart, X } from "lucide-react";
+import { Heart, Menu, ShoppingCart, User, X } from "lucide-react";
 import { useWishlist } from "@/components/site/wishlist-context";
 import { useCart } from "@/components/site/cart-context";
 import { ThroneMark } from "@/components/site/brand/logo";
 import { LanguageSwitcher } from "@/components/site/locale/language-switcher";
+import { ThemeToggle } from "@/components/site/theme/theme-toggle";
 import { useTranslation } from "@/lib/i18n/use-translation";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +17,13 @@ import { cn } from "@/lib/utils";
  * comfortably above all four landing variants as well as the products,
  * wishlist, and contact pages.
  */
-export function SiteHeader() {
+export function SiteHeader({
+  brandIconUrl,
+  brandLogoUrl,
+}: {
+  brandIconUrl?: string | null;
+  brandLogoUrl?: string | null;
+}) {
   const { ids } = useWishlist();
   const { count: cartCount } = useCart();
   const { t } = useTranslation();
@@ -72,25 +79,37 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-neutral-200/80 bg-white/85 shadow-[0_1px_2px_rgba(0,0,0,0.03)] backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Wordmark: monogram tile + stacked type lockup */}
+        {/* Wordmark: monogram tile + stacked type lockup (or an admin-uploaded logo/icon) */}
         <Link
           href="/"
           className="group flex items-center gap-2.5 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neutral-900"
         >
-          <span
-            aria-hidden="true"
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#171310] text-[#d9b779] shadow-sm ring-1 ring-neutral-900/10 transition-transform duration-300 ease-out group-hover:-rotate-6"
-          >
-            <ThroneMark className="h-6 w-6" />
-          </span>
-          <span className="flex flex-col justify-center leading-none">
-            <span className="text-[17px] font-semibold tracking-[0.01em] text-neutral-900 [font-family:var(--font-display),serif]">
-              President
-            </span>
-            <span className="mt-0.5 text-[8.5px] font-medium uppercase tracking-[0.42em] text-neutral-500 transition-colors duration-200 group-hover:text-[#8a6a3f]">
-              Furniture
-            </span>
-          </span>
+          {brandLogoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- admin-uploaded asset
+            <img src={brandLogoUrl} alt="President Furniture" className="h-9 w-auto object-contain" />
+          ) : (
+            <>
+              <span
+                aria-hidden="true"
+                className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#171310] text-[#d9b779] shadow-sm ring-1 ring-neutral-900/10 transition-transform duration-300 ease-out group-hover:-rotate-6"
+              >
+                {brandIconUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- admin-uploaded asset
+                  <img src={brandIconUrl} alt="" className="h-6 w-6 object-contain" />
+                ) : (
+                  <ThroneMark className="h-6 w-6" />
+                )}
+              </span>
+              <span className="flex flex-col justify-center leading-none">
+                <span className="text-[17px] font-semibold tracking-[0.01em] text-neutral-900 [font-family:var(--font-display),serif]">
+                  President
+                </span>
+                <span className="mt-0.5 text-[8.5px] font-medium uppercase tracking-[0.42em] text-neutral-500 transition-colors duration-200 group-hover:text-[#8a6a3f]">
+                  Furniture
+                </span>
+              </span>
+            </>
+          )}
         </Link>
 
         {/* Desktop navigation */}
@@ -123,11 +142,21 @@ export function SiteHeader() {
             {t("nav.cart")}
             {cartBadge}
           </Link>
+          <Link
+            href="/account"
+            className={cn(desktopLink("/account"), "flex items-center gap-1.5")}
+            aria-current={isActive("/account") ? "page" : undefined}
+          >
+            <User className="h-4 w-4" aria-hidden="true" />
+            {t("nav.account")}
+          </Link>
           <LanguageSwitcher />
+          <ThemeToggle />
         </nav>
 
         {/* Mobile menu toggle */}
         <div className="flex items-center gap-2 sm:hidden">
+          <ThemeToggle />
           <LanguageSwitcher />
           <button
             type="button"
@@ -204,6 +233,20 @@ export function SiteHeader() {
               <ShoppingCart className="h-4 w-4" aria-hidden="true" />
               {t("nav.cart")}
               {cartBadge}
+            </Link>
+            <Link
+              href="/account"
+              onClick={() => setOpen(false)}
+              aria-current={isActive("/account") ? "page" : undefined}
+              className={cn(
+                "flex items-center gap-2 rounded-lg px-3 py-3 text-base font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-neutral-900",
+                isActive("/account")
+                  ? "bg-neutral-100 text-neutral-900"
+                  : "text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
+              )}
+            >
+              <User className="h-4 w-4" aria-hidden="true" />
+              {t("nav.account")}
             </Link>
           </nav>
         </div>
