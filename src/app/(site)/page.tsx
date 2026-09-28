@@ -16,7 +16,7 @@ function parseSlides(raw: string | undefined): string[] {
 }
 
 export default async function HomePage() {
-  const [featuredProducts, categories, materials, activeVariant, settings] = await Promise.all([
+  const [featuredProducts, trendingProducts, categories, materials, activeVariant, settings] = await Promise.all([
     prisma.product.findMany({
       where: { featured: true },
       include: {
@@ -26,8 +26,18 @@ export default async function HomePage() {
       take: 4,
       orderBy: { createdAt: "desc" },
     }),
+    prisma.product.findMany({
+      where: { isTrending: true },
+      include: {
+        images: { where: { type: "IMAGE" }, orderBy: { position: "asc" }, take: 1 },
+        material: true,
+      },
+      take: 8,
+      orderBy: { viewCount: "desc" },
+    }),
     prisma.category.findMany({
-      orderBy: { name: "asc" },
+      where: { showOnHome: true },
+      orderBy: [{ order: "asc" }, { name: "asc" }],
       include: {
         _count: { select: { products: true } },
         products: {
@@ -60,6 +70,7 @@ export default async function HomePage() {
   return (
     <LandingVariant
       featuredProducts={featuredProducts}
+      trendingProducts={trendingProducts}
       categories={categories}
       materials={materials}
       heroContent={heroContent}

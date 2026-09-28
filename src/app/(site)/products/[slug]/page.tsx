@@ -26,6 +26,7 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
       images: { orderBy: { position: "asc" } },
       category: true,
       material: true,
+      materials: true,
     },
   });
 
@@ -56,6 +57,7 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
         <div>
           <p className="text-sm font-medium text-neutral-500">{product.category.name}</p>
           <h1 className="mt-1 text-3xl font-semibold tracking-tight">{product.name}</h1>
+          {product.code && <p className="mt-1 font-mono text-xs text-neutral-400">Code: {product.code}</p>}
 
           <div className="mt-4 flex items-center gap-3">
             <span className="text-2xl font-semibold">{formatPrice(product.price.toString())}</span>
@@ -98,6 +100,7 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
           <div className="mt-8">
             <ProductSpecTable
               material={product.material}
+              additionalMaterials={product.materials}
               room={product.room}
               color={product.color}
               dimensions={product.dimensions}
