@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Pencil, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/admin/ui";
 import { ConfirmSubmit } from "@/components/admin/confirm-submit";
 import { RolePermissionGrid } from "@/components/admin/role-permission-grid";
@@ -45,14 +46,10 @@ export function RoleRow({
         </div>
         {!isProtected && (
           <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => setEditing((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-neutral-600 hover:bg-neutral-100"
-            >
+            <Button type="button" variant="ghost" size="sm" onClick={() => setEditing((v) => !v)}>
               {editing ? <X className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
               {editing ? "Close" : "Edit"}
-            </button>
+            </Button>
             {userCount === 0 ? (
               <form action={deleteRole}>
                 <input type="hidden" name="id" value={id} />
@@ -82,12 +79,12 @@ export function RoleRow({
             className="flex h-10 w-full max-w-xs rounded-md border border-neutral-300 bg-white px-3 text-sm"
           />
           <RolePermissionGrid defaultPermissions={permissions} />
-          <button
-            type="submit"
-            className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
-          >
-            Save role
-          </button>
+          <div className="flex gap-2">
+            <Button type="submit">Save role</Button>
+            <Button type="button" variant="outline" onClick={() => setEditing(false)}>
+              Cancel
+            </Button>
+          </div>
         </form>
       )}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Section, SectionHeader } from "@/components/admin/ui";
 import { saveSettings, type SaveSettingsState } from "@/lib/actions/settings";
+import { renderProductCode } from "@/lib/product-code";
 
 export function SettingsForm({
   canEdit,
@@ -24,6 +25,12 @@ export function SettingsForm({
   tiktokUrl,
   codEnabled,
   onlinePaymentEnabled,
+  buttonColor,
+  buttonCustomColorEnabled,
+  buttonUppercase,
+  buttonIconGap,
+  productCodePattern,
+  productCodeBrand,
 }: {
   canEdit: boolean;
   /** Active Design is Administrator-only — everyone else shouldn't see this
@@ -41,9 +48,23 @@ export function SettingsForm({
   tiktokUrl: string;
   codEnabled: boolean;
   onlinePaymentEnabled: boolean;
+  buttonColor: string;
+  buttonCustomColorEnabled: boolean;
+  buttonUppercase: boolean;
+  buttonIconGap: number;
+  productCodePattern: string;
+  productCodeBrand: string;
 }) {
   const initialState: SaveSettingsState = {};
   const [state, formAction, isPending] = useActionState(saveSettings, initialState);
+  const [customColorEnabled, setCustomColorEnabled] = useState(buttonCustomColorEnabled);
+  const [previewPattern, setPreviewPattern] = useState(productCodePattern);
+  const [previewBrand, setPreviewBrand] = useState(productCodeBrand);
+  const preview = renderProductCode(previewPattern || "{BRAND}-{CATEGORY}-{SEQ:3}", {
+    brand: previewBrand || "PF",
+    categoryShortCode: "SC",
+    seq: 7,
+  });
 
   useEffect(() => {
     if (state.ok) toast.success("Settings saved.");
@@ -204,6 +225,106 @@ export function SettingsForm({
           <p className="text-xs text-neutral-500">
             Online Payment also needs SSLCommerz configured on the server to actually appear — this
             toggle only turns it off/on when that&apos;s already set up.
+          </p>
+        </div>
+      </Section>
+
+      <Section>
+        <SectionHeader title="Button style" description="Controls every button across the admin panel." />
+        <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
+          <div className="space-y-1.5 sm:col-span-2">
+            <label className="flex items-center gap-3 text-sm">
+              <input
+                type="checkbox"
+                name="adminButtonCustomColorEnabled"
+                checked={customColorEnabled}
+                onChange={(e) => setCustomColorEnabled(e.target.checked)}
+                disabled={!canEdit}
+                className="h-4 w-4 rounded border-neutral-300"
+              />
+              Use a custom primary color
+            </label>
+            <p className="text-xs text-neutral-500">
+              Off by default so buttons follow the light/dark theme automatically. Turning this on
+              picks one fixed color for both themes, with white button text to stay readable.
+            </p>
+            {customColorEnabled && (
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  key={buttonColor}
+                  type="color"
+                  id="adminButtonColor"
+                  name="adminButtonColor"
+                  defaultValue={buttonColor}
+                  disabled={!canEdit}
+                  className="h-10 w-14 rounded-md border border-neutral-300 disabled:opacity-50"
+                />
+                <span className="text-xs text-neutral-500">Used for &ldquo;Save&rdquo; / primary buttons.</span>
+              </div>
+            )}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="adminButtonIconGap">Icon-to-text spacing (px)</Label>
+            <Input
+              key={buttonIconGap}
+              type="number"
+              min={0}
+              max={16}
+              id="adminButtonIconGap"
+              name="adminButtonIconGap"
+              defaultValue={buttonIconGap}
+              disabled={!canEdit}
+            />
+          </div>
+          <label className="flex items-center gap-3 text-sm sm:col-span-2">
+            <input
+              type="checkbox"
+              name="adminButtonUppercase"
+              defaultChecked={buttonUppercase}
+              disabled={!canEdit}
+              className="h-4 w-4 rounded border-neutral-300"
+            />
+            ALL CAPS button labels
+          </label>
+        </div>
+      </Section>
+
+      <Section>
+        <SectionHeader
+          title="Product code"
+          description="Auto-generated code shown on every product — admins can still type a custom one per product."
+        />
+        <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="productCodeBrand">Brand code</Label>
+            <Input
+              key={productCodeBrand}
+              id="productCodeBrand"
+              name="productCodeBrand"
+              defaultValue={productCodeBrand}
+              disabled={!canEdit}
+              onChange={(e) => setPreviewBrand(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="productCodePattern">Pattern</Label>
+            <Input
+              key={productCodePattern}
+              id="productCodePattern"
+              name="productCodePattern"
+              defaultValue={productCodePattern}
+              disabled={!canEdit}
+              onChange={(e) => setPreviewPattern(e.target.value)}
+            />
+          </div>
+          <p className="text-xs text-neutral-500 sm:col-span-2">
+            Tokens: <code>{"{BRAND}"}</code>, <code>{"{CATEGORY}"}</code> (each category&apos;s short
+            code, set on <code>/admin/categories</code>), <code>{"{SEQ}"}</code> or{" "}
+            <code>{"{SEQ:3}"}</code> for zero-padding, <code>{"{YEAR}"}</code>/<code>{"{YY}"}</code>.
+            Anything else you type (e.g. &ldquo;V1&rdquo;) is kept as-is.
+          </p>
+          <p className="text-sm sm:col-span-2">
+            Preview: <span className="font-mono font-medium text-neutral-900">{preview}</span>
           </p>
         </div>
       </Section>

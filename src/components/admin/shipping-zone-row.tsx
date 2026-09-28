@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Check, X, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/admin/ui";
 import { ConfirmSubmit } from "@/components/admin/confirm-submit";
 import { formatPrice } from "@/lib/utils";
@@ -54,17 +55,12 @@ export function ShippingZoneRow({
           <input type="hidden" name="id" value={id} />
           <Input name="name" defaultValue={name} required autoFocus className="h-9 max-w-[10rem]" placeholder="Zone name" />
           <Input name="fee" type="number" step="0.01" min="0" defaultValue={fee} required className="h-9 max-w-[8rem]" placeholder="Fee" />
-          <button type="submit" aria-label="Save" className="rounded-md p-2 text-emerald-600 hover:bg-emerald-50">
-            <Check className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setEditing(false)}
-            aria-label="Cancel"
-            className="rounded-md p-2 text-neutral-500 hover:bg-neutral-100"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          <Button type="submit" size="sm">
+            <Check className="h-3.5 w-3.5" /> Save
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => setEditing(false)}>
+            <X className="h-3.5 w-3.5" /> Cancel
+          </Button>
         </form>
       ) : (
         <>
@@ -82,22 +78,15 @@ export function ShippingZoneRow({
             {canEdit && !isDefault && (
               <form action={handleSetDefault}>
                 <input type="hidden" name="id" value={id} />
-                <button
-                  type="submit"
-                  className="rounded-md px-3 py-1.5 text-sm font-medium text-neutral-600 hover:bg-neutral-100"
-                >
+                <Button type="submit" variant="ghost" size="sm">
                   Make default
-                </button>
+                </Button>
               </form>
             )}
             {canEdit && (
-              <button
-                type="button"
-                onClick={() => setEditing(true)}
-                className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-neutral-600 hover:bg-neutral-100"
-              >
+              <Button type="button" variant="ghost" size="sm" onClick={() => setEditing(true)}>
                 <Pencil className="h-3.5 w-3.5" /> Edit
-              </button>
+              </Button>
             )}
             {canDelete &&
               (orderCount === 0 ? (
