@@ -24,10 +24,12 @@ import {
   Layers,
   Truck,
   Image as ImageIcon,
+  PackagePlus,
 } from "lucide-react";
 import { signOutAdmin } from "@/lib/actions/auth";
 import { ThroneMark } from "@/components/site/brand/logo";
 import { ThemeToggle } from "@/components/site/theme/theme-toggle";
+import { ProfileMenu } from "@/components/admin/profile-menu";
 import { cn } from "@/lib/utils";
 
 type NavGroup = {
@@ -47,6 +49,7 @@ const NAV: NavGroup[] = [
     label: "Catalog",
     links: [
       { href: "/admin/products", label: "Products", icon: Package, module: "products" },
+      { href: "/admin/inventory", label: "Stock In", icon: PackagePlus, module: "stock" },
       { href: "/admin/categories", label: "Categories", icon: Tags, module: "categories" },
       { href: "/admin/materials", label: "Materials", icon: Layers, module: "materials" },
     ],
@@ -86,6 +89,10 @@ export function AdminShell({
   permissions = [],
   brandIconUrl,
   brandLogoUrl,
+  buttonColor,
+  buttonCustomColorEnabled = false,
+  buttonUppercase = true,
+  buttonIconGap = 6,
   children,
 }: {
   userName?: string | null;
@@ -94,8 +101,28 @@ export function AdminShell({
   permissions?: string[];
   brandIconUrl?: string | null;
   brandLogoUrl?: string | null;
+  /** Admin-configurable button design — see Settings > Button style. */
+  buttonColor?: string | null;
+  buttonCustomColorEnabled?: boolean;
+  buttonUppercase?: boolean;
+  buttonIconGap?: number;
   children: React.ReactNode;
 }) {
+  // No custom color (the default): fall back to the same neutral-900/white
+  // pairing the rest of the app uses, so the button fully inverts with the
+  // light/dark theme like everything else — see [[dark-mode-architecture]].
+  // A custom color is a fixed literal hex that can't invert on its own, so
+  // its text is pinned to the always-white `onmedia` token instead of
+  // `text-white` (which itself inverts to near-black in dark mode and would
+  // vanish against a still-dark custom color).
+  const useCustomColor = buttonCustomColorEnabled && !!buttonColor;
+  const buttonStyleVars = {
+    "--admin-btn-primary": useCustomColor ? buttonColor : "var(--color-neutral-900)",
+    "--admin-btn-text": useCustomColor ? "var(--color-onmedia)" : "var(--color-white)",
+    "--admin-btn-transform": buttonUppercase ? "uppercase" : "none",
+    "--admin-btn-tracking": buttonUppercase ? "0.04em" : "normal",
+    "--admin-btn-icon-gap": `${buttonIconGap}px`,
+  } as React.CSSProperties;
   const canView = (module: string) => permissions.includes(`${module}.view`);
   const visibleNav = NAV.map((group) => ({
     ...group,
@@ -121,13 +148,6 @@ export function AdminShell({
 
   const isActive = (href: string) =>
     href === "/admin" ? pathname === href : pathname.startsWith(href);
-
-  const initials = (userName ?? "A")
-    .split(" ")
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
 
   const sidebar = (
     <div className="flex h-full flex-col">
@@ -212,7 +232,7 @@ export function AdminShell({
   );
 
   return (
-    <div className="flex min-h-screen bg-neutral-50">
+    <div className="flex min-h-screen bg-neutral-50" style={buttonStyleVars}>
       {/* Desktop sidebar */}
       <aside className="hidden w-60 shrink-0 border-r border-neutral-200 bg-white lg:block">
         <div className="sticky top-0 h-screen">{sidebar}</div>
@@ -256,15 +276,7 @@ export function AdminShell({
           <div className="hidden lg:block" />
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <div className="text-right leading-tight">
-              <p className="text-sm font-medium text-neutral-900">{userName}</p>
-              <p className="text-xs text-neutral-500">
-                {userEmail} {role ? `· ${role}` : ""}
-              </p>
-            </div>
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-900 text-xs font-semibold text-white">
-              {initials}
-            </span>
+            <ProfileMenu userName={userName} userEmail={userEmail} role={role} />
           </div>
         </header>
 
