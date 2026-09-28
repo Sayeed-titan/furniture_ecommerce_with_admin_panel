@@ -66,14 +66,15 @@ enum PaymentStatus {
 }
 
 model AdminUser {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
-  passwordHash String
-  roleId       String
-  role         Role     @relation(fields: [roleId], references: [id])
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  passwordHash  String
+  roleId        String
+  role          Role           @relation(fields: [roleId], references: [id])
+  stockReceipts StockReceipt[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   @@index([roleId])
 }
@@ -94,12 +95,35 @@ model Role {
 }
 
 model Category {
-  id        String    @id @default(cuid())
-  name      String    @unique
-  slug      String    @unique
-  products  Product[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id         String    @id @default(cuid())
+  name       String    @unique
+  slug       String    @unique
+  /// Short letters code used in generated product codes (e.g. "SC" for
+  /// Shovel Chair) — admin-editable, uniqueness enforced in the app layer
+  /// (not a DB constraint) since a migration can't safely assume every
+  /// existing category name yields a unique fallback code.
+  shortCode  String    @default("")
+  /// Per-category running counter for {SEQ} in the product code pattern —
+  /// incremented atomically (`UPDATE ... SET lastSeq = lastSeq + 1`) so
+  /// concurrent product creation in the same category can't reuse a
+  /// sequence number. See src/lib/product-code.ts.
+  lastSeq    Int       @default(0)
+  /// Whether this category gets a tile in the homepage category section —
+  /// lets the storefront stay curated even with 100+ categories. Defaults
+  /// to true so every existing category keeps showing until an admin
+  /// deliberately curates the list.
+  showOnHome Boolean   @default(true)
+  /// Homepage tile order (ascending) — reordered via drag-and-drop or the
+  /// keyboard-accessible Up/Down buttons on /admin/categories.
+  order      Int       @default(0)
+  /// Placeholder image shown on the homepage category tile. A pasted URL,
+  /// not an upload widget — same pattern as the other admin-pasted image
+  /// links in Settings (brandIconUrl etc. are the exception with a real
+  /// uploader; this one deliberately isn't, to keep this change small).
+  imageUrl   String?
+  products   Product[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
 /// Admin-manageable material types (was a fixed enum) — lets the catalog
@@ -107,47 +131,96 @@ model Category {
 /// the storefront can still show a Bangla name where one's been set,
 /// falling back to `name` otherwise.
 model Material {
-  id        String    @id @default(cuid())
-  name      String    @unique
-  nameBn    String?
-  products  Product[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id            String    @id @default(cuid())
+  name          String    @unique
+  nameBn        String?
+  /// Products whose single required "primary" material this is.
+  products      Product[] @relation("PrimaryMaterial")
+  /// Products that also list this as an additional material (e.g. a chair
+  /// whose primary material is Steel but also has a Leather seat) — see
+  /// Product.materials.
+  additionalFor Product[] @relation("AdditionalMaterials")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model Product {
-  id               String         @id @default(cuid())
-  name             String
-  slug             String         @unique
-  description      String         @db.Text
-  price            Decimal        @db.Decimal(10, 2)
-  compareAtPrice   Decimal?       @db.Decimal(10, 2)
-  material         Material       @relation(fields: [materialId], references: [id])
-  materialId       String
-  room             RoomType
-  color            String?
-  dimensions       String?
-  deliveryEstimate String?
-  stockStatus      StockStatus    @default(IN_STOCK)
-  stockQty         Int            @default(0)
+  id                String             @id @default(cuid())
+  name              String
+  slug              String             @unique
+  /// Shown everywhere the product appears. Auto-generated from the pattern
+  /// in Settings (see src/lib/product-code.ts) unless the admin types a
+  /// custom one — either way this column is the real uniqueness guard.
+  code              String?            @unique
+  description       String             @db.Text
+  price             Decimal            @db.Decimal(10, 2)
+  compareAtPrice    Decimal?           @db.Decimal(10, 2)
+  material          Material           @relation("PrimaryMaterial", fields: [materialId], references: [id])
+  materialId        String
+  /// Additional materials beyond the required primary one (e.g. a chair
+  /// whose body is Steel but whose seat is Leather) — optional, can be
+  /// empty. The storefront/spec table shows primary + these together.
+  materials         Material[]         @relation("AdditionalMaterials")
+  room              RoomType
+  color             String?
+  dimensions        String?
+  deliveryEstimate  String?
+  stockStatus       StockStatus        @default(IN_STOCK)
+  stockQty          Int                @default(0)
   /// Below this quantity, the admin form suggests (but doesn't force)
   /// switching stockStatus to LOW_STOCK — see adjustStock in
   /// src/lib/actions/products.ts for where this is applied automatically.
-  reorderLevel     Int            @default(5)
-  featured         Boolean        @default(false)
-  viewCount        Int            @default(0)
-  images           ProductImage[]
-  category         Category       @relation(fields: [categoryId], references: [id])
-  categoryId       String
-  leadItems        LeadItem[]
-  orderItems       OrderItem[]
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  reorderLevel      Int                @default(5)
+  featured          Boolean            @default(false)
+  /// Manually curated by the admin (a checkbox on the product form) — the
+  /// homepage Trending section shows these, not just recently-added
+  /// products. See docs/TODO-FEATURE-REQUESTS.md history for why this is
+  /// separate from `featured`.
+  isTrending        Boolean            @default(false)
+  viewCount         Int                @default(0)
+  images            ProductImage[]
+  category          Category           @relation(fields: [categoryId], references: [id])
+  categoryId        String
+  leadItems         LeadItem[]
+  orderItems        OrderItem[]
+  stockReceiptItems StockReceiptItem[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 
   @@index([categoryId])
   @@index([materialId])
   @@index([room])
   @@index([stockStatus])
+}
+
+/// A record of stock added to the catalog — this business manufactures its
+/// own furniture (no external suppliers), so this tracks internal
+/// production batches coming into inventory, not purchase receipts.
+/// `reference` is a free-text batch/production note, not a PO number.
+model StockReceipt {
+  id          String             @id @default(cuid())
+  reference   String?
+  note        String?            @db.Text
+  receivedAt  DateTime           @default(now())
+  createdBy   AdminUser?         @relation(fields: [createdById], references: [id])
+  createdById String?
+  items       StockReceiptItem[]
+  createdAt   DateTime           @default(now())
+
+  @@index([createdById])
+  @@index([receivedAt])
+}
+
+model StockReceiptItem {
+  id        String       @id @default(cuid())
+  receipt   StockReceipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  receiptId String
+  product   Product      @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int
+
+  @@index([receiptId])
+  @@index([productId])
 }
 
 enum ProductMediaType {
@@ -224,9 +297,9 @@ model IssueReport {
 }
 
 model Customer {
-  id           String    @id @default(cuid())
+  id           String               @id @default(cuid())
   name         String
-  email        String    @unique
+  email        String               @unique
   phone        String?
   /// Null for customer records created from a guest order; they can set a
   /// password later to "claim" the account.
@@ -234,8 +307,8 @@ model Customer {
   addresses    Address[]
   orders       Order[]
   resetTokens  PasswordResetToken[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
 }
 
 /// A single-use, expiring token for the customer "forgot password" flow.
