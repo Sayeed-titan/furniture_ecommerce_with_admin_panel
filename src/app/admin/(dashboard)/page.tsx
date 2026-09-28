@@ -68,13 +68,13 @@ export default async function AdminDashboardPage() {
             href="/admin/products/new"
             className="inline-flex items-center gap-2 rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
           >
-            <Plus className="h-4 w-4" /> New product
+            <Plus className="h-4 w-4" /> NEW PRODUCT
           </Link>
         )}
       </PageHeader>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {stats.map(({ label, value, sub, icon: Icon, href }) => (
           <Link
             key={label}

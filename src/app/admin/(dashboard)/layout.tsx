@@ -1,5 +1,5 @@
 import { getAdminSession } from "@/lib/authz";
-import { getAllSettings, SETTING_KEYS } from "@/lib/settings";
+import { getAllSettings, SETTING_KEYS, isEnabled } from "@/lib/settings";
 import { AdminShell } from "@/components/admin/admin-shell";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -14,6 +14,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
       permissions={permissions}
       brandIconUrl={settings[SETTING_KEYS.brandIconUrl]}
       brandLogoUrl={settings[SETTING_KEYS.brandLogoUrl]}
+      buttonColor={settings[SETTING_KEYS.adminButtonColor]}
+      buttonCustomColorEnabled={isEnabled(settings[SETTING_KEYS.adminButtonCustomColorEnabled], false)}
+      buttonUppercase={isEnabled(settings[SETTING_KEYS.adminButtonUppercase])}
+      buttonIconGap={Number(settings[SETTING_KEYS.adminButtonIconGap]) || 6}
     >
       {children}
     </AdminShell>
