@@ -72,3 +72,11 @@ export async function uploadHeroImage(file: File): Promise<{ url: string }> {
   if (file.size > IMAGE_MAX_BYTES) throw new Error("Image is too large (max 8 MB).");
   return saveFile(file, "hero", "hero", ext);
 }
+
+/** Admin-uploaded category placeholder image, shown on the homepage tile. */
+export async function uploadCategoryImage(file: File): Promise<{ url: string }> {
+  const ext = IMAGE_TYPES[file.type];
+  if (!ext) throw new Error("Unsupported image type. Use JPG, PNG, WebP, AVIF, or GIF.");
+  if (file.size > IMAGE_MAX_BYTES) throw new Error("Image is too large (max 8 MB).");
+  return saveFile(file, "categories", "categories", ext);
+}

@@ -8,6 +8,7 @@ export const PERMISSION_MODULES = [
   { key: "dashboard", label: "Dashboard", actions: ["view"] },
   { key: "insights", label: "Insights", actions: ["view"] },
   { key: "products", label: "Products", actions: ["view", "create", "edit", "delete"] },
+  { key: "stock", label: "Stock In (GRN)", actions: ["view", "create"] },
   { key: "categories", label: "Categories", actions: ["view", "create", "edit", "delete"] },
   { key: "materials", label: "Materials", actions: ["view", "create", "edit", "delete"] },
   { key: "shipping", label: "Shipping", actions: ["view", "create", "edit", "delete"] },

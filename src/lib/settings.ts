@@ -32,6 +32,12 @@ export const SETTING_KEYS = {
   instagramUrl: "social_instagram_url",
   youtubeUrl: "social_youtube_url",
   tiktokUrl: "social_tiktok_url",
+  adminButtonColor: "admin_button_color",
+  adminButtonCustomColorEnabled: "admin_button_custom_color_enabled",
+  adminButtonUppercase: "admin_button_uppercase",
+  adminButtonIconGap: "admin_button_icon_gap",
+  productCodePattern: "product_code_pattern",
+  productCodeBrand: "product_code_brand",
 } as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[keyof typeof SETTING_KEYS];

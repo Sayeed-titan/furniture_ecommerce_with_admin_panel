@@ -51,6 +51,12 @@ export async function placeOrder(
   if (!shipName || !shipPhone || !shipLine1 || !shipCity) {
     return { error: "Please fill in all required shipping details." };
   }
+  if (!guestEmail) {
+    return { error: "Email is required to place an order." };
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)) {
+    return { error: "Please enter a valid email address." };
+  }
 
   // Re-validate the payment method server-side — a client could submit a
   // method that's actually disabled (or never render-checked in the first
