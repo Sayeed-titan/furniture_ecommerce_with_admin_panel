@@ -23,9 +23,16 @@ export async function saveSettings(
     [SETTING_KEYS.tiktokUrl]: String(formData.get("tiktokUrl") ?? ""),
     [SETTING_KEYS.paymentCodEnabled]: formData.get("paymentCodEnabled") === "on" ? "true" : "false",
     [SETTING_KEYS.paymentOnlineEnabled]: formData.get("paymentOnlineEnabled") === "on" ? "true" : "false",
+    [SETTING_KEYS.adminButtonColor]: String(formData.get("adminButtonColor") ?? ""),
+    [SETTING_KEYS.adminButtonCustomColorEnabled]:
+      formData.get("adminButtonCustomColorEnabled") === "on" ? "true" : "false",
+    [SETTING_KEYS.adminButtonUppercase]: formData.get("adminButtonUppercase") === "on" ? "true" : "false",
+    [SETTING_KEYS.adminButtonIconGap]: String(formData.get("adminButtonIconGap") ?? ""),
+    [SETTING_KEYS.productCodePattern]: String(formData.get("productCodePattern") ?? ""),
+    [SETTING_KEYS.productCodeBrand]: String(formData.get("productCodeBrand") ?? ""),
   });
 
-  revalidatePath("/admin/settings");
+  revalidatePath("/admin", "layout"); // button style affects every admin page via AdminShell
   revalidatePath("/", "layout"); // landing variant + WhatsApp button affect the public site
   revalidatePath("/checkout");
   refresh();

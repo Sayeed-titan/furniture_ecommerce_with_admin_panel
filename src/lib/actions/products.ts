@@ -5,7 +5,28 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requirePermission } from "@/lib/authz";
 import { Prisma } from "@prisma/client";
-import type { RoomType, StockStatus } from "@prisma/client";
+import type { RoomType } from "@prisma/client";
+import { deriveStockStatus } from "@/lib/stock";
+import { getAllSettings, SETTING_KEYS } from "@/lib/settings";
+import { renderProductCode, DEFAULT_PRODUCT_CODE_PATTERN, DEFAULT_PRODUCT_CODE_BRAND } from "@/lib/product-code";
+
+/** Auto-generates a product code from the Settings pattern, atomically
+ *  incrementing the category's running sequence — only called at create
+ *  time when the admin left the code field blank; a manual code always
+ *  wins (see parseProductForm). */
+async function generateProductCode(categoryId: string): Promise<string> {
+  const [settings, category] = await Promise.all([
+    getAllSettings(),
+    prisma.category.update({
+      where: { id: categoryId },
+      data: { lastSeq: { increment: 1 } },
+      select: { shortCode: true, lastSeq: true },
+    }),
+  ]);
+  const pattern = settings[SETTING_KEYS.productCodePattern] || DEFAULT_PRODUCT_CODE_PATTERN;
+  const brand = settings[SETTING_KEYS.productCodeBrand] || DEFAULT_PRODUCT_CODE_BRAND;
+  return renderProductCode(pattern, { brand, categoryShortCode: category.shortCode, seq: category.lastSeq });
+}
 
 export type ProductFormState = { error?: string } | null;
 
@@ -30,15 +51,22 @@ function parseProductForm(formData: FormData) {
   const compareAtPriceRaw = String(formData.get("compareAtPrice") ?? "").trim();
   const materialId = String(formData.get("materialId") ?? "");
   const room = String(formData.get("room")) as RoomType;
-  const stockStatus = String(formData.get("stockStatus")) as StockStatus;
   const stockQty = Number(formData.get("stockQty") ?? 0);
   const reorderLevel = Number(formData.get("reorderLevel") ?? 5);
+  const madeToOrder = formData.get("madeToOrder") === "on";
+  const stockStatus = deriveStockStatus(stockQty, reorderLevel, madeToOrder);
   const featured = formData.get("featured") === "on";
+  const isTrending = formData.get("isTrending") === "on";
   const categoryId = String(formData.get("categoryId"));
+  const additionalMaterialIds = formData
+    .getAll("materialIds")
+    .map(String)
+    .filter((id) => id && id !== materialId);
   const imageUrl = String(formData.get("imageUrl") ?? "").trim();
   const color = String(formData.get("color") ?? "").trim() || null;
   const dimensions = String(formData.get("dimensions") ?? "").trim() || null;
   const deliveryEstimate = String(formData.get("deliveryEstimate") ?? "").trim() || null;
+  const code = String(formData.get("code") ?? "").trim() || null;
 
   return {
     name,
@@ -54,8 +82,11 @@ function parseProductForm(formData: FormData) {
     stockQty,
     reorderLevel,
     featured,
+    isTrending,
     categoryId,
     imageUrl,
+    code,
+    additionalMaterialIds,
   };
 }
 
@@ -67,10 +98,12 @@ export async function createProduct(
   const data = parseProductForm(formData);
 
   try {
+    const code = data.code ?? (await generateProductCode(data.categoryId));
     await prisma.product.create({
       data: {
         name: data.name,
         slug: slugify(data.name),
+        code,
         description: data.description,
         price: data.price,
         compareAtPrice: data.compareAtPrice,
@@ -83,7 +116,9 @@ export async function createProduct(
         stockQty: data.stockQty,
         reorderLevel: data.reorderLevel,
         featured: data.featured,
+        isTrending: data.isTrending,
         categoryId: data.categoryId,
+        materials: { connect: data.additionalMaterialIds.map((id) => ({ id })) },
         images: data.imageUrl
           ? { create: [{ url: data.imageUrl, alt: data.name, position: 0 }] }
           : undefined,
@@ -91,7 +126,9 @@ export async function createProduct(
     });
   } catch (err) {
     if (isUniqueConstraintError(err)) {
-      return { error: `A product named "${data.name}" already exists. Try a different name.` };
+      return {
+        error: `A product named "${data.name}"${data.code ? ` or code "${data.code}"` : ""} already exists. Try a different one.`,
+      };
     }
     throw err;
   }
@@ -117,6 +154,7 @@ export async function updateProduct(
       where: { id },
       data: {
         name: data.name,
+        code: data.code,
         description: data.description,
         price: data.price,
         compareAtPrice: data.compareAtPrice,
@@ -129,12 +167,16 @@ export async function updateProduct(
         stockQty: data.stockQty,
         reorderLevel: data.reorderLevel,
         featured: data.featured,
+        isTrending: data.isTrending,
         categoryId: data.categoryId,
+        materials: { set: data.additionalMaterialIds.map((id) => ({ id })) },
       },
     });
   } catch (err) {
     if (isUniqueConstraintError(err)) {
-      return { error: `A product named "${data.name}" already exists. Try a different name.` };
+      return {
+        error: `A product named "${data.name}"${data.code ? ` or code "${data.code}"` : ""} already exists. Try a different one.`,
+      };
     }
     throw err;
   }
@@ -162,14 +204,7 @@ export async function adjustStock(formData: FormData) {
   if (!product) return;
 
   const newQty = product.stockQty + delta;
-  const newStatus: StockStatus =
-    product.stockStatus === "MADE_TO_ORDER"
-      ? "MADE_TO_ORDER"
-      : newQty <= 0
-        ? "OUT_OF_STOCK"
-        : newQty <= product.reorderLevel
-          ? "LOW_STOCK"
-          : "IN_STOCK";
+  const newStatus = deriveStockStatus(newQty, product.reorderLevel, product.stockStatus === "MADE_TO_ORDER");
 
   await prisma.product.update({
     where: { id },
