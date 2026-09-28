@@ -3,6 +3,7 @@ import { requirePermission, isProtectedRole } from "@/lib/authz";
 import { getAllSettings, SETTING_KEYS, isEnabled } from "@/lib/settings";
 import { landingVariants, landingVariantLabels } from "@/components/site/landing/registry";
 import { ACTIVE_LANDING_VARIANT } from "@/config/landing";
+import { DEFAULT_PRODUCT_CODE_PATTERN, DEFAULT_PRODUCT_CODE_BRAND } from "@/lib/product-code";
 import { SettingsForm } from "@/components/admin/settings-form";
 import { BrandAssetUploader } from "@/components/admin/brand-asset-uploader";
 
@@ -60,6 +61,12 @@ export default async function AdminSettingsPage() {
         tiktokUrl={settings[SETTING_KEYS.tiktokUrl] ?? ""}
         codEnabled={isEnabled(settings[SETTING_KEYS.paymentCodEnabled])}
         onlinePaymentEnabled={isEnabled(settings[SETTING_KEYS.paymentOnlineEnabled])}
+        buttonColor={settings[SETTING_KEYS.adminButtonColor] ?? "#171717"}
+        buttonCustomColorEnabled={isEnabled(settings[SETTING_KEYS.adminButtonCustomColorEnabled], false)}
+        buttonUppercase={isEnabled(settings[SETTING_KEYS.adminButtonUppercase])}
+        buttonIconGap={Number(settings[SETTING_KEYS.adminButtonIconGap]) || 6}
+        productCodePattern={settings[SETTING_KEYS.productCodePattern] ?? DEFAULT_PRODUCT_CODE_PATTERN}
+        productCodeBrand={settings[SETTING_KEYS.productCodeBrand] ?? DEFAULT_PRODUCT_CODE_BRAND}
       />
     </div>
   );

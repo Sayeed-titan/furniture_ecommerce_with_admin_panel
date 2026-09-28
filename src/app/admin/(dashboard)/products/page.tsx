@@ -3,6 +3,7 @@ import { Plus, Pencil, Star } from "lucide-react";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requirePermission } from "@/lib/authz";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { PageHeader, Section, StatusPill, EmptyRow, type PillTone } from "@/components/admin/ui";
 import { SearchInput } from "@/components/admin/search-input";
 import { FilterSelect } from "@/components/admin/filter-select";
@@ -49,12 +50,11 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
     <div className="space-y-5">
       <PageHeader title="Products" description={`${products.length} ${products.length === 1 ? "product" : "products"}`}>
         {canCreate && (
-          <Link
-            href="/admin/products/new"
-            className="inline-flex items-center gap-2 rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
-          >
-            <Plus className="h-4 w-4" /> New product
-          </Link>
+          <Button asChild>
+            <Link href="/admin/products/new">
+              <Plus className="h-4 w-4" /> New product
+            </Link>
+          </Button>
         )}
       </PageHeader>
 
@@ -78,6 +78,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
             <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500">
               <tr>
                 <th className="px-4 py-3 font-medium">Product</th>
+                <th className="px-4 py-3 font-medium">Code</th>
                 <th className="px-4 py-3 font-medium">Category</th>
                 <th className="px-4 py-3 font-medium">Price</th>
                 <th className="px-4 py-3 font-medium">Stock</th>
@@ -90,7 +91,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                 return (
                   <tr key={p.id} className="hover:bg-neutral-50/60">
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
+                      <Link href={`/admin/products/${p.id}`} className="flex items-center gap-3">
                         <span className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-md bg-neutral-100">
                           {img ? (
                             // eslint-disable-next-line @next/next/no-img-element -- tiny admin thumbnail
@@ -99,12 +100,13 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                             <span className="text-[10px] text-neutral-400">No img</span>
                           )}
                         </span>
-                        <span className="flex items-center gap-1.5 font-medium text-neutral-900">
+                        <span className="flex items-center gap-1.5 font-medium text-neutral-900 hover:underline">
                           {p.name}
                           {p.featured && <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />}
                         </span>
-                      </div>
+                      </Link>
                     </td>
+                    <td className="px-4 py-3 font-mono text-xs text-neutral-500">{p.code ?? "—"}</td>
                     <td className="px-4 py-3 text-neutral-600">{p.category.name}</td>
                     <td className="px-4 py-3 font-medium">{formatPrice(p.price.toString())}</td>
                     <td className="px-4 py-3">
@@ -121,7 +123,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                       <div className="flex justify-end gap-1">
                         <Link
                           href={`/admin/products/${p.id}`}
-                          className="inline-flex items-center gap-1.5 rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium hover:bg-neutral-100"
+                          className={buttonVariants({ variant: "outline", size: "sm" })}
                         >
                           <Pencil className="h-3.5 w-3.5" /> Edit
                         </Link>
