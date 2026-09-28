@@ -1,8 +1,11 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { Combobox } from "@/components/ui/combobox";
 
-/** A <select> that writes/removes a URL param so a server list page can filter. */
+/** A searchable dropdown that writes/removes a URL param so a server list
+ *  page can filter — same URL-param behavior as before, now searchable so
+ *  a long, growing list (e.g. 100+ categories) stays usable. */
 export function FilterSelect({
   param,
   placeholder,
@@ -25,17 +28,14 @@ export function FilterSelect({
   }
 
   return (
-    <select
-      value={searchParams.get(param) ?? ""}
-      onChange={(e) => onChange(e.target.value)}
-      className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
-    >
-      <option value="">{placeholder}</option>
-      {options.map((o) => (
-        <option key={o.value} value={o.value}>
-          {o.label}
-        </option>
-      ))}
-    </select>
+    <div className="w-48">
+      <Combobox
+        value={searchParams.get(param) ?? ""}
+        onValueChange={onChange}
+        placeholder={placeholder}
+        searchPlaceholder={`Search ${placeholder.replace(/^All /i, "").toLowerCase()}...`}
+        options={[{ value: "", label: placeholder }, ...options]}
+      />
+    </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 
 /**
  * A submit button that asks for confirmation — via a real dialog, not
@@ -59,7 +60,7 @@ export function ConfirmSubmit({
             <AlertDialog.Cancel asChild>
               <button
                 type="button"
-                className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100"
+                className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
               >
                 Cancel
               </button>
@@ -68,12 +69,7 @@ export function ConfirmSubmit({
               <button
                 type="button"
                 onClick={() => triggerRef.current?.closest("form")?.requestSubmit()}
-                className={cn(
-                  "rounded-md px-3 py-1.5 text-sm font-medium text-white transition-colors",
-                  variant === "danger"
-                    ? "bg-red-600 hover:bg-red-700"
-                    : "bg-neutral-900 hover:bg-neutral-800"
-                )}
+                className={cn(buttonVariants({ variant: variant === "danger" ? "destructive" : "default", size: "sm" }))}
               >
                 Confirm
               </button>
