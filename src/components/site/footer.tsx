@@ -105,24 +105,33 @@ export function SiteFooter({
           </p>
 
           {shopAddress && (
-            <div className="mt-4 flex items-start gap-1.5 text-sm text-neutral-600">
-              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400" />
-              <span>
-                {shopAddress}
-                {googleMapsUrl && (
-                  <>
-                    {" "}
-                    <a
-                      href={googleMapsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-medium text-neutral-900 underline underline-offset-2"
-                    >
-                      View on map
-                    </a>
-                  </>
-                )}
-              </span>
+            <div className="mt-4 space-y-2">
+              <div className="flex items-start gap-1.5 text-sm text-neutral-600">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400" />
+                <span>{shopAddress}</span>
+              </div>
+              {/* Keyless embed (Google's `output=embed` endpoint, not the
+                  Maps JavaScript/Embed API) — no API key or CSP change
+                  needed. Keyed off the address text rather than
+                  `googleMapsUrl`, since a pasted Share link can be a
+                  shortened redirect Google won't allow in an iframe. */}
+              <iframe
+                title="Shop location on Google Maps"
+                src={`https://www.google.com/maps?q=${encodeURIComponent(shopAddress)}&output=embed`}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="h-40 w-full rounded-md border border-neutral-200"
+              />
+              {googleMapsUrl && (
+                <a
+                  href={googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block text-sm font-medium text-neutral-900 underline underline-offset-2"
+                >
+                  Open in Google Maps
+                </a>
+              )}
             </div>
           )}
 
@@ -170,6 +179,20 @@ export function SiteFooter({
           <Link href="/report" className="font-medium text-neutral-600 hover:text-neutral-900">
             {t("footer.reportIssue")}
           </Link>
+        </div>
+      </div>
+
+      <div className="border-t border-neutral-200">
+        <div className="mx-auto max-w-7xl px-4 py-3 text-center text-xs text-neutral-400 sm:px-6 lg:px-8">
+          Design &amp; developed by{" "}
+          <a
+            href="https://mediklaudltd.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-neutral-500 hover:text-neutral-700"
+          >
+            Mediklaud
+          </a>
         </div>
       </div>
     </footer>
