@@ -24,7 +24,7 @@ import { ScrollHint } from "./scroll-hint";
  * each chapter's natural start. A fixed side nav shows every chapter up
  * front and jumps straight to any of them.
  */
-export function ImmersiveLanding({ featuredProducts, categories, materials }: LandingPageData) {
+export function ImmersiveLanding({ featuredProducts, trendingProducts, categories, materials }: LandingPageData) {
   return (
     <div className="bg-white">
       <SectionNav />
@@ -48,7 +48,7 @@ export function ImmersiveLanding({ featuredProducts, categories, materials }: La
       </Chapter>
 
       <Chapter id="trending">
-        <TrendingCarousel products={featuredProducts} />
+        <TrendingCarousel products={trendingProducts} />
       </Chapter>
 
       <Chapter id="craft">

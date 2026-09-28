@@ -26,7 +26,7 @@ export function CommerceLanding({ featuredProducts, categories, heroContent, her
   const categoryItems = categories.map((c) => ({
     name: c.name,
     slug: c.slug,
-    imageUrl: c.products[0]?.images[0]?.url ?? null,
+    imageUrl: c.imageUrl ?? c.products[0]?.images[0]?.url ?? null,
     count: c._count.products,
   }));
 

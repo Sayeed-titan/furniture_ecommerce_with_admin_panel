@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 import type { Product, ProductImage, Address } from "@prisma/client";
 import { useCart } from "@/components/site/cart-context";
 import { EmptyState } from "@/components/site/empty-state";
@@ -34,6 +35,11 @@ export function CheckoutForm({
     shippingZones.find((z) => z.isDefault)?.id ?? shippingZones[0]?.id ?? ""
   );
   const shippingFee = Number(shippingZones.find((z) => z.id === zoneId)?.fee ?? 0);
+  const invalidToastShown = useRef(false);
+
+  useEffect(() => {
+    if (state.error) toast.error(state.error);
+  }, [state]);
 
   const ids = items.map((item) => item.productId);
 
@@ -70,7 +76,23 @@ export function CheckoutForm({
   }
 
   return (
-    <form action={action} className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
+    <form
+      action={action}
+      className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]"
+      onInvalidCapture={(e) => {
+        if (invalidToastShown.current) return;
+        invalidToastShown.current = true;
+        const target = e.target as HTMLInputElement;
+        const label = target.labels?.[0]?.textContent?.replace(/\s*\(optional\)/i, "").trim() || target.name;
+        toast.error(`${label} is required — please fill it in.`);
+        // Native validation focuses the first invalid field on its own; this
+        // guard just stops every other invalid field in the same submit
+        // attempt from firing its own toast too. Reset for the next attempt.
+        setTimeout(() => {
+          invalidToastShown.current = false;
+        }, 0);
+      }}
+    >
       <input type="hidden" name="cartItems" value={JSON.stringify(items)} />
 
       <div className="space-y-6">
@@ -97,11 +119,12 @@ export function CheckoutForm({
               />
             </div>
             <div className="sm:col-span-2 space-y-1.5">
-              <Label htmlFor="guestEmail">Email (optional)</Label>
+              <Label htmlFor="guestEmail">Email</Label>
               <Input
                 id="guestEmail"
                 name="guestEmail"
                 type="email"
+                required
                 defaultValue={guestEmail ?? undefined}
               />
             </div>

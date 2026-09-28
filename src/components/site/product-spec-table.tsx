@@ -6,11 +6,15 @@ import { MaterialLabel } from "@/components/site/material-label";
 
 export function ProductSpecTable({
   material,
+  additionalMaterials = [],
   room,
   color,
   dimensions,
 }: {
   material: { name: string; nameBn?: string | null };
+  /** Extra materials beyond the primary one (e.g. a steel-body chair with a
+   *  leather seat) — shown comma-joined in the same row. */
+  additionalMaterials?: { name: string; nameBn?: string | null }[];
   room: string;
   color?: string | null;
   dimensions?: string | null;
@@ -20,7 +24,17 @@ export function ProductSpecTable({
   const rows: { label: string; value: React.ReactNode }[] = [
     {
       label: t("productDetail.specMaterial"),
-      value: <MaterialLabel name={material.name} nameBn={material.nameBn} />,
+      value: (
+        <>
+          <MaterialLabel name={material.name} nameBn={material.nameBn} />
+          {additionalMaterials.map((m) => (
+            <span key={m.name}>
+              {", "}
+              <MaterialLabel name={m.name} nameBn={m.nameBn} />
+            </span>
+          ))}
+        </>
+      ),
     },
     { label: t("productDetail.specRoom"), value: <EnumLabel group="rooms" value={room} /> },
   ];

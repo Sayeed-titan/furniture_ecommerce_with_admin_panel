@@ -27,6 +27,11 @@ export type HeroContent = {
  */
 export interface LandingPageData {
   featuredProducts: LandingProduct[];
+  /** Admin-curated via the "Trending" checkbox on the product form —
+   *  deliberately separate from featuredProducts (see product-form.tsx),
+   *  ordered by view count. Only consumed by the Immersive variant's
+   *  TrendingCarousel today. */
+  trendingProducts: LandingProduct[];
   categories: LandingCategory[];
   materials: Material[];
   /** Only consumed by the Commerce variant's hero — other variants ignore these. */
