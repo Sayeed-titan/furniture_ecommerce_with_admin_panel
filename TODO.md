@@ -146,6 +146,12 @@ actually works in production.
       [product-combobox.tsx](src/components/ui/product-combobox.tsx), wired into the Stock In line
       items (the only "pick a product from a list" UI in the app right now). Fixes picking the wrong
       one of two similarly-named products by sight, not just by (possibly ambiguous) name.
+- [x] **Policy page editor got more formatting options** — added Italic, a sub-heading (H3, for
+      sub-points inside a section), Numbered lists (alongside the existing bullets), and Links
+      (restricted to `http(s)://`/`mailto:` — any other scheme, e.g. `javascript:`, is rejected both
+      by Tiptap's own `validate` option and the storefront renderer, so it can never become a real
+      `href`). New dependency: `@tiptap/extension-link`. Verified the full round-trip (markdown → editor
+      HTML → back to markdown) including the unsafe-link rejection with a standalone script.
 - [x] **Additional materials is now a searchable multi-select** (tag chips, not a checkbox grid) —
       new [multi-combobox.tsx](src/components/ui/multi-combobox.tsx), same `formData.getAll(name)`
       read on the server so no action code changed. Scales to 20+ materials without becoming an
